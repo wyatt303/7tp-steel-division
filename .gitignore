@@ -1,0 +1,18 @@
+# Blender and Python leftovers
+*.blend1
+*.blend2
+__pycache__/
+*.pyc
+
+# Local work, not for publishing
+archive/
+build/
+
+# Never publish game data or crash dumps
+*.dmp
+*.ndfbin
+*.spk
+*.ppk
+*.tgv
+*.Neu3
+*.baf
