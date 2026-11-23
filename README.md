@@ -47,4 +47,5 @@ To nieoficjalny projekt fanowski, niezwiązany z Eugen Systems. Repozytorium nie
 ## Licencje
 
 - **Wtyczka** (`blender_addon/`): [GPL-3.0-or-later](blender_addon/LICENSE).
-- **Modele, tekstury, rendery, skrypty i dokumentacja:** wszelkie prawa zastrzeżone do czasu wyboru licencji. Repozytorium można przeglądać, ale ponowne publikowanie tych plików wymaga zgody autora.
+- **Modele, tekstury i rendery** (`models/`): [CC BY-NC 4.0](models/LICENSE). Można je używać, zmieniać i udostępniać w celach niekomercyjnych, z podaniem autora: `wyatt303`, wraz z linkiem do tego repozytorium i informacją o wprowadzonych zmianach.
+- **Skrypty i dokumentacja** (`scripts/`, `docs/`, ten plik): wszelkie prawa zastrzeżone. Repozytorium można przeglądać, ale ponowne publikowanie tych plików wymaga zgody autora.
