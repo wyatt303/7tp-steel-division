@@ -1,6 +1,6 @@
 # Polskie pojazdy pancerne dla Steel Division: Normandy 44
 
-Polskie pojazdy pancerne z 1939 r. wymodelowane w Blenderze: dwa warianty czołgu lekkiego 7TP, tankietki TK-3 i TKS , samochody pancerne wz. 28 i wz. 34, samoloty PZL P.11c, PZL.23B Karaś i PZL.37B Łoś, motocykl Sokół 1000 z wózkiem i rkm oraz armata przeciwpancerna 37 mm wz. 36. Do tego wtyczka eksportująca czołgi do formatu gry `.Ase2NdfBin` **bez 3ds Max**.
+Polskie pojazdy pancerne z 1939 r. wymodelowane w Blenderze: dwa warianty czołgu lekkiego 7TP, tankietki TK-3 i TKS , samochody pancerne wz. 28 i wz. 34, samoloty PZL P.11c, PZL.23B Karaś i PZL.37B Łoś, motocykl Sokół 1000 z wózkiem i rkm, armata przeciwpancerna 37 mm wz. 36 oraz ciężarówka Polski Fiat 621L. Do tego wtyczka eksportująca czołgi do formatu gry `.Ase2NdfBin` **bez 3ds Max**.
 
 | 7TP jednowieżowy (Bofors 37 mm) | 7TP dwuwieżowy (2 × ckm wz. 30) |
 |---|---|
@@ -34,11 +34,15 @@ Polskie pojazdy pancerne z 1939 r. wymodelowane w Blenderze: dwa warianty czołg
 |---|---|
 | ![wz. 36](models/WZ36_BOFORS/renders/render_przod_3_4.png) | ![wz. 36 z tyłu](models/WZ36_BOFORS/renders/render_tyl_3_4.png) |
 
+| Polski Fiat 621L | Polski Fiat 621L z tyłu |
+|---|---|
+| ![Fiat 621L](models/PF621L/renders/render_przod_3_4.png) | ![Fiat 621L z tyłu](models/PF621L/renders/render_tyl_3_4.png) |
+
 ## Co jest w projekcie
 
 | Folder | Zawartość |
 |---|---|
-| [`models/`](models) | 7TP, TK-3, TKS, wz. 28, wz. 34, P.11c, Karaś, Łoś, Sokół 1000 i armata wz. 36: pliki `.blend` i `.fbx` w wersjach High, Mid, Low, tekstury i rendery |
+| [`models/`](models) | 7TP, TK-3, TKS, wz. 28, wz. 34, P.11c, Karaś, Łoś, Sokół 1000, armata wz. 36 i Fiat 621L: pliki `.blend` i `.fbx` w wersjach High, Mid, Low, tekstury i rendery |
 | [`blender_addon/`](blender_addon) | Wtyczka do Blendera, gotowa paczka w `dist/` |
 | [`scripts/`](scripts) | Skrypty budujące model i tekstury |
 | [`docs/`](docs) | Dokumentacja |
@@ -62,6 +66,8 @@ Polskie pojazdy pancerne z 1939 r. wymodelowane w Blenderze: dwa warianty czołg
 - [Motocykl Sokół 1000](docs/MODEL_SOKOL.md)
 - [Samoloty PZL.23B Karaś i PZL.37B Łoś](docs/MODEL_KARAS_LOS.md)
 - [Armata 37 mm wz. 36](docs/MODEL_WZ36.md)
+- [Ciężarówka Polski Fiat 621L](docs/MODEL_PF621.md)
+- [Piechota w umundurowaniu z 1939 r. (przemalowanie modeli z gry)](docs/PIECHOTA_1939.md)
 - [Format Ase2NdfBin](docs/FORMAT_ASE2NDFBIN.md)
 - [Przebudowa modelu ze skryptów](docs/BUDOWANIE.md)
 
@@ -76,6 +82,7 @@ Polskie pojazdy pancerne z 1939 r. wymodelowane w Blenderze: dwa warianty czołg
 | Motocykl Sokół 1000 | Gotowy model, eksport wtyczką bez błędów, w grze niesprawdzony |
 | Samoloty Karaś i Łoś | Gotowe modele z plikami `_train`, eksport wtyczką bez błędów, w grze niesprawdzone |
 | Armata 37 mm wz. 36 | Gotowy model z plikiem `Boites_`, eksport wtyczką bez błędów, w grze niesprawdzony, bez własnych animacji |
+| Ciężarówka Polski Fiat 621L | Gotowy model, eksport wtyczką bez błędów, w grze niesprawdzony |
 | Wersja jednowieżowa w bitwie | Sprawdzona na wcześniejszej wersji modelu |
 | Wózki w grze | Sprawdzone wizualnie |
 | Osobne jednostki z własną nazwą i statystykami | Jeszcze nie ma, modele zastępują dwa Stuarty M3A3 |

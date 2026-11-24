@@ -420,6 +420,12 @@ def paint_atlas(res, suffix, objects, material):
         color[track] = TRACK_STEEL * stripes[..., None]
         gloss_adjust[track] += 0.05
 
+    # Glazing: axis-aligned boxes (x0, x1, y0, y1, z0, z1) painted dark blue-grey, smooth.
+    for x0, x1, y0, y1, z0, z1 in getattr(S, "GLASS_BOXES", []):
+        glass = ((pos[:, 0] > x0) & (pos[:, 0] < x1) & (pos[:, 1] > y0) & (pos[:, 1] < y1)
+                 & (pos[:, 2] > z0) & (pos[:, 2] < z1))
+        color[glass] = np.array([0.14, 0.17, 0.20], np.float32)
+        gloss_adjust[glass] += 0.35
     cavity = np.clip(-height / 0.004, 0, 1)
     color *= (1 - 0.55 * cavity)[..., None]
     color *= (0.32 + 0.68 * ao ** 1.15)[..., None]
