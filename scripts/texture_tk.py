@@ -673,6 +673,10 @@ track_names = paint_tracks() if getattr(S, "TRACKED", True) else None
 if os.environ.get("TRACKS_ONLY"):
     print("TRACKS_DONE")
     sys.exit(0)
+if getattr(S, "TRAIN_MESHES", False):
+    # Retractable landing gear in its own <stem>_train file gets its own atlas. It goes
+    # first so that the renders below still show the High model.
+    LODS = {"train": (1024, "_train"), **LODS}
 for lod, (resolution, suffix) in LODS.items():
     blend = os.path.join(OUT, "%s_%s.blend" % (PREFIX, lod))
     bpy.ops.wm.open_mainfile(filepath=blend)

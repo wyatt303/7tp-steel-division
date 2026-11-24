@@ -1,7 +1,7 @@
 schema_version = "1.0.0"
 
 id = "steel_division_ase2ndfbin"
-version = "1.1.0"
+version = "1.2.0"
 name = "Steel Division Ase2NdfBin Exporter"
 tagline = "Export tanks to Steel Division: Normandy 44 without 3ds Max"
 maintainer = "7TP mod project"
