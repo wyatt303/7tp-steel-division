@@ -17,7 +17,9 @@ import bpy
 from mathutils import Matrix, Vector
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-import spec_tk as S  # noqa: E402
+import importlib  # noqa: E402
+
+S = importlib.import_module(os.environ.get("TK_SPEC", "spec_tk"))
 
 ROOT = os.path.abspath(sys.argv[sys.argv.index("--") + 1])
 STEM = S.STEM
@@ -99,7 +101,8 @@ for lod, suffix in LODS.items():
     bpy.ops.wm.open_mainfile(filepath=path)
     bpy.context.preferences.filepaths.save_version = 0
     addon_utils.enable("io_scene_fbx")
-    finish_scene()
+    if getattr(S, "TRACKED", True):
+        finish_scene()  # wheeled vehicles get their wheels and weapon slots in the build script
     target = os.path.join(ROOT, "%s%s.blend" % (STEM, suffix))
     bpy.ops.wm.save_as_mainfile(filepath=target)
     bpy.ops.export_scene.fbx(filepath=os.path.join(ROOT, "%s%s.fbx" % (STEM, suffix)), object_types={"MESH", "EMPTY"},

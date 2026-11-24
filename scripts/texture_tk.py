@@ -38,9 +38,12 @@ RUST = np.array([62, 40, 27], np.float32) / 255
 TRACK_STEEL = np.array([52, 46, 40], np.float32) / 255
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-import spec_tk as S  # noqa: E402
+import importlib  # noqa: E402
 
-TRACK_X = S.TRACK_X
+# TK_SPEC picks the vehicle: spec_tk (tankettes, default) or another spec module such as spec_wz34.
+S = importlib.import_module(os.environ.get("TK_SPEC", "spec_tk"))
+
+TRACK_X = getattr(S, "TRACK_X", 0.0)
 ROAD_R = S.ROAD_R
 PREFIX = S.STEM
 
@@ -88,7 +91,13 @@ def collect_triangles(objects):
         rotation = matrix.to_3x3()
         layer = mesh.uv_layers.active.data
         part = 2 if obj.name.startswith("Chenille") else 0
-        if obj.name.startswith("Roue_") and obj.name[6:].isdigit() and 2 <= int(obj.name[6:]) <= 1 + len(S.ROAD_Y):
+        radius = ROAD_R
+        if hasattr(S, "is_tyre"):
+            tyre = S.is_tyre(obj.name)
+            part = 1 if tyre else part
+            if tyre and not isinstance(tyre, bool):
+                radius = float(tyre)
+        elif obj.name.startswith("Roue_") and obj.name[6:].isdigit() and 2 <= int(obj.name[6:]) <= 1 + len(S.ROAD_Y):
             part = 1
         center = matrix.translation
         for tri in mesh.loop_triangles:
@@ -96,7 +105,7 @@ def collect_triangles(objects):
             normals.append(tuple((rotation @ tri.normal).normalized()))
             uvs.append([tuple(layer[l].uv) for l in tri.loops])
             parts.append(part)
-            centers.append((center.y, center.z))
+            centers.append((center.y, center.z, radius))
     return (np.array(positions, np.float32), np.array(normals, np.float32), np.array(uvs, np.float32),
             np.array(parts, np.int8), np.array(centers, np.float32))
 
@@ -140,6 +149,8 @@ def rivet_lines():
     Both colour plates show riveted plates on every face: rows just inside each plate edge
     and along the corners. Rows are generated from the plan rings in spec_tk.py.
     """
+    if hasattr(S, "rivet_lines"):
+        return S.rivet_lines(Vector)
     lines, seams = [], []
 
     def row(a, b, spacing=0.07):
@@ -389,11 +400,12 @@ def paint_atlas(res, suffix, objects, material):
     road = part == 1
     if road.any():
         radial = np.hypot(pos[road, 1] - center[road, 0], pos[road, 2] - center[road, 1])
-        rubber = smooth(ROAD_R * 0.56, ROAD_R * 0.61, radial)
+        r = center[road, 2]
+        rubber = smooth(r * 0.56, r * 0.61, radial)
         selected = np.flatnonzero(road)
         color[selected] = color[selected] * (1 - rubber[..., None]) + RUBBER * rubber[..., None]
         gloss_adjust[selected] -= 0.08 * rubber
-    mx, my, mz = S.MUFFLER
+    mx, my, mz = getattr(S, "MUFFLER", (99.0, 99.0, 99.0))
     muffler = (np.abs(pos[:, 1] - my) < 0.10) & (np.abs(pos[:, 2] - mz) < 0.10) & (np.abs(pos[:, 0] - mx) < 0.19)
     if muffler.any():
         amount = 0.45 + 0.45 * fbm(pos[muffler] * 18.0, 808, 3)
@@ -560,12 +572,14 @@ def stack_uvs(meshes):
     """Unwrap one wheel of each kind, then give its identical copies the same UVs."""
     by_name = {o.name: o for o in meshes}
     copies = {}
-    for number in range(2, 2 + len(S.ROAD_Y)):
+    if hasattr(S, "UV_COPIES"):
+        copies = {name: master for name, master in S.UV_COPIES.items() if name in by_name and master in by_name}
+    for number in range(2, 2 + len(getattr(S, "ROAD_Y", []))):
         for letter in "DG":
             name = "Roue_%s%d" % (letter, number)
             if name in by_name and name != "Roue_D2":
                 copies[name] = "Roue_D2"
-    for number in (1, len(S.WHEELS)):
+    for number in ((1, len(S.WHEELS)) if hasattr(S, "ROAD_Y") else ()):
         name = "Roue_G%d" % number
         if name in by_name:
             copies[name] = "Roue_D%d" % number
@@ -631,7 +645,7 @@ def render_views():
     camera = bpy.data.objects.new("Camera", cam_data)
     scene.collection.objects.link(camera)
     scene.camera = camera
-    views = {
+    views = getattr(S, "RENDER_VIEWS", None) or {
         "przod_3_4": ("PERSP", (3.5, 3.7, 1.5), (0, 0.1, 0.62), 50),
         "tyl_3_4": ("PERSP", (-3.0, -4.0, 1.7), (0, -0.1, 0.62), 50),
         "bok": ("ORTHO", (8, 0, 0.66), (0, 0, 0.66), 3.0),
@@ -651,7 +665,7 @@ def render_views():
         print("RENDERED", name)
 
 
-track_names = paint_tracks()
+track_names = paint_tracks() if getattr(S, "TRACKED", True) else None
 if os.environ.get("TRACKS_ONLY"):
     print("TRACKS_DONE")
     sys.exit(0)
@@ -665,7 +679,7 @@ for lod, (resolution, suffix) in LODS.items():
     unique_meshes = stack_uvs(meshes)
     atlas_names = paint_atlas(resolution, suffix, unique_meshes, main)
     connect(main, atlas_names)
-    if lod == "High":
+    if lod == "High" and track_names:
         connect(bpy.data.materials["M_Chenille_D"], track_names)
         connect(bpy.data.materials["M_Chenille_G"], track_names)
     bpy.ops.object.select_all(action="DESELECT")

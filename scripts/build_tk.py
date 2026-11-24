@@ -21,7 +21,7 @@ from mathutils import Matrix, Vector
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import spec_tk as S  # noqa: E402
 
-OUT = os.path.abspath(sys.argv[sys.argv.index("--") + 1])
+OUT = os.path.abspath(sys.argv[sys.argv.index("--") + 1]) if "--" in sys.argv else os.getcwd()
 os.makedirs(OUT, exist_ok=True)
 
 LODS = {
@@ -633,8 +633,9 @@ def render_clay():
         bpy.ops.render.render(write_still=True)
 
 
-for lod_name, lod_cfg in LODS.items():
-    build(lod_name, lod_cfg)
-if not os.environ.get("TK_NO_RENDER"):
-    render_clay()
-print("BUILD_DONE")
+if __name__ == "__main__":
+    for lod_name, lod_cfg in LODS.items():
+        build(lod_name, lod_cfg)
+    if not os.environ.get("TK_NO_RENDER"):
+        render_clay()
+    print("BUILD_DONE")
