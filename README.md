@@ -56,6 +56,7 @@ Polskie pojazdy pancerne z 1939 r. wymodelowane w Blenderze: dwa warianty czołg
 
 ## Dokumentacja
 
+- [Lista modeli](docs/LISTA_MODELI.md)
 - [Wtyczka do Blendera](docs/WTYCZKA.md)
 - [Instalacja w grze](docs/INSTALACJA_W_GRZE.md)
 - [Model 7TP: wymiary, założenia i ograniczenia](docs/MODEL_7TP.md)

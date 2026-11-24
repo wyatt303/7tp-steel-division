@@ -16,7 +16,7 @@ VARIANT = "pf621"
 TRACKED = False
 DUST = 0.8
 
-TYRE_R, TYRE_W, RIM_R = 0.43, 0.17, 0.25
+TYRE_R, TYRE_W, RIM_R = 0.44, 0.17, 0.25
 ROAD_R = TYRE_R
 WHEEL_Z = TYRE_R
 FRONT_AXLE_Y = 2.14
@@ -24,23 +24,31 @@ REAR_AXLE_Y = FRONT_AXLE_Y - 3.65
 FRONT_X = 0.80
 REAR_X = (0.70, 0.89)
 
-FRONT_Y, REAR_Y = 2.89, -2.89          # bumper and tailgate
-FRAME_Z = (0.55, 0.72)
+# Proportions measured on the side-view drawing of the 1936 camouflage (2.62 m tall,
+# about 0.0115 m per pixel): short bonnet, short cab with a roof visor, low frame.
+FRONT_Y, REAR_Y = 2.74, -2.93          # bumper and tailgate
+FRAME_Z = (0.45, 0.60)
 
 # Bonnet: (Y, bottom Z, top Z, half width) from the radiator back to the cowl.
-BONNET = [(2.58, 0.80, 1.52, 0.40), (2.52, 0.78, 1.56, 0.42), (1.32, 0.78, 1.60, 0.44)]
-CAB = (1.32, 0.05, 0.78, 2.20, 0.96)     # front Y, rear Y, bottom Z, roof Z, half width
-WINDSCREEN_Z = (1.58, 2.07)
-BODY = (-0.02, -2.86, 1.10, 1.72, 1.035)  # cargo body: front Y, rear Y, floor Z, side top Z, half width
+BONNET = [(2.42, 0.68, 1.44, 0.36), (2.36, 0.66, 1.49, 0.40), (1.06, 0.66, 1.55, 0.44)]
+CAB = (1.06, 0.12, 0.62, 2.20, 0.96)     # front Y, rear Y, bottom Z, roof Z, half width
+VISOR = 0.22                             # roof overhang in front of the windscreen
+WINDSCREEN_Z = (1.62, 2.02)
+BODY = (0.06, -2.93, 1.06, 1.58, 1.035)  # cargo body: front Y, rear Y, floor Z, side top Z, half width
 TILT_TOP = 2.62
-HEADLAMPS = [(0.55, 2.50, 1.28), (-0.55, 2.50, 1.28)]
-FRONT_GUARD = (FRONT_AXLE_Y, WHEEL_Z, 0.53, 15, 175, FRONT_X - 0.16, FRONT_X + 0.16)
-STEP = (1.30, 0.20, 0.60)                # running board from Y, to Y, Z
+TILT_WINDOWS = [(-1.18, -1.34), (-1.38, -1.54)]  # two small panes in each tilt side: Y from, Y to
+TILT_WINDOW_Z = (1.99, 2.16)
+HEADLAMPS = [(0.55, 2.47, 1.07), (-0.55, 2.47, 1.07)]
+FRONT_GUARD = (FRONT_AXLE_Y, WHEEL_Z, 0.54, 15, 175, FRONT_X - 0.16, FRONT_X + 0.16)
+REAR_GUARD = (REAR_AXLE_Y, WHEEL_Z, 0.53, 25, 155, REAR_X[0] - 0.12, REAR_X[1] + 0.11)
+STEP = (1.55, 0.10, 0.50)                # running board from Y, to Y, Z
+TOOLBOX = (0.70, -0.40, 0.74, 0.32, 0.66, 0.38)  # centre X, Y, Z and size under the body
+FUEL_TANK = (-0.66, -0.40, 0.74)
 
-DRIVER = (-0.45, 0.70, 1.35)
-TOW_HOOK = (0.0, REAR_Y - 0.06, 0.70)
-MUFFLER = (0.45, -0.60, 0.48)
-FX_STRESS = [(0.0, -1.5, 1.9), (0.3, 1.9, 1.3)]
+DRIVER = (-0.45, 0.55, 1.30)
+TOW_HOOK = (0.0, REAR_Y - 0.06, 0.62)
+MUFFLER = (0.45, -0.95, 0.42)
+FX_STRESS = [(0.0, -1.5, 1.9), (0.3, 1.8, 1.2)]
 
 
 def is_tyre(name):
@@ -67,14 +75,17 @@ def rivet_lines(Vector):
             z = floor + (side_top - floor) * k / 4
             seams.append((Vector((x, by0 - 0.05, z)), Vector((x, by1 + 0.05, z))))
         x = side * (CAB[4] + 0.001)
-        seams.append((Vector((x, 0.30, CAB[2] + 0.10)), Vector((x, 0.30, CAB[3] - 0.15))))
-        seams.append((Vector((x, 1.10, CAB[2] + 0.10)), Vector((x, 1.10, CAB[3] - 0.15))))
+        # Door: rear edge and front edge.
+        seams.append((Vector((x, CAB[1] + 0.06, CAB[2] + 0.10)), Vector((x, CAB[1] + 0.06, CAB[3] - 0.15))))
+        seams.append((Vector((x, CAB[0] - 0.08, CAB[2] + 0.10)), Vector((x, CAB[0] - 0.08, CAB[3] - 0.15))))
     return lines, seams
 
 
-# Windscreen (two panes) and the cab side windows: (x0, x1, y0, y1, z0, z1).
+# Windscreen (two panes), the cab side windows and the small panes in the tilt:
+# (x0, x1, y0, y1, z0, z1).
 GLASS_BOXES = [
     (-0.90, 0.90, CAB[0] - 0.02, CAB[0] + 0.05, WINDSCREEN_Z[0], WINDSCREEN_Z[1]),
-    (-1.00, -0.90, 0.45, 1.20, 1.55, 2.05),
-    (0.90, 1.00, 0.45, 1.20, 1.55, 2.05),
-]
+    (-1.00, -0.90, 0.28, 0.98, WINDSCREEN_Z[0], WINDSCREEN_Z[1]),
+    (0.90, 1.00, 0.28, 0.98, WINDSCREEN_Z[0], WINDSCREEN_Z[1]),
+] + [(sx0, sx1, y1, y0, TILT_WINDOW_Z[0], TILT_WINDOW_Z[1])
+     for y0, y1 in TILT_WINDOWS for sx0, sx1 in ((-1.10, -1.00), (1.00, 1.10))]

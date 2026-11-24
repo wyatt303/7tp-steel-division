@@ -48,57 +48,77 @@ def build_chassis(cfg, mat):
     b.loft([ring(*r) for r in S.BONNET])
     fy, ry, cz0, cz1, ch = S.CAB
     b.loft([ring(fy, cz0, cz1, ch, 0.10), ring(ry, cz0, cz1, ch, 0.10)])
+    # Roof visor over the windscreen, typical of the 621 cab.
+    b.box((0.0, fy + S.VISOR / 2, cz1 - 0.04), (2 * ch - 0.06, S.VISOR, 0.05))
     # Cargo body: floor and sides, and the canvas tilt on its bows.
     by0, by1, floor, side_top, bh = S.BODY
     b.box((0.0, (by0 + by1) / 2, floor - 0.06), (2 * bh, by0 - by1, 0.12))
-    # Body bearers between the frame and the floor.
-    for side in (-1, 1):
-        b.box((side * 0.42, (by0 + by1) / 2, (S.FRAME_Z[1] + floor - 0.12) / 2), (0.10, by0 - by1 - 0.05, floor - 0.12 - S.FRAME_Z[1]))
+    # Cross bearers between the frame and the floor, open underneath like on the drawing.
+    for k in range(4 if d >= 1 else 2):
+        y = by0 - 0.25 - k * (by0 - by1 - 0.50) / (3 if d >= 1 else 1)
+        b.box((0.0, y, (S.FRAME_Z[1] + floor - 0.12) / 2), (2 * bh - 0.10, 0.08, floor - 0.12 - S.FRAME_Z[1]))
     for side in (-1, 1):
         b.box((side * (bh - 0.02), (by0 + by1) / 2, (floor + side_top) / 2), (0.04, by0 - by1, side_top - floor))
     b.box((0.0, by1 + 0.02, (floor + side_top) / 2), (2 * bh, 0.04, side_top - floor))
     b.box((0.0, by0 - 0.02, (floor + side_top) / 2), (2 * bh, 0.04, side_top - floor))
     tilt = [ring(y, side_top - 0.02, S.TILT_TOP, bh + 0.01, 0.25) for y in (by0 - 0.01, by1 + 0.01)]
     b.loft(tilt)
-    # Front mudguards down to the running boards, rear mudguards over the twin wheels.
+    # Front mudguards down to the running boards, arched rear mudguards over the twin wheels.
     steps = {0: 3, 1: 6, 2: 10}[d]
     for side in (-1, 1):
-        cy, cz, r, a0, a1, x0, x1 = S.FRONT_GUARD
-        lo, hi = sorted((side * x0, side * x1))
-        W.arc_strip(b, (cy, cz, r, a0, a1, lo, hi), steps)
+        for guard in (S.FRONT_GUARD, S.REAR_GUARD):
+            cy, cz, r, a0, a1, x0, x1 = guard
+            lo, hi = sorted((side * x0, side * x1))
+            W.arc_strip(b, (cy, cz, r, a0, a1, lo, hi), steps)
         sy0, sy1, sz = S.STEP
         b.box((side * (S.FRONT_X), (sy0 + sy1) / 2, sz), (0.30, sy0 - sy1, 0.03))
-        b.box((side * (S.REAR_X[1] + 0.02), S.REAR_AXLE_Y, floor - 0.04), (0.30, 1.10, 0.03))
+    # Toolbox and fuel tank under the front of the cargo body.
+    tx, ty, tz, sx, sy, sz = S.TOOLBOX
+    b.box((tx, ty, tz), (sx, sy, sz))
+    fx, fy_, fz = S.FUEL_TANK
+    b.lathe((fx, fy_, fz), "Y", [(-0.32, 0.17), (0.32, 0.17)], max(6, seg // 2))
     # Bumper, headlamps and radiator grille.
-    b.lathe((0.0, S.FRONT_Y - 0.05, 0.62), "X", [(-1.0, 0.05), (1.0, 0.05)], max(6, seg // 2))
+    b.lathe((0.0, S.FRONT_Y - 0.05, 0.50), "X", [(-1.0, 0.05), (1.0, 0.05)], max(6, seg // 2))
     for x, y, z in S.HEADLAMPS:
         b.lathe((x, y, z), "Y", [(-0.10, 0.09), (0.0, 0.13), (0.03, 0.12)], max(8, seg))
         if d >= 1:
-            b.strut((x, y - 0.05, z - 0.10), (x * 0.70, y - 0.05, 0.86), 0.03)
+            b.strut((x, y - 0.05, z - 0.10), (x * 0.85, y - 0.05, 0.80), 0.03)
     if d >= 1:
-        b.box((0.0, S.BONNET[0][0] + 0.012, 1.16), (0.62, 0.02, 0.62))
+        b0 = S.BONNET[0]
+        b.box((0.0, b0[0] + 0.012, (b0[1] + b0[2]) / 2 + 0.02), (2 * b0[3] - 0.14, 0.02, b0[2] - b0[1] - 0.16))
         for side in (-1, 1):
             # Bonnet side louvres, door handles and the canvas tie rails.
-            for k in range(5 if d >= 2 else 2):
-                y = 2.15 - k * 0.16
-                b.box((side * (S.BONNET[2][3] + 0.005), y, 1.18), (0.012, 0.05, 0.30))
-            b.box((side * (ch + 0.006), 0.70, 1.45), (0.012, 0.80, 0.02))
+            n = 6 if d >= 2 else 2
+            for k in range(n):
+                y = 2.05 - k * 0.14
+                b.box((side * (S.BONNET[2][3] + 0.005), y, 1.12), (0.012, 0.05, 0.28))
+            b.box((side * (ch + 0.006), ry + 0.20, 1.50), (0.012, 0.16, 0.025))
             b.box((side * (bh + 0.006), (by0 + by1) / 2, side_top - 0.05), (0.012, by0 - by1 - 0.1, 0.03))
-        # Windscreen frame bar and the spare wheel under the body.
+            # Frames of the small tilt windows (High only; Mid keeps the painted panes).
+            z0, z1 = S.TILT_WINDOW_Z
+            for y0, y1 in (S.TILT_WINDOWS if d >= 2 else []):
+                for zz in (z0, z1):
+                    b.box((side * (bh + 0.02), (y0 + y1) / 2, zz), (0.012, abs(y0 - y1) + 0.03, 0.025))
+                for yy in (y0, y1):
+                    b.box((side * (bh + 0.02), yy, (z0 + z1) / 2), (0.012, 0.025, z1 - z0))
+        # Windscreen frame bar and the spare wheel under the rear of the body.
         b.box((0.0, fy + 0.012, (S.WINDSCREEN_Z[0] + S.WINDSCREEN_Z[1]) / 2), (0.03, 0.02, S.WINDSCREEN_Z[1] - S.WINDSCREEN_Z[0]))
-        b.lathe((0.0, by0 - 0.65, floor - 0.30), "Z", [(-0.08, S.TYRE_R), (0.08, S.TYRE_R)], seg)
+        b.lathe((0.0, by1 + 0.50, floor - 0.30), "Z", [(-0.08, S.TYRE_R), (0.08, S.TYRE_R)], seg)
     if d >= 2:
-        # Axles, leaf springs, fuel tank, exhaust and tow hooks.
+        # Axles, leaf springs, exhaust and tow hooks.
         for axle in (S.FRONT_AXLE_Y, S.REAR_AXLE_Y):
             b.lathe((0.0, axle, S.WHEEL_Z), "X", [(-0.75, 0.05), (0.75, 0.05)], 8)
             for side in (-1, 1):
-                b.box((side * 0.42, axle, S.WHEEL_Z + 0.12), (0.07, 1.10, 0.06))
+                b.box((side * 0.42, axle, S.WHEEL_Z + 0.10), (0.07, 1.10, 0.06))
         b.lathe((0.0, S.REAR_AXLE_Y, S.WHEEL_Z), "Y", [(-0.15, 0.10), (0.0, 0.17), (0.15, 0.10)], 10)
-        b.lathe((-0.60, 0.20, 0.55), "Y", [(-0.30, 0.16), (0.30, 0.16)], 10)
         mx, my, mz = S.MUFFLER
         b.lathe((mx, my, mz), "Y", [(-0.30, 0.06), (0.30, 0.06)], 8)
         for side in (-1, 1):
-            b.box((side * 0.30, S.FRONT_Y - 0.02, 0.50), (0.05, 0.10, 0.08))
+            b.box((side * 0.30, S.FRONT_Y - 0.17, 0.50), (0.05, 0.30, 0.08))
+            # Vertical stakes on the sides of the cargo body.
+            for k in range(5):
+                y = by0 - 0.10 - k * (by0 - by1 - 0.20) / 4
+                b.box((side * (bh + 0.008), y, (floor + side_top) / 2), (0.016, 0.06, side_top - floor))
         tx, ty, tz = S.TOW_HOOK
         b.box((tx, ty + 0.10, tz), (0.10, 0.20, 0.08))
         b.lathe((tx, ty, tz), "X", [(-0.02, 0.05), (0.02, 0.05)], 8)
