@@ -92,6 +92,7 @@ def collect_triangles(objects):
         layer = mesh.uv_layers.active.data
         part = 2 if obj.name.startswith("Chenille") else 0
         radius = ROAD_R
+        part = getattr(S, "PART_IDS", {}).get(obj.name, part)
         if hasattr(S, "is_tyre"):
             tyre = S.is_tyre(obj.name)
             part = 1 if tyre else part
@@ -377,7 +378,7 @@ def paint_atlas(res, suffix, objects, material):
     color = color * (1 - brown) + BROWN * brown
     if hasattr(S, "paint_color"):
         # Vehicles with their own scheme (aircraft) replace the 1936 ground camouflage.
-        color = S.paint_color(pos, nrm, np).astype(np.float32)
+        color = S.paint_color(pos, nrm, np, part).astype(np.float32)
 
     mottle = fbm(pos * 9.0, 201, 4)
     grain = noise3(pos * 150.0, 303)

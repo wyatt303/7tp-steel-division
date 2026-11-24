@@ -106,7 +106,7 @@ CHECKER_WING = (3.70, 4.70)        # span band
 CHECKER_FUSE = (-2.55, -1.95)      # Y band on the fuselage sides
 
 
-def paint_color(pos, nrm, np):
+def paint_color(pos, nrm, np, part=None):
     khaki = np.array(KHAKI, np.float32)
     under = np.array(UNDER, np.float32)
     low = np.clip((-nrm[:, 2] - 0.15) / 0.3, 0, 1)
