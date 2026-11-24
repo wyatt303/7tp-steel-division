@@ -27,7 +27,7 @@ os.makedirs(OUT, exist_ok=True)
 LODS = {
     "Low": {"wheels": False, "detail": 0, "seg": 5, "track": 12, "limit": 500},
     "Mid": {"wheels": True, "detail": 1, "seg": 8, "track": 30, "limit": 2000},
-    "High": {"wheels": True, "detail": 2, "seg": 12, "track": 64, "limit": 7000},
+    "High": {"wheels": True, "detail": 2, "seg": 14, "track": 84, "limit": 12000},
 }
 
 
@@ -292,14 +292,14 @@ def build_suspension(b, side, detail):
     front, rear = (w[0] + w[1]) / 2, (w[2] + w[3]) / 2
     mid = (front + rear) / 2
     half = (front - rear) / 2
-    for k, fraction in enumerate((1.0, 0.80, 0.60, 0.40)):
-        z0 = 0.335 + k * 0.015
+    for k, fraction in enumerate((1.0, 0.86, 0.72, 0.58, 0.44, 0.30)):
+        z0 = 0.335 + k * 0.011
         span = half * fraction
         leaf = []
         for i in range(7):
             t = (-1 + 2 * i / 6) * fraction
             leaf.append((mid + half * t, z0 + 0.05 * (1 - t * t)))
-        top = [(y, z + 0.014) for y, z in reversed(leaf)]
+        top = [(y, z + 0.010) for y, z in reversed(leaf)]
         b.prism(leaf + top, gx - 0.04, gx + 0.04)
     b.box((gx, mid, 0.42), (0.10, 0.07, 0.07))
     b.strut((gx, mid, 0.44), (gx, mid + 0.02, 0.50), 0.05, 0.05)
@@ -352,6 +352,7 @@ def build_chassis(cfg, mat):
             b.box((side * 0.58, 1.02, 0.74), (0.12, 0.08, 0.012))
         # Headlamp on the left front of the deck.
         b.lathe((-0.42, 1.03, DECK_LAMP_Z), "Y", [(-0.05, 0.05), (0.03, 0.065), (0.04, 0.05)], 8)
+        add_high_detail(b)
         # Engine deck: radiator grille and access hatch between the superstructure and the rear plate.
         rear_deck_y = S.SUPER_RINGS[2][1][-1][0]
         engine_z = S.SUPER_RINGS[1][0]
@@ -375,6 +376,51 @@ def build_chassis(cfg, mat):
 
 
 DECK_LAMP_Z = S.DECK_Z + 0.07
+
+
+def add_high_detail(b):
+    """Small parts seen on the plates and photos, High version only."""
+    deck = S.DECK_Z
+    roof = S.ROOF_Z
+    # Tow hook on the rear plate, at the Remorque_1 helper.
+    hx, hy, hz = S.TOW_HOOK
+    b.box((hx, hy + 0.04, hz), (0.16, 0.06, 0.10))
+    b.lathe((hx, hy, hz), "X", [(-0.03, 0.035), (0.03, 0.035)], 8)
+    b.strut((hx, hy + 0.01, hz), (hx, hy - 0.05, hz - 0.03), 0.03, 0.03)
+    # Rear lamp and number plate bracket.
+    b.box((-0.40, -1.255, 0.66), (0.10, 0.04, 0.07))
+    b.box((0.25, -1.255, 0.52), (0.26, 0.012, 0.10))
+    # Roof hatch hinges and handles.
+    for x in (-0.28, 0.28):
+        b.lathe((x, -0.26, roof + 0.03), "X", [(-0.15, 0.014), (0.15, 0.014)], 6)
+        b.strut((x - 0.06, 0.12, roof + 0.025), (x - 0.06, 0.12, roof + 0.05), 0.012)
+        b.strut((x + 0.06, 0.12, roof + 0.025), (x + 0.06, 0.12, roof + 0.05), 0.012)
+        b.strut((x - 0.06, 0.12, roof + 0.05), (x + 0.06, 0.12, roof + 0.05), 0.012)
+    # Grab handles on the sponson sides and fender support gussets.
+    z_side = (S.SUPER_RINGS[1][0] + deck) / 2 + 0.06
+    side_x = S.SUPER_RINGS[1][1][1][1]
+    for side in (-1, 1):
+        x = side * (side_x + 0.012)
+        for y in (0.20, -0.30):
+            b.strut((x - side * 0.012, y - 0.10, z_side), (x, y - 0.10, z_side), 0.012)
+            b.strut((x - side * 0.012, y + 0.10, z_side), (x, y + 0.10, z_side), 0.012)
+            b.strut((x, y - 0.10, z_side), (x, y + 0.10, z_side), 0.012)
+        for y in (0.85, -0.10, -0.75):
+            gx = side * (S.FENDER_OUTER - 0.03)
+            inner = side * (S.HULL_HALF_WIDTH + 0.01)
+            b.prism([(y - 0.008, deck - 0.014), (y + 0.008, deck - 0.014), (y + 0.008, deck - 0.035),
+                     (y - 0.008, deck - 0.035)], min(gx, inner), max(gx, inner))
+    # Shovel and pick handle on the right front fender.
+    b.box((0.75, 0.70, deck + 0.012), (0.12, 0.22, 0.012))
+    b.strut((0.75, 0.59, deck + 0.015), (0.75, -0.40, deck + 0.015), 0.025)
+    b.strut((0.68, 0.55, deck + 0.015), (0.68, -0.45, deck + 0.015), 0.025)
+    b.box((0.68, 0.58, deck + 0.025), (0.035, 0.20, 0.04))
+    for y in (0.40, -0.25):
+        b.box((0.715, y, deck + 0.02), (0.12, 0.025, 0.022))
+    # Lifting eyes on the roof corners.
+    for x in (-0.45, 0.45):
+        for y in (0.10, -0.32):
+            b.lathe((x, y, roof + 0.02), "X", [(-0.008, 0.022), (0.008, 0.022)], 6)
 
 
 # ---------------------------------------------------------------- gun
@@ -434,14 +480,15 @@ def wheel_shape(b, center, kind, cfg):
         r = S.SPROCKET[2]
         if high:
             b.wheel_ring(center, r, 0.07, 0.05, teeth=13)
-            b.lathe(center, "X", [(-0.05, 0.07), (0.05, 0.07)], 10)
-            b.lathe((center[0] + outer * 0.04, center[1], center[2]), "X", [(-0.02, 0.055), (0.02, 0.04)], 8)
+            b.lathe(center, "X", [(-0.05, 0.07), (0.05, 0.07)], 12)
+            b.lathe((center[0] + outer * 0.04, center[1], center[2]), "X", [(-0.02, 0.055), (0.02, 0.04)], 10)
+            bolts(b, center, outer, 0.03, 0.10, 6)
         else:
             b.lathe(center, "X", [(-0.03, r), (0.03, r)], seg + 2)
     elif kind == "idler":
         r = S.IDLER[2]
         if high:
-            b.wheel_ring(center, r, r * 0.84, 0.05, seg=20)
+            b.wheel_ring(center, r, r * 0.84, 0.05, seg=28)
             b.lathe(center, "X", [(-0.04, 0.045), (0.04, 0.045)], 8)
             for i in range(8):
                 a = math.tau * (i + 0.5) / 8
@@ -451,11 +498,22 @@ def wheel_shape(b, center, kind, cfg):
             b.lathe(center, "X", [(-0.03, r), (0.03, r)], seg + 2)
     elif high:
         r = S.ROAD_R
-        b.lathe(center, "X", [(-0.042, r * 0.62), (-0.036, r * 0.95), (0.0, r), (0.036, r * 0.95),
-                               (0.042, r * 0.62)], 14)
-        b.lathe((center[0] + outer * 0.045, center[1], center[2]), "X", [(-0.005, 0.045), (0.02, 0.03)], 8)
+        # Rubber tyre, dished steel disc, hub cap and six wheel nuts.
+        b.lathe(center, "X", [(-0.042, r * 0.62), (-0.038, r * 0.90), (-0.028, r), (0.028, r), (0.038, r * 0.90),
+                               (0.042, r * 0.62)], 20)
+        b.lathe((center[0] + outer * 0.042, center[1], center[2]), "X",
+                [(-0.004, r * 0.62), (0.0, r * 0.58), (-0.008, 0.05)], 16)
+        b.lathe((center[0] + outer * 0.045, center[1], center[2]), "X", [(-0.005, 0.042), (0.022, 0.028)], 10)
+        bolts(b, center, outer, 0.042, 0.062, 6)
     else:
         b.lathe(center, "X", [(-0.042, S.ROAD_R), (0.042, S.ROAD_R)], seg)
+
+
+def bolts(b, center, outer, offset, radius, count):
+    for i in range(count):
+        a = math.tau * i / count
+        p = (center[0] + outer * offset, center[1] + radius * math.cos(a), center[2] + radius * math.sin(a))
+        b.lathe(p, "X", [(0.0, 0.009), (outer * 0.012, 0.007)] if outer > 0 else [(-0.012, 0.007), (0.0, 0.009)], 5)
 
 
 def build_wheels(cfg, mat, chassis):
@@ -520,6 +578,10 @@ def build(name, cfg):
     helper("Fx_Stress_02", (S.MOUNT[0], S.MOUNT[1] - 0.1, S.MOUNT[2] + 0.15), chassis)
     helper("FX_Fumee_Chenille_D1", (S.TRACK_X, -1.25, 0.06), chassis)
     helper("FX_Fumee_Chenille_G1", (-S.TRACK_X, -1.25, 0.06), chassis)
+    # Crew and towing points, as on the game's own Universal Carrier.
+    helper("Driver", S.DRIVER, chassis)
+    helper("Tireur", S.GUNNER, chassis)
+    helper("Remorque_1", S.TOW_HOOK, chassis)
     if cfg["wheels"]:
         skin_track(track_d, "D")
         skin_track(track_g, "G")

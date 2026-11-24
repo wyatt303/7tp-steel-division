@@ -78,6 +78,13 @@ else:
     MANTLET = "ball"
 
 ROOF_Z = SUPER_RINGS[-1][0]
+
+# Crew positions (driver left, commander-gunner right, under the roof hatches) and the tow
+# hook on the rear plate. Names and roles follow the game's Universal Carrier, which has
+# Driver, Tireur and Remorque_1 helpers at about 0.45 m above its floor and at the rear.
+DRIVER = (-0.28, -0.05, 0.85)
+GUNNER = (0.30, -0.05, 0.85)
+TOW_HOOK = (0.0, -1.31, 0.45)
 TURRETS = {1: {"center": MOUNT, "mount": MOUNT, "muzzle_y": MUZZLE_Y}}
 EXTRA_MOUNT = MOUNT
 EXTRA_MUZZLE_Y = MUZZLE_Y
