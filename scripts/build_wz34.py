@@ -321,7 +321,7 @@ def render_clay():
     world.use_nodes = True
     world.node_tree.nodes["Background"].inputs[0].default_value = (0.65, 0.7, 0.75, 1)
     scene.world = world
-    bpy.ops.mesh.primitive_plane_add(size=40, location=(0, 0, 0))
+    bpy.ops.mesh.primitive_plane_add(size=40, location=(0, 0, getattr(S, "GROUND_Z", 0.0)))
     sun_data = bpy.data.lights.new("Sun", "SUN")
     sun_data.energy = 3.5
     sun = bpy.data.objects.new("Sun", sun_data)

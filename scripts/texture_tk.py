@@ -375,6 +375,9 @@ def paint_atlas(res, suffix, objects, material):
     brown = smooth(brown_cut - edge_b, brown_cut + edge_b, brown_field)[..., None]
     color = OLIVE * (1 - sand) + SAND * sand
     color = color * (1 - brown) + BROWN * brown
+    if hasattr(S, "paint_color"):
+        # Vehicles with their own scheme (aircraft) replace the 1936 ground camouflage.
+        color = S.paint_color(pos, nrm, np).astype(np.float32)
 
     mottle = fbm(pos * 9.0, 201, 4)
     grain = noise3(pos * 150.0, 303)
@@ -382,7 +385,7 @@ def paint_atlas(res, suffix, objects, material):
 
     # Road dust rising from the tracks and vertical rain streaks.
     dust = smooth(1.05, 0.12, pos[:, 2]) * (0.35 + 0.9 * fbm(pos * np.array([3.0, 3.0, 5.0]), 404, 3))
-    dust = np.clip(dust, 0, 0.72).astype(np.float32)
+    dust = (np.clip(dust, 0, 0.72) * getattr(S, "DUST", 1.0)).astype(np.float32)
     streak = fbm(pos * np.array([16.0, 16.0, 1.3]), 505, 3)
     vertical = 1 - smooth(0.45, 0.8, np.abs(nrm[:, 2]))
     color *= (1 - vertical * smooth(0.52, 0.72, streak) * 0.22)[..., None]
@@ -627,7 +630,7 @@ def render_views():
     world.node_tree.nodes["Background"].inputs[0].default_value = (0.62, 0.68, 0.74, 1)
     world.node_tree.nodes["Background"].inputs[1].default_value = 1.0
     scene.world = world
-    bpy.ops.mesh.primitive_plane_add(size=60, location=(0, 0, 0))
+    bpy.ops.mesh.primitive_plane_add(size=60, location=(0, 0, getattr(S, "GROUND_Z", 0.0)))
     ground = bpy.context.object
     ground_mat = bpy.data.materials.new("Ground")
     ground_mat.use_nodes = True

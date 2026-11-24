@@ -1,6 +1,6 @@
 # Polskie pojazdy pancerne dla Steel Division: Normandy 44
 
-Polskie pojazdy pancerne z 1939 r. wymodelowane w Blenderze: dwa warianty czołgu lekkiego 7TP, tankietki TK-3 i TKS oraz samochody pancerne wz. 28 i wz. 34. Do tego wtyczka eksportująca czołgi do formatu gry `.Ase2NdfBin` **bez 3ds Max**.
+Polskie pojazdy pancerne z 1939 r. wymodelowane w Blenderze: dwa warianty czołgu lekkiego 7TP, tankietki TK-3 i TKS , samochody pancerne wz. 28 i wz. 34 oraz samolot myśliwski PZL P.11c. Do tego wtyczka eksportująca czołgi do formatu gry `.Ase2NdfBin` **bez 3ds Max**.
 
 | 7TP jednowieżowy (Bofors 37 mm) | 7TP dwuwieżowy (2 × ckm wz. 30) |
 |---|---|
@@ -18,11 +18,15 @@ Polskie pojazdy pancerne z 1939 r. wymodelowane w Blenderze: dwa warianty czołg
 |---|---|
 | ![wz. 28 z ckm](models/WZ28_CKM/renders/render_przod_3_4.png) | ![wz. 28 z armatką](models/WZ28_37/renders/render_przod_3_4.png) |
 
+| PZL P.11c | PZL P.11c z tyłu |
+|---|---|
+| ![PZL P.11c](models/P11C/renders/render_przod_3_4.png) | ![PZL P.11c z tyłu](models/P11C/renders/render_tyl_3_4.png) |
+
 ## Co jest w projekcie
 
 | Folder | Zawartość |
 |---|---|
-| [`models/`](models) | 7TP, TK-3, TKS, wz. 28 i wz. 34: pliki `.blend` i `.fbx` w wersjach High, Mid, Low, tekstury i rendery |
+| [`models/`](models) | 7TP, TK-3, TKS, wz. 28, wz. 34 i P.11c: pliki `.blend` i `.fbx` w wersjach High, Mid, Low, tekstury i rendery |
 | [`blender_addon/`](blender_addon) | Wtyczka do Blendera, gotowa paczka w `dist/` |
 | [`scripts/`](scripts) | Skrypty budujące model i tekstury |
 | [`docs/`](docs) | Dokumentacja |
@@ -42,6 +46,7 @@ Polskie pojazdy pancerne z 1939 r. wymodelowane w Blenderze: dwa warianty czołg
 - [Tankietki TK-3 i TKS: wymiary, założenia i ograniczenia](docs/MODEL_TK.md)
 - [Samochód pancerny wz. 28](docs/MODEL_WZ28.md)
 - [Samochód pancerny wz. 34](docs/MODEL_WZ34.md)
+- [Samolot PZL P.11c](docs/MODEL_P11.md)
 - [Format Ase2NdfBin](docs/FORMAT_ASE2NDFBIN.md)
 - [Przebudowa modelu ze skryptów](docs/BUDOWANIE.md)
 
@@ -52,6 +57,7 @@ Polskie pojazdy pancerne z 1939 r. wymodelowane w Blenderze: dwa warianty czołg
 | Oba modele 7TP w grze, w podglądzie | Sprawdzone |
 | Tankietki TK-3 i TKS | Gotowe modele, eksport wtyczką bez błędów, w grze niesprawdzone |
 | Samochody pancerne wz. 28 i wz. 34 | Gotowe modele, eksport wtyczką bez błędów, w grze niesprawdzone |
+| Samolot PZL P.11c | Gotowy model z plikiem `_train`, eksport wtyczką bez błędów, w grze niesprawdzony |
 | Wersja jednowieżowa w bitwie | Sprawdzona na wcześniejszej wersji modelu |
 | Wózki w grze | Sprawdzone wizualnie |
 | Osobne jednostki z własną nazwą i statystykami | Jeszcze nie ma, modele zastępują dwa Stuarty M3A3 |

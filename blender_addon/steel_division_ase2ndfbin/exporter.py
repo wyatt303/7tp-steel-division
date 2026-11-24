@@ -35,6 +35,10 @@ def validate(objects):
     """Catch the mistakes known to crash the game or the mod generator."""
     errors, warnings = [], []
     by_name = {o.name: o for o in objects}
+    if not any(o.type == "MESH" for o in objects):
+        # Helper-only scenes, such as an aircraft's <name>_train file with Train_Avant and
+        # Train_Arriere, carry no Chassis, weapons or tracks.
+        return errors, warnings
     if by_name.get("Chassis") is None or by_name["Chassis"].type != "MESH":
         errors.append("The scene needs a mesh named Chassis")
     if "Tourelle_01" not in by_name:

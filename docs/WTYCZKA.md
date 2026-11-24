@@ -6,7 +6,7 @@ Wymaga Blendera 4.2 lub nowszego. Testowana na Blenderze 5.3.
 
 ## Instalacja
 
-Przeciągnij `blender_addon/dist/steel_division_ase2ndfbin-1.0.0.zip` do okna Blendera albo wybierz **Edit > Preferences > Add-ons > strzałka w prawym górnym rogu > Install from Disk**.
+Przeciągnij `blender_addon/dist/steel_division_ase2ndfbin-1.1.0.zip` do okna Blendera albo wybierz **Edit > Preferences > Add-ons > strzałka w prawym górnym rogu > Install from Disk**.
 
 ## Eksport
 
@@ -63,3 +63,12 @@ Eksport zostaje przerwany, gdy:
 - **UV wychodzi poza zakres 0–1**, co w testach powodowało awarię gry przy podglądzie jednostki.
 
 Ostrzega też przy ponad 7000 trójkątów i brakujących teksturach.
+
+## Pojazdy kołowe i samoloty
+
+Wtyczka eksportuje też modele bez gąsienic. Brak `Chenille_*` zgłasza wtedy tylko jako ostrzeżenie.
+
+- Samochody pancerne: zobacz [MODEL_WZ34.md](MODEL_WZ34.md) i [MODEL_WZ28.md](MODEL_WZ28.md).
+- Samoloty: zobacz [MODEL_P11.md](MODEL_P11.md).
+
+Od wersji 1.1.0 wtyczka eksportuje również sceny z samymi pomocnikami, na przykład plik `<nazwa>_train` samolotu. Taka scena nie potrzebuje `Chassis`.
