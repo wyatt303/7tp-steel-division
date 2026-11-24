@@ -1,0 +1,142 @@
+// Depiction of the 37 mm wz. 36 Bofors anti-tank gun with a Polish crew.
+// Copy into the mod as GameData\Gameplay\Gfx\Units\POL\Canon\WZ36_BOFORS_Depiction.ndf.
+// Modelled on the game's GER\Canon\PaK_36_Depiction.ndf. Changes against the PaK 36:
+//   - our Boites_ file and gun meshes (Modele_WZ36_BOFORS*, see WZ36_BOFORS.ndf),
+//   - crew: the game's Polish soldiers ModelFile_Servant_AT_POL / _POL_Secondary
+//     (Polish_Rifle and Polish_Rifle_2 from POL\Infanterie, defined in Common\Gfx_infanterie.ndf)
+//     with the game's own servant animations,
+//   - gun animations: the PaK 36 files are reused, because our exporter does not write
+//     animations; node names match, pivots are close (not verified in game),
+//   - elevation limits -10 / +25 degrees (the wz. 36 data; the same as the PaK 36).
+// The weapon actions still point at the PaK 36 (Weapons_PaK_36) until a unit of its own exists.
+// Untested in game.
+
+template TemplateMeshDescriptor_WZ36_BOFORS [ ModelFile ] is TResourceMultiMaterialMeshWithLod
+(
+    FileName = <ModelFile>
+    CivMask = CivMask/MeshModding
+    TypeMask = TypeMask/Infanterie
+)
+
+ModelFile_Boites_WZ36_BOFORS is 'GameData:Assets\3D\Units\POL\Canon\WZ36_BOFORS\Boites_WZ36_BOFORS.Ase2NdfBin'
+
+Gfx_WZ36_BOFORS_1 is TDepictionTemplate //servant gauche
+(
+    RenderStyleProviderDescriptor = ~/DefaultInfantryRenderStyleProvider
+    Selector = SpecificServantDepictionSelector
+    DepictionAlternatives = [
+        DepictionDescriptor_LOD_High            (  MeshDescriptor = TemplateMeshDescriptor_WZ36_BOFORS( ModelFile = ModelFile_Servant_AT_POL)  ),
+        DepictionDescriptor_LOD_Mid             (  MeshDescriptor = TemplateMeshDescriptor_WZ36_BOFORS( ModelFile = ModelFile_Servant_AT_POL)  ),
+        DepictionDescriptor_LOD_Low_Empty       ( ),
+        DepictionDescriptor_LOD_WreckedHigh     (  MeshDescriptor = TemplateMeshDescriptor_WZ36_BOFORS( ModelFile = ModelFile_Servant_AT_POL)  ),
+        DepictionDescriptor_LOD_WreckedMid      (  MeshDescriptor = TemplateMeshDescriptor_WZ36_BOFORS( ModelFile = ModelFile_Servant_AT_POL)  ),
+        DepictionDescriptor_LOD_WreckedLow_Empty( ),
+    ]
+
+    SubDepictions = []
+    Operators = DepictionOperator_Animation_Servant_Gauche
+)
+
+Gfx_WZ36_BOFORS_2 is TDepictionTemplate //servant droite
+(
+    RenderStyleProviderDescriptor = ~/DefaultInfantryRenderStyleProvider
+    Selector = SpecificServantDepictionSelector
+    DepictionAlternatives = [
+        DepictionDescriptor_LOD_High            (  MeshDescriptor = TemplateMeshDescriptor_WZ36_BOFORS( ModelFile = ModelFile_Servant_AT_POL_Secondary)  ),
+        DepictionDescriptor_LOD_Mid             (  MeshDescriptor = TemplateMeshDescriptor_WZ36_BOFORS( ModelFile = ModelFile_Servant_AT_POL_Secondary)  ),
+        DepictionDescriptor_LOD_Low_Empty       ( ),
+        DepictionDescriptor_LOD_WreckedHigh     (  MeshDescriptor = TemplateMeshDescriptor_WZ36_BOFORS( ModelFile = ModelFile_Servant_AT_POL_Secondary)  ),
+        DepictionDescriptor_LOD_WreckedMid      (  MeshDescriptor = TemplateMeshDescriptor_WZ36_BOFORS( ModelFile = ModelFile_Servant_AT_POL_Secondary)  ),
+        DepictionDescriptor_LOD_WreckedLow_Empty( ),
+    ]
+
+    SubDepictions = []
+    Operators = DepictionOperator_Animation_Servant_Droite
+)
+
+//Arme: the PaK 36 animation files drive the same node names.
+private AnimationPath_WZ36_BOFORS is 'GameData:Assets\3D\Units\GER\Canon\PaK_36\'
+WZ36_BOFORS_Anim_Tree is DepictionAnimationTreeNode
+(
+    IAStates = AnimationStateAll
+    IAOldStates = AnimationStateAll
+    DefaultAnimationStates = AnimationStateEngineStopping
+    Animations =
+    (
+        [TemplateAnimation(Animation= 'PaK_36_Idle' + '.Ase2NdfBin' Loop=false EventAnimation=false AnimationPath = AnimationPath_WZ36_BOFORS Mask = AnimationMask_All())]
+    )
+
+    Childs =
+    [
+        TAnimNode(IAStates = AnimationStateInstantFire                                                                  Anim = 'PaK_36_Fire'       Loop = false EventAnimation = true AnimationPath = AnimationPath_WZ36_BOFORS Mask = AnimationMask_All()),
+        TAnimNode(IAStates = AnimationStateEngineStopping | AnimationStateEngineStopTurning                             Anim = 'PaK_36_Deploy'     Loop = false AnimationPath = AnimationPath_WZ36_BOFORS Mask = AnimationMask_All()),
+        TAnimNode(IAStates = AnimationStateEngineStarting | AnimationStateEngineStartTurning                            Anim = 'PaK_36_Fold'       Loop = false AnimationPath = AnimationPath_WZ36_BOFORS Mask = AnimationMask_All()),
+        TAnimNode(IAStates = AnimationStateEngineTurning | AnimationStateLeft                                           Anim = 'PaK_36_Turn_Left'  Loop = true  AnimationPath = AnimationPath_WZ36_BOFORS Mask = AnimationMask_All()),
+        TAnimNode(IAStates = AnimationStateEngineTurning | AnimationStateRight                                          Anim = 'PaK_36_Turn_Right' Loop = true  AnimationPath = AnimationPath_WZ36_BOFORS Mask = AnimationMask_All()),
+        TAnimNode(IAStates = AnimationStateMoving | AnimationStateEngineRunning                                         Anim = 'PaK_36_Move'       Loop = true  AnimationPath = AnimationPath_WZ36_BOFORS Mask = AnimationMask_All()
+            Childs = [
+                TAnimNode(IAStates = AnimationStateBack                                                                 Anim = 'PaK_36_Move_Back'  Loop = true  AnimationPath = AnimationPath_WZ36_BOFORS Mask = AnimationMask_All()),
+        ]),
+    ]
+)
+
+DepictionOperator_SkeletalAnimation_WZ36_BOFORS is [Template_DepictionOperator_SkeletalAnimation_With_Tree_TEST(AnimationTree = WZ36_BOFORS_Anim_Tree)]
+
+Gfx_WZ36_BOFORS_Weapon is TDepictionTemplate //arme
+    (
+        RenderStyleProviderDescriptor = ~/DefaultRenderStyleProvider
+        Selector = CommonDepictionSelector
+        DepictionAlternatives = [
+            DepictionDescriptor_LOD_High       ( MeshDescriptor =  Modele_WZ36_BOFORS ),
+            DepictionDescriptor_LOD_Mid        ( MeshDescriptor =  Modele_WZ36_BOFORS_MID ),
+            DepictionDescriptor_LOD_Low        ( MeshDescriptor =  Modele_WZ36_BOFORS_LOW ),
+            DepictionDescriptor_LOD_WreckedHigh( MeshDescriptor =  Modele_WZ36_BOFORS ),
+            DepictionDescriptor_LOD_WreckedMid ( MeshDescriptor =  Modele_WZ36_BOFORS_MID ),
+            DepictionDescriptor_LOD_WreckedLow ( MeshDescriptor =  Modele_WZ36_BOFORS_LOW ),
+        ]
+
+        SubDepictions = []
+        Operators = DepictionOperator_SkeletalAnimation_WZ36_BOFORS +     [TCosmeticTurretOperatorDesc
+            (
+                OperatorId = 'tourelle1'
+                ZAxisNode  = 'Tourelle_01'
+                ZAxisPhysicalPropertyName = 'tourelle1'
+                ZAxisAbsolutePhysicalPropertyName = 'tourelle1absolute'
+                ZAxisHasTargetPhysicalPropertyName = 'tourelle1target'
+                GameplayAssumePitchYawControlPhysicalPropertyName = 'tourelle1control'
+                YAxisNode = 'Axe_Canon_01'
+                YAxisPhysicalPropertyName = 'tourelle1axe'
+                MinYAngle = -0.174532925199
+                MaxYAngle = 0.436332312999
+            ),]
+        Actions = Weapons_PaK_36
+    )
+
+SubDepiction_Servant_1_WZ36_BOFORS is TSubDepiction( Anchor = 'servant_G' Depiction = Gfx_WZ36_BOFORS_1 )
+SubDepiction_Servant_2_WZ36_BOFORS is TSubDepiction( Anchor = 'servant_D' Depiction = Gfx_WZ36_BOFORS_2 )
+SubDepiction_Canon_AT_WZ36_BOFORS is TSubDepiction( Anchor = 'Canon_AT' Depiction = Gfx_WZ36_BOFORS_Weapon )
+
+Gfx_WZ36_BOFORS is TDepictionFacadeDescriptor
+(
+    DepictionTemplate = TDepictionTemplate //les boites
+    (
+        OverrideMeshBoundingBoxMin = [-500,-500,0]
+        OverrideMeshBoundingBoxMax = [ 500, 500,200]
+        RenderStyleProviderDescriptor = ~/DefaultRenderStyleProvider
+        Selector = SpecificDepictionSelectorWithScale
+        DepictionAlternatives = [
+            DepictionDescriptor_LOD_High       ( MeshDescriptor = TemplateMeshDescriptor_WZ36_BOFORS( ModelFile = ModelFile_Boites_WZ36_BOFORS) ),
+            DepictionDescriptor_LOD_Mid        ( MeshDescriptor = TemplateMeshDescriptor_WZ36_BOFORS( ModelFile = ModelFile_Boites_WZ36_BOFORS) ),
+            DepictionDescriptor_LOD_Low        ( MeshDescriptor = TemplateMeshDescriptor_WZ36_BOFORS( ModelFile = ModelFile_Boites_WZ36_BOFORS) ),
+            DepictionDescriptor_LOD_WreckedHigh( MeshDescriptor = TemplateMeshDescriptor_WZ36_BOFORS( ModelFile = ModelFile_Boites_WZ36_BOFORS) ),
+            DepictionDescriptor_LOD_WreckedMid ( MeshDescriptor = TemplateMeshDescriptor_WZ36_BOFORS( ModelFile = ModelFile_Boites_WZ36_BOFORS) ),
+            DepictionDescriptor_LOD_WreckedLow ( MeshDescriptor = TemplateMeshDescriptor_WZ36_BOFORS( ModelFile = ModelFile_Boites_WZ36_BOFORS) ),
+        ]
+        NodeNamesForSelection = [ 'Canon_AT', 'servant_G' , 'servant_D']
+        SubDepictions = [SubDepiction_Servant_1_WZ36_BOFORS,
+                        SubDepiction_Servant_2_WZ36_BOFORS,
+                        SubDepiction_Canon_AT_WZ36_BOFORS]
+
+        Operators = [DepictionOperatorNode_Reset_Generic]
+    )
+)

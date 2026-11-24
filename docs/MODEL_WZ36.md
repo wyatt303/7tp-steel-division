@@ -63,3 +63,18 @@ $out = 'build\wz36'
 | Trójkąty High | 1780 | 4166 |
 | Trójkąty Mid | 1036 | 1476 |
 | Trójkąty Low | 264 | 581 |
+
+## Obsługa (żołnierze)
+
+Żołnierzy obsługi nie trzeba modelować, bo gra dokłada ich sama. W `PaK_36_Depiction.ndf` dwaj żołnierze są osobnymi modelami piechoty, podpiętymi do pomocników `servant_G` i `servant_D` z pliku `Boites_`. Każdy ma też animację obsługi (`DepictionOperator_Animation_Servant_Gauche/Droite`).
+
+Gra ma gotowe modele polskiej obsługi: `ModelFile_Servant_AT_POL` (`Polish_Rifle`) i `ModelFile_Servant_AT_POL_Secondary` (`Polish_Rifle_2`). Definiuje je `Common\Gfx_infanterie.ndf`. To żołnierze Polskich Sił Zbrojnych na Zachodzie z 1944 r., w mundurach i hełmach brytyjskich, a nie w mundurach z 1939 r. z hełmem wz. 31.
+
+W folderze [`ndf/`](../ndf) są gotowe pliki dla moda:
+
+| Plik | Miejsce w modzie | Zawartość |
+|---|---|---|
+| `WZ36_BOFORS.ndf` | `GameData\Gameplay\Gfx\Units\POL\Canon\` | siatki High, Mid i Low z `CivMask/MeshModding` |
+| `WZ36_BOFORS_Depiction.ndf` | jw. | wygląd na wzór PaK 36: nasze siatki i `Boites_`, polska obsługa z gry, animacje armaty z PaK 36 |
+
+Do użycia w grze trzeba jeszcze wskazać `Gfx_WZ36_BOFORS` w jednostce (`Depiction = ~/Gfx_WZ36_BOFORS`). Prostsza droga to podmiana istniejącej jednostki, tak jak przy 7TP. Uzbrojenie wskazuje na razie `Weapons_PaK_36`. Pliki nie były sprawdzane w grze.

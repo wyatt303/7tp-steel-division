@@ -1,0 +1,27 @@
+// Mesh resources of the 37 mm wz. 36 Bofors anti-tank gun.
+// Copy into the mod as GameData\Gameplay\Gfx\Units\POL\Canon\WZ36_BOFORS.ndf and put the
+// exported .Ase2NdfBin files with their textures at the paths below (see docs/MODEL_WZ36.md).
+// Modelled on the game's GER\Canon\PaK_36.ndf; CivMask changed to MeshModding for mod meshes.
+
+export ModelFile_WZ36_BOFORS is 'GameData:Assets\3D\Units\POL\Canon\WZ36_BOFORS\WZ36_BOFORS.Ase2NdfBin'
+
+Modele_WZ36_BOFORS is TResourceMultiMaterialMeshWithLod
+(
+    FileName = ModelFile_WZ36_BOFORS
+    CivMask =  CivMask/MeshModding
+    TypeMask = TypeMask/Char
+)
+
+Modele_WZ36_BOFORS_MID is TResourceMultiMaterialMeshWithLod
+(
+    FileName = 'GameData:Assets\3D\Units\POL\Canon\WZ36_BOFORS_MID\WZ36_BOFORS_MID.Ase2NdfBin'
+    CivMask =  CivMask/MeshModding
+    TypeMask = TypeMask/Char
+)
+
+Modele_WZ36_BOFORS_LOW is TResourceMultiMaterialMeshWithLod
+(
+    FileName = 'GameData:Assets\3D\Units\POL\Canon\LODS\WZ36_BOFORS_LOW.Ase2NdfBin'
+    CivMask =  CivMask/MeshModding
+    TypeMask = TypeMask/Char
+)
