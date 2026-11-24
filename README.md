@@ -1,16 +1,20 @@
-# 7TP dla Steel Division: Normandy 44
+# Polskie pojazdy pancerne dla Steel Division: Normandy 44
 
-Dwa warianty polskiego czołgu lekkiego 7TP, wymodelowane w Blenderze, oraz wtyczka eksportująca czołgi do formatu gry `.Ase2NdfBin` **bez 3ds Max**.
+Polskie pojazdy pancerne z 1939 r. wymodelowane w Blenderze: dwa warianty czołgu lekkiego 7TP oraz tankietki TK-3 i TKS. Do tego wtyczka eksportująca czołgi do formatu gry `.Ase2NdfBin` **bez 3ds Max**.
 
 | 7TP jednowieżowy (Bofors 37 mm) | 7TP dwuwieżowy (2 × ckm wz. 30) |
 |---|---|
 | ![7TP jednowieżowy](models/7TP_jednowiezowy_Bofors/renders/render_przod_3_4.png) | ![7TP dwuwieżowy](models/7TP_dwuwiezowy_wz30/renders/render_przod_3_4.png) |
 
+| Tankietka TK-3 (ckm Hotchkiss wz. 25) | Tankietka TKS (ckm Hotchkiss wz. 25) |
+|---|---|
+| ![TK-3](models/TK3/renders/render_przod_3_4.png) | ![TKS](models/TKS/renders/render_przod_3_4.png) |
+
 ## Co jest w projekcie
 
 | Folder | Zawartość |
 |---|---|
-| [`models/`](models) | Oba warianty: pliki `.blend` i `.fbx` w wersjach High, Mid, Low, tekstury i rendery |
+| [`models/`](models) | 7TP, TK-3 i TKS: pliki `.blend` i `.fbx` w wersjach High, Mid, Low, tekstury i rendery |
 | [`blender_addon/`](blender_addon) | Wtyczka do Blendera, gotowa paczka w `dist/` |
 | [`scripts/`](scripts) | Skrypty budujące model i tekstury |
 | [`docs/`](docs) | Dokumentacja |
@@ -27,6 +31,7 @@ Dwa warianty polskiego czołgu lekkiego 7TP, wymodelowane w Blenderze, oraz wtyc
 - [Wtyczka do Blendera](docs/WTYCZKA.md)
 - [Instalacja w grze](docs/INSTALACJA_W_GRZE.md)
 - [Model 7TP: wymiary, założenia i ograniczenia](docs/MODEL_7TP.md)
+- [Tankietki TK-3 i TKS: wymiary, założenia i ograniczenia](docs/MODEL_TK.md)
 - [Format Ase2NdfBin](docs/FORMAT_ASE2NDFBIN.md)
 - [Przebudowa modelu ze skryptów](docs/BUDOWANIE.md)
 
@@ -34,7 +39,8 @@ Dwa warianty polskiego czołgu lekkiego 7TP, wymodelowane w Blenderze, oraz wtyc
 
 | Element | Stan |
 |---|---|
-| Oba modele w grze, w podglądzie | Sprawdzone |
+| Oba modele 7TP w grze, w podglądzie | Sprawdzone |
+| Tankietki TK-3 i TKS | Gotowe modele, eksport wtyczką bez błędów, w grze niesprawdzone |
 | Wersja jednowieżowa w bitwie | Sprawdzona na wcześniejszej wersji modelu |
 | Wózki w grze | Sprawdzone wizualnie |
 | Osobne jednostki z własną nazwą i statystykami | Jeszcze nie ma, modele zastępują dwa Stuarty M3A3 |

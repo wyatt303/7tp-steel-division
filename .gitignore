@@ -7,6 +7,7 @@ __pycache__/
 # Local work, not for publishing
 archive/
 build/
+portret_rowecki.png
 
 # Never publish game data or crash dumps
 *.dmp
@@ -16,3 +17,6 @@ build/
 *.tgv
 *.Neu3
 *.baf
+
+# Reference scans, not for publishing
+refs_tk/
