@@ -1,0 +1,21 @@
+// Polish riflemen repainted to September 1939 colours (scripts/retexture_infantry.py).
+// Put the generated files from build/pol39 into the mod at
+//   GameData\Assets\3D\Units\POL\Infanterie\POL39\  (POL39_Rifle*, POL39_Rifle_2* and their .png)
+//   GameData\Assets\3D\Units\POL\Infanterie\LODS\   (the *_LOW files)
+// and this file as GameData\Gameplay\Gfx\Units\POL\Infanterie\POL39_Infanterie.ndf.
+// The meshes and skeletons are the game's own Polish_Rifle and Polish_Rifle_2, so the game's
+// infantry animations apply unchanged. Untested in game.
+//
+// To give the wz. 36 gun this crew, use ModelFile_Servant_AT_POL39 and
+// ModelFile_Servant_AT_POL39_Secondary in ndf/WZ36_BOFORS_Depiction.ndf instead of the
+// ModelFile_Servant_AT_POL pair.
+
+export ModelFile_Rifle_POL39 is 'GameData:Assets\3D\Units\POL\Infanterie\POL39\POL39_Rifle.Ase2NdfBin'
+export ModelFile_Rifle_POL39_LOW is 'GameData:Assets\3D\Units\POL\Infanterie\LODS\POL39_Rifle_LOW.Ase2NdfBin'
+export ModelFile_Rifle_POL39_2 is 'GameData:Assets\3D\Units\POL\Infanterie\POL39\POL39_Rifle_2.Ase2NdfBin'
+export ModelFile_Rifle_POL39_2_LOW is 'GameData:Assets\3D\Units\POL\Infanterie\LODS\POL39_Rifle_2_LOW.Ase2NdfBin'
+
+export ModelFile_Servant_AT_POL39 is ModelFile_Rifle_POL39
+export ModelFile_Servant_AT_POL39_LOW is ModelFile_Rifle_POL39_LOW
+export ModelFile_Servant_AT_POL39_Secondary is ModelFile_Rifle_POL39_2
+export ModelFile_Servant_AT_POL39_Secondary_LOW is ModelFile_Rifle_POL39_2_LOW
