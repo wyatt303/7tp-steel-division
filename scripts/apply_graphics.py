@@ -8,6 +8,9 @@ Layout of graphic/ (any file may be missing; then the generated picture stays):
   graphic/<STEM>/TopView.png   100 x 75   view from above                    -> <STEM>_TopView.png
   graphic/<STEM>/Button.png    160 x 82   card in the deck and purchase bar  -> <STEM>_Button.png
   graphic/<STEM>/Visual.png    388 x 224  large picture in the unit window   -> <STEM>_Visual.png
+  graphic/<STEM>/Turret.png    132 x 50   the turret with its main gun, shown for the main gun in
+                                          the unit panel, as the game does for its tanks
+                                          -> see TURRET_FILES
   graphic/weapons/<WEAPON>.png 132 x 50   weapon picture in the unit panel   -> see WEAPON_FILES
   graphic/battlegroup/Emblem.png    256 x 256                                -> TP7_Div_Emblem.png
   graphic/battlegroup/Portrait.png  410 x 505                                -> TP7_Div_Portrait.png
@@ -29,8 +32,11 @@ ASSETS = os.path.join(MOD, "AssetsModding")
 
 UNIT_FILES = {"RTS.png": ("RTS", (42, 26)), "TopView.png": ("TopView", (100, 75)),
               "Button.png": ("Button", (160, 82)), "Visual.png": ("Visual", (388, 224))}
-# Weapon name (as in create_battlegroup.py) -> picture file used by the mod.
-WEAPON_FILES = {"Bofors37": "TP7_Bofors37_Weapon.png", "CkmWz30": "TP7_CkmWz30_Weapon.png"}
+# Unit -> picture file of its main gun (the panel shows the turret for it).
+TURRET_FILES = {"TP7_JW": "TP7_Bofors37_Weapon.png"}
+# Weapon name (as in create_battlegroup.py) -> picture file used by the mod, for weapons shown
+# on their own, such as machine guns.
+WEAPON_FILES = {"CkmWz30": "TP7_CkmWz30_Weapon.png"}
 BATTLEGROUP_FILES = {"Emblem.png": ("TP7_Div_Emblem.png", (256, 256)),
                      "Portrait.png": ("TP7_Div_Portrait.png", (410, 505))}
 
@@ -80,6 +86,11 @@ if os.path.isdir(GRAPHIC):
                     place(source, target, size, used)
                 else:
                     unknown.append(os.path.relpath(source, ROOT))
+            elif name == "Turret.png":
+                if entry in TURRET_FILES:
+                    place(source, TURRET_FILES[entry], (132, 50), used)
+                else:
+                    unknown.append(os.path.relpath(source, ROOT) + " (no main gun picture for " + entry + ")")
             elif name in UNIT_FILES:
                 kind, size = UNIT_FILES[name]
                 target = "%s_%s.png" % (entry, kind)

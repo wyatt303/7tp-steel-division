@@ -10,10 +10,10 @@ graphic\
 │   ├── RTS.png          42 × 26   znaczek nad jednostką i ikona w menu
 │   ├── TopView.png     100 × 75   widok z góry
 │   ├── Button.png      160 × 82   karta w talii i w pasku zakupów
-│   └── Visual.png      388 × 224  duży obrazek w oknie jednostki
+│   ├── Visual.png      388 × 224  duży obrazek w oknie jednostki
+│   └── Turret.png      132 × 50   wieża z armatą: obrazek głównej broni w panelu jednostki
 ├── weapons\
-│   ├── Bofors37.png    132 × 50   armata Bofors 37 mm
-│   └── CkmWz30.png     132 × 50   ckm wz. 30
+│   └── CkmWz30.png     132 × 50   ckm wz. 30 (broń pokazywana sama, bez wieży)
 └── battlegroup\
     ├── Emblem.png      256 × 256  emblemat battlegroupy
     └── Portrait.png    410 × 505  portret dowódcy
@@ -26,7 +26,8 @@ graphic\
 - `RTS.png`: biała sylwetka z czarnym obrysem, przodem w lewo. Gra barwi ją kolorem gracza.
 - `TopView.png`: przodem w prawo. Obrazki broni: wylot lufy w prawo.
 - Wzory z gry są w `build\ikony_z_gry\oryginaly_z_gry` (poza repozytorium).
-- Nazwa obrazka broni to nazwa broni z `scripts\create_battlegroup.py`. Nowe bronie trzeba dopisać do `WEAPON_FILES` w `scripts\apply_graphics.py`.
+- `Turret.png`: tak jak w grze (np. wieża Stuarta przy armacie 37 mm), główna broń czołgu jest pokazana razem z wieżą, wylotem lufy w prawo. Na razie ma go tylko `TP7_JW` (Bofors 37 mm). Dla kolejnych czołgów trzeba dopisać model do `TURRET_FILES` w `scripts\apply_graphics.py`.
+- Karabiny maszynowe są pokazywane same, więc leżą w `weapons\`. Nazwa pliku to nazwa broni z `scripts\create_battlegroup.py`. Nowe bronie trzeba dopisać do `WEAPON_FILES` w `scripts\apply_graphics.py`.
 - Grafiki modelu, który nie jest jeszcze jednostką w battlegroupie, są pomijane z komunikatem `UNUSED`.
 
 **Repozytorium:** własne rysunki mogą być w Git. Grafik przerobionych z oryginałów gry nie dodawaj do repozytorium.
