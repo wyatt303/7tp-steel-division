@@ -31,7 +31,7 @@ from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 PROJECT = os.path.dirname(os.path.dirname(HERE))
-DEFAULT_MOD = r"C:\Program Files (x86)\Steam\steamapps\common\Steel Division\Mods\Mod_7TP_Battlegroup"
+DEFAULT_MOD = r"C:\Program Files (x86)\Steam\steamapps\common\Steel Division\Mods\Mod_Wrzesien1939"
 MOD = os.path.abspath(sys.argv[1]) if len(sys.argv) > 1 else DEFAULT_MOD
 PORT = int(sys.argv[2]) if len(sys.argv) > 2 else 8744
 GAMEPLAY = os.path.join(MOD, "GameData", "Gameplay")

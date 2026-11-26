@@ -1,6 +1,6 @@
 # Ikony jednostek w interfejsie gry
 
-Jednostki 7TP w `Mod_7TP_Battlegroup` są sklonowane z Cromwella V i Stuarta M3A3, więc na początku miały ich obrazki: niebieską sylwetkę Cromwella nad czołgiem i obrazki działa Stuarta oraz karabinu M1919 w panelu jednostki. Nasze własne obrazki podmieniają to.
+Jednostki 7TP w `Mod_Wrzesien1939` są sklonowane z Cromwella V i Stuarta M3A3, więc na początku miały ich obrazki: niebieską sylwetkę Cromwella nad czołgiem i obrazki działa Stuarta oraz karabinu M1919 w panelu jednostki. Nasze własne obrazki podmieniają to.
 
 ## Gdzie gra trzyma te obrazki
 
@@ -25,7 +25,7 @@ Oryginały są w paczce `pc\texture\pack\vfxbank_gfxeverything.ppk` (archiwum ED
 ```powershell
 $blender = 'C:\Program Files\Blender Foundation\Blender 5.3\blender.exe'
 $python = 'C:\Program Files\Blender Foundation\Blender 5.3\5.3\python\bin\python.exe'
-$mod = 'C:\Program Files (x86)\Steam\steamapps\common\Steel Division\Mods\Mod_7TP_Battlegroup'
+$mod = 'C:\Program Files (x86)\Steam\steamapps\common\Steel Division\Mods\Mod_Wrzesien1939'
 & $blender --background --factory-startup --python scripts\make_unit_icons.py -- . build\unit_icons
 & $python -I scripts\patch_unit_icons.py $mod build\unit_icons build\mod_backup\ikony
 ```

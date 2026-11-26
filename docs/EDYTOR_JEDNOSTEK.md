@@ -8,7 +8,7 @@ Mała strona w przeglądarce do szybkiej zmiany napisów i cen naszych jednostek
 & 'C:\Program Files\Blender Foundation\Blender 5.3\5.3\python\bin\python.exe' -I tools\edytor_jednostek\server.py
 ```
 
-Potem otwórz w przeglądarce `http://127.0.0.1:8744/`. Serwer działa tylko na tym komputerze. Zatrzymujesz go klawiszami Ctrl+C w oknie, w którym go uruchomiono. Domyślnie edytuje `Mod_7TP_Battlegroup`. Inny mod albo port podajesz jako argumenty: `server.py <folder moda> <port>`.
+Potem otwórz w przeglądarce `http://127.0.0.1:8744/`. Serwer działa tylko na tym komputerze. Zatrzymujesz go klawiszami Ctrl+C w oknie, w którym go uruchomiono. Domyślnie edytuje `Mod_Wrzesien1939`. Inny mod albo port podajesz jako argumenty: `server.py <folder moda> <port>`.
 
 Python z Blendera wystarcza, nic nie trzeba doinstalowywać.
 

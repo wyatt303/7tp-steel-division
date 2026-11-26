@@ -1,6 +1,8 @@
-# Polskie pojazdy pancerne dla Steel Division: Normandy 44
+# Wrzesień 1939: polskie pojazdy i battlegroupa dla Steel Division: Normandy 44
 
-Polskie pojazdy pancerne z 1939 r. wymodelowane w Blenderze: dwa warianty czołgu lekkiego 7TP, tankietki TK-3 i TKS , samochody pancerne wz. 28 i wz. 34, samoloty PZL P.11c, PZL.23B Karaś i PZL.37B Łoś, motocykl Sokół 1000 z wózkiem i rkm, armata przeciwpancerna 37 mm wz. 36 oraz ciężarówka Polski Fiat 621L. Do tego wtyczka eksportująca czołgi do formatu gry `.Ase2NdfBin` **bez 3ds Max**.
+Polskie pojazdy pancerne z 1939 r. wymodelowane w Blenderze: dwa warianty czołgu lekkiego 7TP, tankietki TK-3 i TKS, samochody pancerne wz. 28 i wz. 34, samoloty PZL P.11c, PZL.23B Karaś i PZL.37B Łoś, motocykl Sokół 1000 z wózkiem i rkm, armata przeciwpancerna 37 mm wz. 36 oraz ciężarówka Polski Fiat 621L. Do tego wtyczka eksportująca czołgi do formatu gry `.Ase2NdfBin` **bez 3ds Max**.
+
+Projekt leży w `D:\Mod\Wrzesien1939` (do 26 listopada 2026 r. `D:\Mod\7TP`). Mod w grze nazywa się `Mod_Wrzesien1939` (wcześniej `Mod_7TP_Battlegroup`) i dodaje battlegroupę „TOMASZÓW 39” z polskimi jednostkami.
 
 | 7TP jednowieżowy (Bofors 37 mm) | 7TP dwuwieżowy (2 × ckm wz. 30) |
 |---|---|
@@ -88,7 +90,7 @@ Polskie pojazdy pancerne z 1939 r. wymodelowane w Blenderze: dwa warianty czołg
 | Ciężarówka Polski Fiat 621L | Gotowy model, eksport wtyczką bez błędów, w grze niesprawdzony |
 | Wersja jednowieżowa w bitwie | Sprawdzona na wcześniejszej wersji modelu |
 | Wózki w grze | Sprawdzone wizualnie |
-| Osobne jednostki z własną nazwą i statystykami | Działają w grze (sprawdzone 26 listopada 2026 r.): `Mod_7TP_Battlegroup` ze skryptu `scripts/create_battlegroup.py` dodaje battlegroupę „TOMASZÓW 39” z 7TP jednowieżowym i dwuwieżowym |
+| Osobne jednostki z własną nazwą i statystykami | Działają w grze (sprawdzone 26 listopada 2026 r.): `Mod_Wrzesien1939` ze skryptu `scripts/create_battlegroup.py` dodaje battlegroupę „TOMASZÓW 39” z 7TP jednowieżowym i dwuwieżowym |
 | Ruch wahaczy i resorów | Jeszcze nie ma, są częścią kadłuba |
 
 ## Zastrzeżenia
