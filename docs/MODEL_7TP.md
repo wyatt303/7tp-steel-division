@@ -12,6 +12,8 @@
 
 Tekstury mają 2048 px w High, 1024 px w Mid i 256 px w Low. Wersja High ma też osobne tekstury gąsienic 256 px. Mapy to `Diffuse`, `_GLO`, `_SC` i `_NM` w konwencji DirectX, a gąsienice dodatkowo `_A`.
 
+**Malowanie.** Jednowieżowy ma ogólny trójbarwny kamuflaż z 1936 r. (schemat `1936` w `scripts/texture_7tp.py`). Dwuwieżowy ma schemat `cieszyn38` według planszy „7TP (dwuwieżowy) z 3. Batalionu Pancernego, Cieszyn, październik 1938 roku”. Są tam duże plamy piaskowe (głównie dół kadłuba), żółtozielone i brązowe (głównie wieże) oraz białe godło batalionu, skaczący chart, na zewnętrznym boku obu wież. Kolory odczytano z planszy: (214, 203, 168), (150, 152, 70) i (118, 94, 61). Przyciemniono je współczynnikiem 0,6 jak resztę palety, bo druk jest dużo jaśniejszy niż farba w grze. Kształt plam nie odwzorowuje planszy plama w plamę, a sylwetka charta jest uproszczona. Schemat można wybrać zmienną `TP_SCHEME` (`1936` albo `cieszyn38`).
+
 ## Wymiary
 
 | Element | Wartość | Pochodzenie |
@@ -34,7 +36,7 @@ Tekstury mają 2048 px w High, 1024 px w Mid i 256 px w Low. Wersja High ma też
 - Rysunek z wymiarami dotyczy kadłuba wersji dwuwieżowej. Te same wymiary przyjęto dla jednowieżowej.
 - Źródła różnią się co do wymiarów całkowitych: 4,60–4,88 m długości i 2,12–2,30 m wysokości.
 - Położenie wież, kół i część detali odczytano ze skanów.
-- Kierunek wahacza, do przodu, przyjęto ze zdjęć zachowanego egzemplarza.
+- Oba wózki są swoimi lustrzanymi odbiciami, tak jak na rysunku z boku. Przedni ma wygięte ramię skierowane do przodu, a resor do tyłu. Tylny ma ramię do tyłu, a resor do przodu, więc oba resory są zwrócone do środka czołgu. Do 26 listopada 2026 r. oba wózki miały ramię do przodu, przez co tylny był odwrócony.
 - Kolory kamuflażu z 1936 r. są przybliżeniem, bo źródła opisują je słownie. Układ plam jest przykładowy.
 
 ## Znane ograniczenia

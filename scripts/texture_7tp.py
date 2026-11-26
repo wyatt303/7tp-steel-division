@@ -38,6 +38,25 @@ TRACK_STEEL = np.array([52, 46, 40], np.float32) / 255
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import spec_7tp as S  # noqa: E402
 
+# Paint scheme. "1936": the generic soft three-tone scheme above. "cieszyn38": the twin-turret
+# tank of the 3rd Armoured Battalion, Cieszyn, October 1938, after a colour plate: large patches
+# of light sand (mostly on the lower hull), yellow green and brown (mostly on the turrets), with
+# the battalion's white leaping greyhound on the outer side of each turret. Plate colours
+# (214, 203, 168), (150, 152, 70) and (118, 94, 61) are scaled by 0.6, like the 1936 palette, because
+# the printed plate is much lighter than paint seen in the game.
+SCHEME = os.environ.get("TP_SCHEME", "cieszyn38" if S.VARIANT == "dw" else "1936")
+SAND_38 = np.array([214, 203, 168], np.float32) / 255 * 0.60
+GREEN_38 = np.array([150, 152, 70], np.float32) / 255 * 0.60
+BROWN_38 = np.array([118, 94, 61], np.float32) / 255 * 0.60
+EMBLEM_WHITE = np.array([214, 212, 200], np.float32) / 255 * 0.78
+# Leaping greyhound, head forward (u = 1 is towards the front of the tank), v up, both 0..1.
+GREYHOUND = [
+    (1.00, 0.90), (0.93, 0.97), (0.86, 1.00), (0.82, 0.93), (0.66, 0.82), (0.48, 0.70), (0.32, 0.58),
+    (0.20, 0.50), (0.08, 0.50), (0.00, 0.40), (0.07, 0.42), (0.17, 0.40), (0.12, 0.22), (0.02, 0.04),
+    (0.10, 0.03), (0.26, 0.28), (0.40, 0.42), (0.56, 0.48), (0.74, 0.52), (0.97, 0.52), (0.98, 0.58),
+    (0.78, 0.62), (0.84, 0.74), (0.94, 0.82),
+]
+
 TRACK_X = S.TRACK_X
 ROAD_R = S.ROAD_R
 RETURN_Y = np.array(S.RETURN_Y, np.float32)
@@ -424,6 +443,46 @@ def normal_from_height(H, density, wrap=False):
     return n * 0.5 + 0.5
 
 
+def camouflage_cieszyn(pos, nrm):
+    """Large, fairly hard-edged patches: sand low on the hull, brown high on the turrets."""
+    q = pos * np.array([0.50, 0.34, 0.95])
+    z = pos[:, 2]
+    sand_field = fbm(q + 3.7, 13, 3)
+    brown_field = fbm(q + np.array([17.1, 31.4, 7.7]), 59, 3)
+    sand_field = (sand_field - sand_field.mean()) / sand_field.std() + 2.2 * smooth(1.30, 0.62, z)
+    brown_field = (brown_field - brown_field.mean()) / brown_field.std() + 0.8 * smooth(1.50, 1.95, z)
+    sand_cut, brown_cut = np.percentile(sand_field, 55), np.percentile(brown_field, 82)
+    sand = smooth(sand_cut - 0.07, sand_cut + 0.07, sand_field)[..., None]
+    brown = smooth(brown_cut - 0.07, brown_cut + 0.07, brown_field)[..., None]
+    color = GREEN_38 * (1 - sand) + SAND_38 * sand
+    return color * (1 - brown) + BROWN_38 * brown
+
+
+def inside_polygon(u, v, polygon):
+    result = np.zeros(len(u), bool)
+    for i in range(len(polygon)):
+        (x1, y1), (x2, y2) = polygon[i], polygon[(i + 1) % len(polygon)]
+        crosses = (y1 > v) != (y2 > v)
+        result ^= crosses & (u < (x2 - x1) * (v - y1) / (y2 - y1 + 1e-12) + x1)
+    return result
+
+
+def paint_emblems(color, pos, part):
+    """White greyhound on the outer side of each turret, 0.30 m long, as on the plate."""
+    for data in S.TURRETS.values():
+        cx, cy, base = data["center"]
+        side = 1.0 if cx >= 0 else -1.0
+        dx, dy = pos[:, 0] - cx, pos[:, 1] - cy
+        on_side = (part == 0) & (side * dx > 0.24) & (np.hypot(dx, dy) > 0.28) & (np.hypot(dx, dy) < 0.42)
+        u = (pos[:, 1] - (cy - 0.17)) / 0.30
+        v = (pos[:, 2] - (base + 0.17)) / 0.22
+        hit = on_side & (u > 0) & (u < 1) & (v > 0) & (v < 1)
+        if hit.any():
+            selected = np.flatnonzero(hit)
+            mark = inside_polygon(u[selected], v[selected], GREYHOUND)
+            color[selected[mark]] = EMBLEM_WHITE
+
+
 def paint_atlas(res, suffix, objects, material):
     atlas = [o for o in objects if res < 2048 or not o.name.startswith("Chenille")]
     tri_pos, tri_nrm, tri_uv, parts, centers = collect_triangles(atlas)
@@ -441,16 +500,20 @@ def paint_atlas(res, suffix, objects, material):
     height = painter.H[mask]
     wear_ring = painter.W[mask]
 
-    # Camouflage: elongated horizontally, soft sprayed edges, well-lit surfaces get darker paint.
-    q = pos * np.array([0.72, 0.46, 1.65])
-    sand_field = fbm(q + 11.3, 3, 3) - 0.035 * nrm[:, 2]
-    brown_field = fbm(q + np.array([41.7, 5.2, 19.9]), 77, 3) + 0.035 * nrm[:, 2]
-    sand_cut, brown_cut = np.percentile(sand_field, 70), np.percentile(brown_field, 74)
-    edge_s, edge_b = sand_field.std() * 0.17, brown_field.std() * 0.17
-    sand = smooth(sand_cut - edge_s, sand_cut + edge_s, sand_field)[..., None]
-    brown = smooth(brown_cut - edge_b, brown_cut + edge_b, brown_field)[..., None]
-    color = OLIVE * (1 - sand) + SAND * sand
-    color = color * (1 - brown) + BROWN * brown
+    if SCHEME == "cieszyn38":
+        color = camouflage_cieszyn(pos, nrm)
+        paint_emblems(color, pos, part)
+    else:
+        # Camouflage: elongated horizontally, soft sprayed edges, well-lit surfaces get darker paint.
+        q = pos * np.array([0.72, 0.46, 1.65])
+        sand_field = fbm(q + 11.3, 3, 3) - 0.035 * nrm[:, 2]
+        brown_field = fbm(q + np.array([41.7, 5.2, 19.9]), 77, 3) + 0.035 * nrm[:, 2]
+        sand_cut, brown_cut = np.percentile(sand_field, 70), np.percentile(brown_field, 74)
+        edge_s, edge_b = sand_field.std() * 0.17, brown_field.std() * 0.17
+        sand = smooth(sand_cut - edge_s, sand_cut + edge_s, sand_field)[..., None]
+        brown = smooth(brown_cut - edge_b, brown_cut + edge_b, brown_field)[..., None]
+        color = OLIVE * (1 - sand) + SAND * sand
+        color = color * (1 - brown) + BROWN * brown
 
     mottle = fbm(pos * 9.0, 201, 4)
     grain = noise3(pos * 150.0, 303)
@@ -459,6 +522,8 @@ def paint_atlas(res, suffix, objects, material):
     # Road dust rising from the tracks and vertical rain streaks.
     dust = smooth(1.05, 0.12, pos[:, 2]) * (0.35 + 0.9 * fbm(pos * np.array([3.0, 3.0, 5.0]), 404, 3))
     dust = np.clip(dust, 0, 0.72).astype(np.float32)
+    if SCHEME == "cieszyn38":
+        dust *= 0.4  # the plate shows a clean, freshly painted tank; keep the light sand visible
     streak = fbm(pos * np.array([16.0, 16.0, 1.3]), 505, 3)
     vertical = 1 - smooth(0.45, 0.8, np.abs(nrm[:, 2]))
     color *= (1 - vertical * smooth(0.52, 0.72, streak) * 0.22)[..., None]

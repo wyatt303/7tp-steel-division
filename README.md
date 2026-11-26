@@ -59,6 +59,8 @@ Polskie pojazdy pancerne z 1939 r. wymodelowane w Blenderze: dwa warianty czołg
 - [Lista modeli](docs/LISTA_MODELI.md)
 - [Wtyczka do Blendera](docs/WTYCZKA.md)
 - [Instalacja w grze](docs/INSTALACJA_W_GRZE.md)
+- [Edytor jednostek: napisy i ceny z podglądem](docs/EDYTOR_JEDNOSTEK.md)
+- [Ikony jednostek w interfejsie gry](docs/IKONY_JEDNOSTEK.md)
 - [Model 7TP: wymiary, założenia i ograniczenia](docs/MODEL_7TP.md)
 - [Tankietki TK-3 i TKS: wymiary, założenia i ograniczenia](docs/MODEL_TK.md)
 - [Samochód pancerny wz. 28](docs/MODEL_WZ28.md)
@@ -86,7 +88,7 @@ Polskie pojazdy pancerne z 1939 r. wymodelowane w Blenderze: dwa warianty czołg
 | Ciężarówka Polski Fiat 621L | Gotowy model, eksport wtyczką bez błędów, w grze niesprawdzony |
 | Wersja jednowieżowa w bitwie | Sprawdzona na wcześniejszej wersji modelu |
 | Wózki w grze | Sprawdzone wizualnie |
-| Osobne jednostki z własną nazwą i statystykami | Jeszcze nie ma, modele zastępują dwa Stuarty M3A3 |
+| Osobne jednostki z własną nazwą i statystykami | Działają w grze (sprawdzone 26 listopada 2026 r.): `Mod_7TP_Battlegroup` ze skryptu `scripts/create_battlegroup.py` dodaje battlegroupę „TOMASZÓW 39” z 7TP jednowieżowym i dwuwieżowym |
 | Ruch wahaczy i resorów | Jeszcze nie ma, są częścią kadłuba |
 
 ## Zastrzeżenia

@@ -1,0 +1,282 @@
+<!doctype html>
+<html lang="pl">
+<head>
+<meta charset="utf-8">
+<title>Edytor jednostek</title>
+<style>
+  :root {
+    --bg: #1d1b17; --panel: #2a2722; --line: #4a4438; --text: #e9e2cf; --muted: #a89f88;
+    --accent: #e3a43a; --ok: #7fb069; --bad: #e06a4f;
+    --card-head: #2b2925; --card-body: #d8ccaa; --card-cell: #cdbf99; --card-ink: #2b2519;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--text); font: 14px/1.4 "Segoe UI", system-ui, sans-serif; }
+  header { display: flex; gap: 12px; align-items: center; padding: 10px 16px; border-bottom: 1px solid var(--line); }
+  header h1 { font-size: 17px; margin: 0 12px 0 0; }
+  header .mod { color: var(--muted); font-size: 12px; flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  button { background: #3b362d; color: var(--text); border: 1px solid #5c5444; border-radius: 4px; padding: 6px 14px; font: inherit; cursor: pointer; }
+  button:hover { background: #4a4438; }
+  button.primary { background: #7a5a1e; border-color: var(--accent); }
+  button:disabled { opacity: 0.5; cursor: default; }
+  main { display: flex; flex-wrap: wrap; gap: 16px; padding: 16px; align-items: flex-start; }
+  main > nav { flex: 0 0 210px; }
+  main > #form { flex: 1 1 300px; min-width: 300px; }
+  main > section:last-child { flex: 0 0 562px; }
+  nav, section { background: var(--panel); border: 1px solid var(--line); border-radius: 6px; padding: 12px; }
+  nav h2, section h2 { font-size: 12px; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); margin: 0 0 8px; }
+  nav button { display: block; width: 100%; text-align: left; margin-bottom: 6px; }
+  nav button.active { border-color: var(--accent); background: #4a3c22; }
+  label { display: block; font-size: 12px; color: var(--muted); margin: 10px 0 3px; }
+  label code { color: #8d846f; }
+  input, textarea { width: 100%; background: #171512; color: var(--text); border: 1px solid #5c5444; border-radius: 4px; padding: 6px 8px; font: inherit; }
+  textarea { min-height: 64px; resize: vertical; }
+  input.changed, textarea.changed { border-color: var(--accent); }
+  .readonly { color: var(--muted); font-size: 12px; margin-top: 12px; border-top: 1px solid var(--line); padding-top: 8px; }
+  .status { padding: 8px 16px; min-height: 36px; white-space: pre-wrap; font-size: 13px; }
+  .status.ok { color: var(--ok); } .status.bad { color: var(--bad); }
+  .hint { color: var(--muted); font-size: 12px; }
+
+  /* Preview, modelled on the game's unit information window. */
+  .card { width: 528px; background: var(--card-body); color: var(--card-ink); border: 3px solid #1a1814; font-family: "Bahnschrift", "Segoe UI", sans-serif; }
+  .card .title { display: flex; justify-content: space-between; align-items: center; background: var(--card-head); color: #f1ead7; padding: 6px 10px; font-size: 22px; font-weight: 700; text-transform: uppercase; letter-spacing: .02em; }
+  .card .title .price { color: var(--accent); }
+  .card table { width: 100%; border-collapse: collapse; }
+  .card th { background: var(--card-head); color: #e9e2cf; font-size: 12px; padding: 3px 6px; text-align: center; }
+  .card th:first-child { text-align: left; }
+  .card td { background: var(--card-cell); border: 1px solid #a99c79; padding: 2px 6px; text-align: center; font-size: 13px; font-weight: 600; }
+  .card td.weapon { position: relative; width: 190px; height: 54px; }
+  .card td.weapon img { width: 132px; height: 50px; display: block; margin-left: 18px; }
+  .card td.weapon .cal { position: absolute; right: 6px; bottom: 3px; font-size: 11px; }
+  .card td.weapon .times { position: absolute; left: 4px; top: 16px; font-size: 14px; }
+  .card td.weapon .nopic { width: 132px; height: 50px; margin-left: 18px; display: flex; align-items: center; justify-content: center; color: #6c6250; font-size: 11px; border: 1px dashed #8d8166; }
+  .card td.weapon .tip { display: none; position: absolute; left: 30px; top: -38px; z-index: 2; background: #141210; color: #f1ead7; padding: 6px 10px; text-align: left; font-size: 13px; white-space: nowrap; border: 1px solid #5c5444; }
+  .card td.weapon:hover .tip { display: block; }
+  .card td.weapon .tip b { color: var(--accent); display: block; }
+  .badge { display: inline-block; min-width: 22px; padding: 1px 5px; border-radius: 10px; background: #c89a2c; color: #1d1b17; font-size: 12px; margin-right: 4px; }
+  .stats { display: grid; grid-template-columns: 1fr 1fr; }
+  .stats .rows div { display: grid; grid-template-columns: 1fr 1fr; border-bottom: 1px solid #a99c79; }
+  .stats .rows span { padding: 3px 6px; font-size: 13px; font-weight: 600; }
+  .stats .rows span:first-child { border-right: 1px solid #a99c79; }
+  .armor { position: relative; background: var(--card-cell); border-left: 1px solid #a99c79; min-height: 118px; }
+  .armor .top { text-align: center; font-size: 12px; font-weight: 700; padding-top: 4px; }
+  .armor img { position: absolute; left: 50%; top: 52%; width: 100px; height: 75px; transform: translate(-50%, -50%); }
+  .shield { position: absolute; width: 26px; height: 28px; background: #8ea4b3; color: #1d2328; font-weight: 700; display: flex; align-items: center; justify-content: center; border-radius: 3px 3px 10px 10px; font-size: 13px; }
+  .shield.front { left: 22px; top: 48px; } .shield.side { left: 50%; bottom: 4px; transform: translateX(-50%); } .shield.rear { right: 22px; top: 48px; }
+  .visual { position: relative; height: 300px; background: #111 center / cover no-repeat; }
+  .visual .name { position: absolute; left: 8px; bottom: 20px; background: rgba(0,0,0,.75); color: #eee; padding: 4px 10px; font-family: Consolas, monospace; font-size: 20px; text-transform: uppercase; }
+  .label-preview { display: flex; align-items: center; gap: 12px; margin-top: 12px; }
+  .label-preview .chip { width: 62px; height: 46px; background: #3c4652; border-radius: 6px; display: flex; align-items: center; justify-content: center; }
+  .label-preview .chip img { width: 42px; height: 26px; filter: drop-shadow(0 0 0 #9ed0ff) sepia(1) hue-rotate(170deg) saturate(3); }
+</style>
+</head>
+<body>
+<header>
+  <h1>Edytor jednostek</h1>
+  <span class="mod" id="mod"></span>
+  <button id="reload">Wczytaj ponownie</button>
+  <button id="save" class="primary">Zapisz</button>
+  <button id="generate">Generuj mod</button>
+</header>
+<div class="status" id="status"></div>
+<main>
+  <nav>
+    <h2>Jednostki</h2>
+    <div id="units"></div>
+    <h2 style="margin-top:14px">Inne</h2>
+    <button id="otherButton">Napisy battlegroupy</button>
+  </nav>
+  <section id="form"></section>
+  <section>
+    <h2>Podgląd okna jednostki</h2>
+    <div id="preview"></div>
+    <p class="hint">Podgląd jest przybliżony. Liczby AP i zasięg pochodzą z plików moda (zasięg gry to wartość z NDF / 5). Celność i szybkostrzelność liczy gra i ich tu nie ma.</p>
+  </section>
+</main>
+<script>
+const state = { data: null, texts: {}, original: {}, prices: {}, originalPrices: {}, selected: null };
+const $ = (id) => document.getElementById(id);
+const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+
+function setStatus(text, kind) { const el = $("status"); el.textContent = text || ""; el.className = "status " + (kind || ""); }
+
+async function load() {
+  setStatus("Wczytywanie moda…");
+  const response = await fetch("/api/state");
+  const data = await response.json();
+  if (data.error) { setStatus("Błąd: " + data.error, "bad"); return; }
+  state.data = data;
+  state.texts = {}; state.original = {};
+  for (const t of data.texts) { state.texts[t.token] = t.text; state.original[t.token] = t.text; }
+  state.prices = {}; state.originalPrices = {};
+  for (const u of data.units) { state.prices[u.unit] = u.price; state.originalPrices[u.unit] = u.price; }
+  $("mod").textContent = data.mod;
+  if (!state.selected || !data.units.some((u) => u.unit === state.selected)) state.selected = data.units[0]?.unit || "__other";
+  renderNav(); renderForm(); renderPreview();
+  setStatus("");
+}
+
+function usedTokens() {
+  const used = new Set();
+  for (const u of state.data.units) { used.add(u.token); for (const w of u.weapons) used.add(w.token); }
+  return used;
+}
+
+function renderNav() {
+  $("units").innerHTML = state.data.units.map((u) =>
+    `<button data-unit="${esc(u.unit)}" class="${u.unit === state.selected ? "active" : ""}">${esc(state.texts[u.token] || u.unit)}</button>`).join("");
+  $("otherButton").className = state.selected === "__other" ? "active" : "";
+  for (const b of $("units").querySelectorAll("button")) b.onclick = () => { state.selected = b.dataset.unit; renderNav(); renderForm(); renderPreview(); };
+}
+
+function textField(token, label, long) {
+  const changed = state.texts[token] !== state.original[token] ? "changed" : "";
+  const tag = long ? `<textarea data-token="${esc(token)}" class="${changed}">${esc(state.texts[token])}</textarea>`
+                   : `<input data-token="${esc(token)}" class="${changed}" value="${esc(state.texts[token])}">`;
+  return `<label>${esc(label)} <code>${esc(token)}</code></label>${tag}`;
+}
+
+function renderForm() {
+  const form = $("form");
+  if (state.selected === "__other") {
+    const used = usedTokens();
+    const rest = state.data.texts.filter((t) => !used.has(t.token));
+    form.innerHTML = `<h2>Napisy battlegroupy i pozostałe</h2>` +
+      rest.map((t) => textField(t.token, "Tekst", (state.texts[t.token] || "").length > 60)).join("");
+  } else {
+    const u = state.data.units.find((x) => x.unit === state.selected);
+    const weaponTokens = [...new Set(u.weapons.map((w) => w.token))];
+    const priceChanged = state.prices[u.unit] !== state.originalPrices[u.unit] ? "changed" : "";
+    form.innerHTML = `<h2>${esc(u.unit)}</h2>` +
+      textField(u.token, "Nazwa jednostki") +
+      `<label>Cena</label><input id="price" type="number" min="0" max="1000" class="${priceChanged}" value="${esc(state.prices[u.unit])}">` +
+      weaponTokens.map((t) => textField(t, "Nazwa broni")).join("") +
+      `<div class="readonly">Tylko do odczytu: nazwa w pliku (AliasName) „${esc(u.alias)}”, rok ${esc(u.year)},
+       prędkość ${esc(u.speed_kmh)} / ${esc(u.road_kmh)} km/h, wytrzymałość ${esc(u.max_damage)},
+       pancerz ${esc(Object.entries(u.armor).map(([k, v]) => k + " " + v).join(", "))}.
+       Nazwa broni jest wspólna dla wszystkich jednostek, które jej używają.</div>`;
+    $("price").oninput = (e) => {
+      state.prices[u.unit] = e.target.value === "" ? "" : Number(e.target.value);
+      e.target.classList.toggle("changed", state.prices[u.unit] !== state.originalPrices[u.unit]);
+      renderPreview();
+    };
+  }
+  for (const el of form.querySelectorAll("[data-token]")) {
+    el.oninput = () => {
+      state.texts[el.dataset.token] = el.value;
+      el.classList.toggle("changed", el.value !== state.original[el.dataset.token]);
+      renderPreview(); renderNavLabels();
+    };
+  }
+}
+
+function renderNavLabels() {
+  for (const b of $("units").querySelectorAll("button")) {
+    const u = state.data.units.find((x) => x.unit === b.dataset.unit);
+    b.textContent = state.texts[u.token] || u.unit;
+  }
+}
+
+function armorValue(name) { const m = /(\d+)/.exec(name || ""); return m ? m[1] : "?"; }
+
+function renderPreview() {
+  const box = $("preview");
+  const u = state.data.units.find((x) => x.unit === state.selected);
+  if (!u) { box.innerHTML = `<p class="hint">Wybierz jednostkę, aby zobaczyć podgląd.</p>`; return; }
+  // One row per weapon, like the game: AP and HE shells of the same gun share a row.
+  const rows = [];
+  for (const w of u.weapons) {
+    const row = rows.find((r) => r.token === w.token && r.picture === w.picture);
+    if (row) { row.ap = Math.max(row.ap ?? 0, w.ap ?? 0) || row.ap; continue; }
+    rows.push({ ...w });
+  }
+  const weaponRows = rows.map((w) => `
+    <tr>
+      <td class="weapon">
+        ${w.count > 1 ? `<span class="times">x${w.count}</span>` : ""}
+        ${w.picture ? `<img src="/assets/${encodeURIComponent(w.picture)}" alt="">` : `<div class="nopic">obrazek z gry</div>`}
+        <span class="cal">${esc(w.caliber)}</span>
+        <span class="tip"><b>${esc(state.texts[w.token] || w.token)}</b>${w.kind === "MMG" ? "Karabin maszynowy" : "Działo"}</span>
+      </td>
+      <td>${w.ap ? `<span class="badge">${w.ap}</span>` : ""}</td>
+      <td>${w.range_m ? w.range_m + " m" : "–"}</td>
+    </tr>`).join("");
+  const p = u.pictures;
+  box.innerHTML = `
+    <div class="card">
+      <div class="title"><span>${esc(state.texts[u.token] || u.unit)}</span><span class="price">${esc(state.prices[u.unit])}</span></div>
+      <table>
+        <tr><th>BROŃ</th><th>AP</th><th>ZASIĘG</th></tr>
+        ${weaponRows}
+      </table>
+      <div class="stats">
+        <div class="rows">
+          <div><span>Typ</span><span>Pojazd</span></div>
+          <div><span>Prędkość</span><span>${esc(u.speed_kmh)} km/h / ${esc(u.road_kmh)} km/h</span></div>
+          <div><span>Wytrzymałość</span><span>${esc(u.max_damage)}</span></div>
+          <div><span>Rok</span><span>${esc(u.year)}</span></div>
+        </div>
+        <div class="armor">
+          <div class="top">Dach: ${esc(u.armor.Top)}</div>
+          ${p.top ? `<img src="/assets/${encodeURIComponent(p.top)}" alt="">` : ""}
+          <div class="shield front">${armorValue(u.armor.Front)}</div>
+          <div class="shield rear">${armorValue(u.armor.Rear)}</div>
+          <div class="shield side">${armorValue(u.armor.Sides)}</div>
+        </div>
+      </div>
+      <div class="visual" style="${p.visual ? `background-image:url('/assets/${encodeURIComponent(p.visual)}')` : ""}">
+        <div class="name">${esc(state.texts[u.token] || u.unit)}</div>
+      </div>
+    </div>
+    <div class="label-preview">
+      <div class="chip">${p.rts ? `<img src="/assets/${encodeURIComponent(p.rts)}" alt="">` : ""}</div>
+      <span class="hint">Znaczek nad jednostką. Gra barwi go kolorem gracza, tu przybliżenie.</span>
+      ${p.button ? `<img src="/assets/${encodeURIComponent(p.button)}" alt="" style="height:72px;border:2px solid #1a1814">` : ""}
+    </div>`;
+}
+
+function changes() {
+  const texts = {}, prices = {};
+  for (const [k, v] of Object.entries(state.texts)) if (v !== state.original[k]) texts[k] = v;
+  for (const [k, v] of Object.entries(state.prices)) if (v !== state.originalPrices[k]) prices[k] = v;
+  return { texts, prices };
+}
+
+async function post(url, body) {
+  const response = await fetch(url, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body || {}) });
+  return response.json();
+}
+
+$("reload").onclick = () => {
+  const c = changes();
+  if ((Object.keys(c.texts).length || Object.keys(c.prices).length) && !confirm("Odrzucić niezapisane zmiany?")) return;
+  load();
+};
+$("save").onclick = async () => {
+  const c = changes();
+  if (!Object.keys(c.texts).length && !Object.keys(c.prices).length) { setStatus("Nie ma zmian do zapisania."); return; }
+  $("save").disabled = true;
+  const result = await post("/api/save", c);
+  $("save").disabled = false;
+  if (!result.ok) { setStatus("Nie zapisano:\n" + result.problems.join("\n"), "bad"); return; }
+  await load();
+  setStatus(result.message, "ok");
+};
+$("generate").onclick = async () => {
+  const c = changes();
+  if (Object.keys(c.texts).length || Object.keys(c.prices).length) { setStatus("Najpierw zapisz zmiany.", "bad"); return; }
+  $("generate").disabled = true;
+  setStatus("Generowanie moda (GenerateMod.bat), to potrwa kilka minut…");
+  const result = await post("/api/generate");
+  $("generate").disabled = false;
+  if (!result.ok) { setStatus("Generowanie nie udało się:\n" + result.problems.join("\n"), "bad"); return; }
+  setStatus(result.message, "ok");
+};
+$("otherButton").onclick = () => { state.selected = "__other"; renderNav(); renderForm(); renderPreview(); };
+window.addEventListener("beforeunload", (e) => {
+  const c = changes();
+  if (Object.keys(c.texts).length || Object.keys(c.prices).length) { e.preventDefault(); e.returnValue = ""; }
+});
+load();
+</script>
+</body>
+</html>

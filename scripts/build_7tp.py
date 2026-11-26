@@ -268,13 +268,29 @@ def build_bogie(b, side, index):
     """Vickers bogie from the 7TP drawing.
 
     A carrier tube holds a heavy curved rocker running forward to one wheel truck and a
-    quarter-elliptic leaf spring running rearward to the other. Each truck is a cast link
-    on the outer face of two twin road wheels.
+    quarter-elliptic leaf spring running to the other. Each truck is a cast link on the outer
+    face of two twin road wheels.
+
+    The two bogies are mirror images, as on the side drawing: the front bogie has its rocker
+    forward and its spring rearward, the rear bogie the other way round, so both springs point
+    to the middle of the tank. Shapes are written in u, the distance from the carrier tube
+    towards the rocker.
     """
     x = side * S.TRACK_X
     yb = S.BOGIE_Y[index]
     w = S.ROAD_Y[index * 4:index * 4 + 4]
-    front, rear = (w[0] + w[1]) / 2, (w[2] + w[3]) / 2
+    pairs = ((w[0] + w[1]) / 2, (w[2] + w[3]) / 2)
+    sign = 1 if index == 0 else -1
+    front, rear = pairs if index == 0 else pairs[::-1]  # rocker pair, spring pair
+
+    def y_of(u):
+        return yb + sign * u
+
+    def outline(points):
+        """(u, z) outline to (y, z), keeping the winding when the bogie is mirrored."""
+        out = [(y_of(u), z) for u, z in points]
+        return out if sign > 0 else out[::-1]
+
     pin_z = S.ROAD_Z + 0.06
 
     # Carrier tube with its clamp, from the hull side to the rocker.
@@ -285,29 +301,30 @@ def build_bogie(b, side, index):
     b.lathe(tube, "X", [profile[0], profile[1], (collar[0], 0.095), (collar[1], 0.095)] if side > 0 else
             [(collar[0], 0.095), (collar[1], 0.095), (near + 0.13, 0.058), (0.15, 0.058)], 8)
 
-    # Rocker: heavy arched casting from the tube down to the front truck.
-    d = front - yb
+    # Rocker: heavy arched casting from the tube down to the outer truck.
+    d = (front - yb) * sign
     rocker = [
-        (yb - 0.07, 0.535), (yb + 0.05, 0.585), (yb + 0.48 * d, 0.565), (yb + 0.80 * d, 0.45), (front + 0.03, pin_z + 0.05),
-        (front - 0.03, pin_z - 0.01), (yb + 0.62 * d, 0.30), (yb + 0.28 * d, 0.40), (yb - 0.05, 0.44),
+        (-0.07, 0.535), (0.05, 0.585), (0.48 * d, 0.565), (0.80 * d, 0.45), (d + 0.03, pin_z + 0.05),
+        (d - 0.03, pin_z - 0.01), (0.62 * d, 0.30), (0.28 * d, 0.40), (-0.05, 0.44),
     ]
-    b.prism(rocker, x - 0.058, x + 0.058) if side > 0 else b.prism(rocker, x - 0.058, x + 0.058)
+    b.prism(outline(rocker), x - 0.058, x + 0.058)
 
-    # Quarter-elliptic spring: longest leaf at the bottom, shorter leaves stepped above it.
-    length = yb - rear
+    # Quarter-elliptic spring to the inner truck: longest leaf at the bottom, shorter above it.
+    length = (yb - rear) * sign
     for k, fraction in enumerate((1.0, 0.76, 0.52)):
         z0 = 0.392 + k * 0.032
-        tail = yb + 0.09
-        tip = yb - length * fraction
+        tail = 0.09
+        tip = -length * fraction
         mid = (tail + tip) / 2
-        def drop(y):
-            s = max(0.0, (yb - y) / length)
+
+        def drop(u):
+            s = max(0.0, -u / length)
             return 0.11 * s * s
         leaf = [(tail, z0), (mid, z0 - drop(mid)), (tip, z0 - drop(tip)),
                 (tip, z0 - drop(tip) + 0.03), (mid, z0 - drop(mid) + 0.03), (tail, z0 + 0.03)]
-        b.prism(leaf, x - 0.07, x + 0.07)
-    b.strut((x, yb + 0.03, 0.375), (x, rear + 0.05, 0.27), 0.09, 0.016)
-    b.box((x, yb - 0.02, 0.47), (0.15, 0.10, 0.09))
+        b.prism(outline(leaf), x - 0.07, x + 0.07)
+    b.strut((x, y_of(0.03), 0.375), (x, y_of(-length + 0.05), 0.27), 0.09, 0.016)
+    b.box((x, y_of(-0.02), 0.47), (0.15, 0.10, 0.09))
     b.strut((x, rear, 0.30), (x, rear, pin_z), 0.05, 0.05)
 
     # Wheel trucks: cast links outside the wheels, with the central pivot raised.
@@ -364,8 +381,11 @@ def build_chassis(cfg, mat):
         b.box((0.0, -1.48, HULL_TOP + 0.015), (0.82, 0.30, 0.03))
     elif detail == 1:
         for side in (-1, 1):
-            for yb in S.BOGIE_Y:
-                arch = [(yb - 0.42, 0.26), (yb - 0.05, 0.43), (yb + 0.05, 0.57), (yb + 0.28, 0.50), (yb + 0.42, 0.27), (yb + 0.22, 0.34)]
+            # Mirrored like in High: the arch rises towards the outer end of each bogie.
+            for yb, sign in zip(S.BOGIE_Y, (1, -1)):
+                arch = [(yb + sign * u, z) for u, z in
+                        ((-0.42, 0.26), (-0.05, 0.43), (0.05, 0.57), (0.28, 0.50), (0.42, 0.27), (0.22, 0.34))]
+                arch = arch if sign > 0 else arch[::-1]
                 b.prism(arch, side * S.TRACK_X - 0.06, side * S.TRACK_X + 0.06)
     return b.finish("Chassis", mat)
 
