@@ -8,13 +8,18 @@ both drawn at about 2.6 mm per pixel. Running gear, superstructure outline and t
 position were measured from those plates, so they are estimates. Plan widths come from the
 top-view drawings.
 
-Set TK_VARIANT to "tk3" or "tks".
+Set TK_VARIANT to "tk3", "tks" or "tks20". "tks20" is the TKS hull with the 20 mm nkm wz. 38
+FK-A in place of the Hotchkiss machine gun, as in the tankettes re-armed in 1939 (the tank of
+Roman Orlik). The gun is about 1.85 m long overall; in the ball mount roughly a metre of it, the
+recoil jacket and the barrel with its muzzle brake, sticks out in front of the mount. These
+figures are estimates from photographs.
 """
 
 import os
 
 VARIANT = os.environ.get("TK_VARIANT", "tks")
-STEM = {"tk3": "TK3", "tks": "TKS"}[VARIANT]
+STEM = {"tk3": "TK3", "tks": "TKS", "tks20": "TKS20"}[VARIANT]
+GUN = "nkm20" if VARIANT == "tks20" else "hotchkiss"
 
 if VARIANT == "tk3":
     GROUND_CLEARANCE = 0.30
@@ -73,7 +78,7 @@ else:
         (1.275, [(0.24, 0.46), (0.15, 0.60), (-0.34, 0.60), (-0.47, 0.46)]),
     ]
     MOUNT = (0.40, 0.66, 1.01)
-    MUZZLE_Y = 1.29
+    MUZZLE_Y = 1.72 if GUN == "nkm20" else 1.29
     MUFFLER = (0.40, -0.80, 1.17)
     MANTLET = "ball"
 

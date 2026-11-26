@@ -10,6 +10,7 @@ Wszystkie modele mają wersje High, Mid i Low, tekstury i eksport wtyczką bez b
 | 7TP dwuwieżowy (2 × ckm wz. 30) | `7TP_dwuwiezowy_wz30` | czołgi Eugen | 7648 / 2000 / 584 | [MODEL_7TP](MODEL_7TP.md) |
 | Tankietka TK-3 | `TK3` | Universal Carrier | 9304 / 1572 / 492 | [MODEL_TK](MODEL_TK.md) |
 | Tankietka TKS | `TKS` | Universal Carrier | 9428 / 1636 / 496 | [MODEL_TK](MODEL_TK.md) |
+| Tankietka TKS z nkm 20 mm (as Orlik) | `TKS20` | Universal Carrier | 9308 / 1656 / 496 | [MODEL_TKS20_ORLIK](MODEL_TKS20_ORLIK.md) |
 
 ## Samochody pancerne
 

@@ -68,6 +68,7 @@ Projekt leży w `D:\Mod\Wrzesien1939` (do 26 listopada 2026 r. `D:\Mod\7TP`). Mo
 - [Ustawienia jednostek: data/units.toml](docs/USTAWIENIA_JEDNOSTEK.md)
 - [Porównanie 7TP z lekkimi czołgami w grze](docs/POROWNANIE_CZOLGOW.md)
 - [Model 7TP: wymiary, założenia i ograniczenia](docs/MODEL_7TP.md)
+- [As: TKS z nkm 20 mm „Orlik”](docs/MODEL_TKS20_ORLIK.md)
 - [Tankietki TK-3 i TKS: wymiary, założenia i ograniczenia](docs/MODEL_TK.md)
 - [Samochód pancerny wz. 28](docs/MODEL_WZ28.md)
 - [Samochód pancerny wz. 34](docs/MODEL_WZ34.md)

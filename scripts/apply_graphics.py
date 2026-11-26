@@ -33,7 +33,7 @@ ASSETS = os.path.join(MOD, "AssetsModding")
 UNIT_FILES = {"RTS.png": ("RTS", (42, 26)), "TopView.png": ("TopView", (100, 75)),
               "Button.png": ("Button", (160, 82)), "Visual.png": ("Visual", (388, 224))}
 # Unit -> picture file of its main gun (the panel shows the turret for it).
-TURRET_FILES = {"TP7_JW": "TP7_Bofors37_Weapon.png"}
+TURRET_FILES = {"TP7_JW": "TP7_Bofors37_Weapon.png", "TKS20": "TKS20_Nkm20_Weapon.png"}
 # Weapon name (as in create_battlegroup.py) -> picture file used by the mod, for weapons shown
 # on their own, such as machine guns.
 WEAPON_FILES = {"CkmWz30": "TP7_CkmWz30_Weapon.png"}

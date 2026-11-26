@@ -20,6 +20,7 @@ from steel_division_ase2ndfbin import exporter  # noqa: E402
 MODELS = {
     "TP7_JW": ("7TP_jednowiezowy_Bofors", "POL/Char"),
     "TP7_DW": ("7TP_dwuwiezowy_wz30", "POL/Char"),
+    "TKS20": ("TKS20", "POL/Char"),
 }
 
 failed = 0

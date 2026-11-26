@@ -456,6 +456,20 @@ def build_gun(cfg, mat, chassis):
 
     b = Builder()
     length = S.MUZZLE_Y - mount.y
+    if getattr(S, "GUN", "hotchkiss") == "nkm20":
+        # 20 mm nkm wz. 38 FK-A: thick recoil jacket, long thin barrel, muzzle brake.
+        if detail >= 2:
+            profile = [(0.04, 0.040), (0.30, 0.040), (0.31, 0.034), (0.36, 0.034), (0.37, 0.020),
+                       (length - 0.10, 0.017), (length - 0.095, 0.027), (length - 0.01, 0.027), (length, 0.018)]
+        elif detail == 1:
+            profile = [(0.04, 0.038), (0.33, 0.036), (0.34, 0.019), (length - 0.10, 0.017), (length - 0.09, 0.026),
+                       (length, 0.026)]
+        else:
+            profile = [(0.04, 0.034), (length, 0.018)]
+        b.lathe(mount, "Y", profile, max(5, cfg["seg"] - 4))
+        canon = b.finish("Canon_01", mat, mount, axis)
+        helper("Fx_tourelle1_tir_01", (mount.x, S.MUZZLE_Y + 0.01, mount.z), canon)
+        return turret
     if detail >= 2:
         profile = [(0.04, 0.032), (0.10, 0.032), (0.11, 0.026), (0.13, 0.032), (0.16, 0.026), (0.18, 0.032),
                    (0.21, 0.026), (0.23, 0.032), (0.26, 0.032), (0.27, 0.015), (length - 0.09, 0.013),

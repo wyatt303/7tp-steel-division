@@ -1,17 +1,21 @@
-"""Add two 7TP units and a test Polish battlegroup to a freshly created Steel Division mod.
+"""Add our Polish 1939 units and their battlegroup to a freshly created Steel Division mod.
 
   python create_battlegroup.py <path to the mod folder>
 
 Run it once, on a new mod. Nothing outside that folder is changed. The script copies game
 definitions at run time, so the repository contains no game data.
 
-Sources: Cromwell V (POL) for the tank-class unit data, M3A3 Stuart (POL) for the turret,
-weapon and depiction layout, 1st Polish Armoured Division for the battlegroup.
+Each unit copies existing game entries, named in data/units.toml: unit_base for the unit data
+(Cromwell V POL for the 7TP, M3A3 Stuart POL for the TKS ace), weapon_base for weapons, firing
+effects and depiction (Stuart for the 7TP, Panzer II C for the TKS with the 20 mm gun). The
+battlegroup copies the 1st Polish Armoured Division.
 
 All numbers and texts that may be tuned (price, speed, armour, ammunition, rates of fire,
 accuracy, range, names and descriptions) are read from data/units.toml.
 """
 
+import glob
+import math
 import os
 import re
 import sys
@@ -22,8 +26,6 @@ MOD = os.path.abspath(sys.argv[1])
 DATA = os.path.join(MOD, "GameData")
 GAMEPLAY = os.path.join(DATA, "Gameplay")
 GENERATED = os.path.join(GAMEPLAY, "Gfx", "Generated")
-UNIT_BASE = "Cromwell_V_POL"
-WEAPON_BASE = "Stuart_M3A3_POL"
 
 # Every number and text that a user may want to change lives in data/units.toml.
 SETTINGS_PATH = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "data", "units.toml")
@@ -31,11 +33,15 @@ with open(SETTINGS_PATH, "rb") as _handle:
     SETTINGS = tomllib.load(_handle)
 VARIANTS = SETTINGS["units"]
 AMMO = SETTINGS["ammo"]
-# Order of the ammunition in each unit's weapon list (turret by turret, as in the Stuart layout).
-AMMO_ORDER = {
-    "TP7_JW_POL": ["Ammo_Bofors_wz37_AP", "Ammo_Bofors_wz37_HE", "Ammo_ckm_wz30_vehicule"],
-    "TP7_DW_POL": ["Ammo_ckm_wz30_vehicule", "Ammo_ckm_wz30_vehicule"],
-}
+# Each unit copies its unit data from unit_base and its weapons, effects and depiction from
+# weapon_base (both game entries); layout says how the weapon list is rebuilt.
+UNIT_BASES = sorted({info["unit_base"] for info in VARIANTS.values()})
+# Model and depiction definitions of all our units are appended to these game files.
+MODEL_FILE_BASE = "Stuart_M3A3_POL"
+
+
+def units_of(base):
+    return [name for name, info in VARIANTS.items() if info["unit_base"] == base]
 
 
 def salvos_of(unit, ammo):
@@ -45,10 +51,12 @@ def salvos_of(unit, ammo):
     if rounds % per_salvo:
         print("note: %s %s: %d rounds is not a whole number of salvos of %d" % (unit, ammo, rounds, per_salvo))
     return max(1, round(rounds / per_salvo))
-PACKS = [
-    ("Descriptor_Deck_Pack_POL_7TP_JW_A", "TP7_JW_POL", 0, 1, 2, 3),
-    ("Descriptor_Deck_Pack_POL_7TP_JW_B", "TP7_JW_POL", 1, 1, 3, 2),
-    ("Descriptor_Deck_Pack_POL_7TP_DW_A", "TP7_DW_POL", 0, 0, 3, 2),
+PACKS = [  # name, unit, phase, experience (0-3), units in the pack, cards, factory
+    ("Descriptor_Deck_Pack_POL_7TP_JW_A", "TP7_JW_POL", 0, 1, 2, 3, "Tank"),
+    ("Descriptor_Deck_Pack_POL_7TP_JW_B", "TP7_JW_POL", 1, 1, 3, 2, "Tank"),
+    ("Descriptor_Deck_Pack_POL_7TP_DW_A", "TP7_DW_POL", 0, 0, 3, 2, "Tank"),
+    # The ace: a single elite (three-star) tankette, one card, in the reconnaissance tab.
+    ("Descriptor_Deck_Pack_POL_TKS20_Orlik", "TKS20_ACE_POL", 0, 3, 1, 1, "Reco"),
 ]
 DIVISION = "Descriptor_Deck_Division_POL_Grupa_7TP_MULTI"
 DIVISION_BASE = "Descriptor_Deck_Division_POL_1st_Armored_MULTI"
@@ -206,25 +214,37 @@ def turret_text(turret, tag_number, weapon_number, salvo, effect, rotation):
     return set_field(turret, "WeaponNumber_ForInterface", weapon_number)
 
 
-def weapon_descriptor(source, name, variant):
-    text = source.replace(WEAPON_BASE, name)
+def weapon_descriptor(source, name, info):
+    text = source.replace(info["weapon_base"], name)
+    # The base's ammunition becomes ours (copy_of in data/units.toml).
+    for new, a in AMMO.items():
+        text = re.sub(r"~/%s\b" % re.escape(a["copy_of"]), "~/" + new, text)
     opening, closing, turrets = list_items(text, "TurretDescriptorList")
-    mg = turrets[1].replace("~/Ammo_M1919_7_62mm_vehicule", "~/Ammo_ckm_wz30_vehicule")
     # Ammunition stocks come from data/units.toml, in rounds; see salvos_of.
-    salvos = [salvos_of(name, ammo) for ammo in AMMO_ORDER[name]]
-    if variant == "jw":
-        gun = turrets[0].replace("~/Ammo_Canon_M5_37mmL_AP", "~/Ammo_Bofors_wz37_AP").replace("~/Ammo_Canon_M5_37mmL_HE", "~/Ammo_Bofors_wz37_HE")
-        kept = [gun, set_field(mg, "WeaponNumber_ForInterface", 1)]
-    else:
+    salvos = [salvos_of(name, ammo) for ammo in info["stocks"]]
+    layout = info["layout"]
+    if layout == "tp7_jw":
+        # Stuart: gun with AP and HE, then the coaxial machine gun.
+        kept = [turrets[0], set_field(turrets[1], "WeaponNumber_ForInterface", 1)]
+    elif layout == "tp7_dw":
+        mg = turrets[1]
         kept = [turret_text(mg, 1, 2, 0, 1, 2.09439510239), turret_text(mg, 2, 2, 1, 2, 2.09439510239)]
+    elif layout == "tks20":
+        # Panzer II: the 20 mm gun only; in the TKS it sits in a ball mount with little traverse.
+        kept = [set_field(turrets[0], "AngleRotationMax", round(math.radians(info["gun_traverse_deg"]), 6))]
+    else:
+        raise ValueError("Unknown layout " + layout)
     text = text[:opening + 1] + "\r\n        " + ",\r\n        ".join(kept) + "\r\n    " + text[closing - 1:]
     salvos += [-1] * (29 - len(salvos))
     return re.sub(r"Salves\s*=\s*\[.*?\]", "Salves               = [ " + ", ".join(str(v) for v in salvos) + " ]", text, count=1, flags=re.S)
 
 
-def operators(source, name):
-    text = source.replace(WEAPON_BASE, name)
-    for turret in ("tourelle3", "tourelle4"):
+REMOVED_TURRETS = {"tp7_jw": ("tourelle3", "tourelle4"), "tp7_dw": ("tourelle3", "tourelle4"), "tks20": ("tourelle4",)}
+
+
+def operators(source, name, info):
+    text = source.replace(info["weapon_base"], name)
+    for turret in REMOVED_TURRETS[info["layout"]]:
         at = text.find("OperatorId = '%s'" % turret)
         start = text.rfind("TCosmeticTurretOperatorDesc", 0, at)
         end = matching(text, text.index("(", start))
@@ -236,9 +256,9 @@ def operators(source, name):
 
 def build_weapons():
     path = os.path.join(GENERATED, "WeaponDescriptor.ndf")
-    source = get_object(read(path), "WeaponDescriptor_" + WEAPON_BASE)
-    blocks = [weapon_descriptor(source, "TP7_JW_POL", "jw"), weapon_descriptor(source, "TP7_DW_POL", "dw")]
-    append(path, blocks)
+    text = read(path)
+    append(path, [weapon_descriptor(get_object(text, "WeaponDescriptor_" + info["weapon_base"]), name, info)
+                  for name, info in VARIANTS.items()])
 
     path = os.path.join(GENERATED, "Ammunition.ndf")
     text = read(path)
@@ -269,42 +289,61 @@ def build_weapons():
     append(path, blocks)
 
     path = os.path.join(GENERATED, "GeneratedDepictionUnitOperatorBlock.ndf")
-    source = get_object(read(path), "Operators_" + WEAPON_BASE)
-    append(path, [operators(source, n) for n in VARIANTS])
+    text = read(path)
+    append(path, [operators(get_object(text, "Operators_" + info["weapon_base"]), name, info)
+                  for name, info in VARIANTS.items()])
 
     path = os.path.join(GENERATED, "GeneratedDepictionUnitWeaponBlock.ndf")
     text = read(path)
-    weapon = {n: get_object(text, "Weapon_%s_weapon%d_slot1" % (WEAPON_BASE, n)) for n in (1, 2, 3)}
-    blocks = [weapon[n].replace(WEAPON_BASE, "TP7_JW_POL") for n in (1, 2, 3)]
-    blocks.append("Weapons_TP7_JW_POL is MAP\r\n[\r\n"
-                  "    ( [ 'weapon_effet_tag1', 'tir', '1' ], Weapon_TP7_JW_POL_weapon1_slot1 ),\r\n"
-                  "    ( [ 'weapon_effet_tag2', 'tir', '1' ], Weapon_TP7_JW_POL_weapon2_slot1 ),\r\n"
-                  "    ( [ 'weapon_effet_tag3', 'tir_c', '1' ], Weapon_TP7_JW_POL_weapon3_slot1 ),\r\n]")
-    mg = weapon[3].replace(WEAPON_BASE, "TP7_DW_POL").replace("weapon3_slot1", "weapon2_slot1")
-    first = mg.replace("weapon2_slot1", "weapon1_slot1").replace("Fx_tourelle2_tir_01", "Fx_tourelle1_tir_01").replace("TurretIndexAsString = '2'", "TurretIndexAsString = '1'")
-    blocks += [first, mg]
-    blocks.append("Weapons_TP7_DW_POL is MAP\r\n[\r\n"
-                  "    ( [ 'weapon_effet_tag1', 'tir_c', '1' ], Weapon_TP7_DW_POL_weapon1_slot1 ),\r\n"
-                  "    ( [ 'weapon_effet_tag2', 'tir_c', '1' ], Weapon_TP7_DW_POL_weapon2_slot1 ),\r\n]")
+    blocks = []
+    for name, info in VARIANTS.items():
+        base = info["weapon_base"]
+        weapon = lambda n: get_object(text, "Weapon_%s_weapon%d_slot1" % (base, n))
+        if info["layout"] == "tp7_jw":
+            blocks += [weapon(n).replace(base, name) for n in (1, 2, 3)]
+            blocks.append("Weapons_%s is MAP\r\n[\r\n"
+                          "    ( [ 'weapon_effet_tag1', 'tir', '1' ], Weapon_%s_weapon1_slot1 ),\r\n"
+                          "    ( [ 'weapon_effet_tag2', 'tir', '1' ], Weapon_%s_weapon2_slot1 ),\r\n"
+                          "    ( [ 'weapon_effet_tag3', 'tir_c', '1' ], Weapon_%s_weapon3_slot1 ),\r\n]" % ((name,) * 4))
+        elif info["layout"] == "tp7_dw":
+            mg = weapon(3).replace(base, name).replace("weapon3_slot1", "weapon2_slot1")
+            first = mg.replace("weapon2_slot1", "weapon1_slot1").replace("Fx_tourelle2_tir_01", "Fx_tourelle1_tir_01").replace("TurretIndexAsString = '2'", "TurretIndexAsString = '1'")
+            blocks += [first, mg]
+            blocks.append("Weapons_%s is MAP\r\n[\r\n"
+                          "    ( [ 'weapon_effet_tag1', 'tir_c', '1' ], Weapon_%s_weapon1_slot1 ),\r\n"
+                          "    ( [ 'weapon_effet_tag2', 'tir_c', '1' ], Weapon_%s_weapon2_slot1 ),\r\n]" % ((name,) * 3))
+        elif info["layout"] == "tks20":
+            # Panzer II firing effects of the 20 mm gun (AP and HE), on turret 1.
+            blocks += [weapon(n).replace(base, name) for n in (1, 2)]
+            blocks.append("Weapons_%s is MAP\r\n[\r\n"
+                          "    ( [ 'weapon_effet_tag1', 'tir_c', '1' ], Weapon_%s_weapon1_slot1 ),\r\n"
+                          "    ( [ 'weapon_effet_tag2', 'tir_c', '1' ], Weapon_%s_weapon2_slot1 ),\r\n]" % ((name,) * 3))
     append(path, blocks)
 
 
 def build_models():
     folder = path_of("Gfx", "Units", "POL", "Char")
-    model_path = os.path.join(folder, WEAPON_BASE + ".ndf")
-    depiction_path = os.path.join(folder, WEAPON_BASE + "_Depiction.ndf")
-    depiction = get_object(read(depiction_path), "Gfx_" + WEAPON_BASE)
+    model_path = os.path.join(folder, MODEL_FILE_BASE + ".ndf")
+    depiction_path = os.path.join(folder, MODEL_FILE_BASE + "_Depiction.ndf")
     models, depictions = [], []
     for name, info in VARIANTS.items():
+        base = info["weapon_base"]
+        source = glob.glob(path_of("Gfx", "Units", "*", "*", base + "_Depiction.ndf"))
+        if not source:
+            raise RuntimeError("No depiction file for " + base)
+        depiction = get_object(read(source[0]), "Gfx_" + base)
         stem = info["model"]
         models.append("export ModelFile_%s is 'GameData:Assets\\3D\\Units\\POL\\Char\\%s\\%s.Ase2NdfBin'" % (name, stem, stem))
         for suffix, file_name in (("", "ModelFile_" + name), ("_MID", "'GameData:Assets\\3D\\Units\\POL\\Char\\%s\\%s_MID.Ase2NdfBin'" % (stem, stem)),
                                   ("_LOW", "'GameData:Assets\\3D\\Units\\POL\\Char\\%s\\%s_LOW.Ase2NdfBin'" % (stem, stem))):
             models.append("Modele_%s%s is TResourceMultiMaterialMeshWithLod\r\n(\r\n    FileName = %s\r\n    CivMask =  CivMask/MeshModding\r\n"
                           "    TypeMask = TypeMask/Char\r\n)" % (name, suffix, file_name))
-        block = depiction.replace(WEAPON_BASE, name)
-        if name == "TP7_DW_POL":
+        block = depiction.replace(base, name)
+        if info["layout"] == "tp7_dw":
             block = block.replace("DepictionOperator_TurretRecoil(TurretNum='1')", "DepictionOperator_TurretRecoilLightMachineGun(TurretNum='1')")
+        if info["layout"] == "tks20":
+            # A tankette moves and rocks like the game's small tracked vehicles (Universal Carrier).
+            block = block.replace("_MediumTank", "_SmallTank")
         depictions.append(block)
     append(model_path, models)
     append(depiction_path, depictions)
@@ -327,7 +366,22 @@ def patch_unit(text, info):
     text = set_field(text, "NameInMenuToken", "'%s'" % info["name"])
     text = set_field(text, "AliasName", '"%s"' % info["alias"])
     text = set_field(text, "MenuIconForInterface", "~/Texture_RTS_H_Stuart_M3A3")
+    if "optics" in info:
+        text = set_field(text, "OpticalStrength", info["optics"])
+    if "type" in info:
+        text = set_field(text, "TypeUnitValue", "ETypeUnit/" + info["type"])
+        text = set_field(text, "TypeUnitHintToken", "'%s'" % info["type"])
     return text.replace('"Char_Moyen"', '"Char_Leger"').replace("OnProduction_Char_Moyen", "OnProduction_Char_Leger")
+
+
+def make_ace(text, info):
+    """As the game's aces (Panzer IV H Kretzschmar): a fixed commander name and IsAce, written just
+    before each TopViewForInterface of the unit and of its wreck."""
+    if "ace_name" not in info:
+        return text
+    return re.sub(r"(?m)^(\s*)(TopViewForInterface\s*=)",
+                  lambda m: "%sFixedName                        = '%s'\r\n%sIsAce                            = True\r\n%s%s"
+                  % (m.group(1), info["ace_name"], m.group(1), m.group(1), m.group(2)), text)
 
 
 def patch_texture(block, name, stem):
@@ -356,18 +410,28 @@ def build_units():
         path_of("UI", "Resources", "Textures", "Generated", "TopViewTextures.ndf"),
         path_of("UI", "Resources", "Textures", "Generated", "VisualTextures.ndf"),
     ]
-    own = re.compile(r"^(?!WeaponDescriptor_|Weapon_|Weapons_|Operators_|Gfx_|Modele|ModelFile)\w*" + UNIT_BASE + r"(_\w+)?$")
+    own = {base: re.compile(r"^(?!WeaponDescriptor_|Weapon_|Weapons_|Operators_|Gfx_|Modele|ModelFile)\w*" + base + r"(_\w+)?$")
+           for base in UNIT_BASES}
+
+    def found_in(text, path, what):
+        found = {}
+        for base in UNIT_BASES:
+            found[base] = [text[start:end] for name, start, end in statements(text) if own[base].match(name)]
+            if not found[base]:
+                raise RuntimeError("No %s %s in %s" % (base, what, path))
+        return found
+
     for path in objects:
-        text = read(path)
-        found = [text[start:end] for name, start, end in statements(text) if own.match(name)]
-        if not found:
-            raise RuntimeError("No %s objects in %s" % (UNIT_BASE, path))
+        found = found_in(read(path), path, "objects")
         blocks = []
         for name, info in VARIANTS.items():
-            for block in found:
-                clone = fresh_guids(block.replace(UNIT_BASE, name), name)
+            base = info["unit_base"]
+            for block in found[base]:
+                clone = fresh_guids(block.replace(base, name), name)
                 if "TModularUnitDescriptor" in clone[:160] and "Descriptor_Unit_" in clone[:80]:
                     clone = patch_unit(clone, info)
+                if "TModularUnitDescriptor" in clone[:160]:
+                    clone = make_ace(clone, info)
                 if path.endswith("Generated_CubeActionsUnites.ndf"):
                     clone = clone.replace("~/Texture_Bouton_Unit_" + name, "$/GFX/Everything/Texture_Bouton_Unit_" + name)
                 blocks.append(clone)
@@ -375,38 +439,37 @@ def build_units():
 
     textures = []
     for path in texture_files:
-        text = read(path)
-        found = [text[start:end] for name, start, end in statements(text) if own.match(name)]
-        if not found:
-            raise RuntimeError("No %s textures in %s" % (UNIT_BASE, path))
+        found = found_in(read(path), path, "textures")
         for name, info in VARIANTS.items():
-            for block in found:
+            base = info["unit_base"]
+            for block in found[base]:
                 # Only the object name changes, so the top view keeps pointing at an existing image.
                 head, body = block.split(" is ", 1)
-                textures.append(patch_texture(head.replace(UNIT_BASE, name) + " is " + body, name, info["model"]))
+                textures.append(patch_texture(head.replace(base, name) + " is " + body, name, info["model"]))
     append(os.path.join(GAMEPLAY, "Gfx", "LabelDescripors.ndf"), textures)
 
+    patterns = {base: re.compile(r"\b\w*" + base + r"\b") for base in UNIT_BASES}
     for path in (os.path.join(GENERATED, "AllUnits.ndf"), os.path.join(GENERATED, "DependencyHelper.ndf"),
                  os.path.join(GENERATED, "ShowRoomEquivalence.ndf"), path_of("Skirmish", "Generated", "UnitToUnitTag.ndf")):
         lines = read(path).split("\n")
         out = []
-        pattern = re.compile(r"\b\w*" + UNIT_BASE + r"\b")
         for line in lines:
             out.append(line)
-            if pattern.search(line):
-                for name in VARIANTS:
-                    out.append(line.replace(UNIT_BASE, name))
+            for base in UNIT_BASES:
+                if patterns[base].search(line):
+                    for name in units_of(base):
+                        out.append(line.replace(base, name))
         write(path, "\n".join(out))
 
 
 def build_division():
     packs_path = path_of("Decks", "Generated", "Packs.ndf")
     blocks = []
-    for name, unit, phase, experience, count, _ in PACKS:
+    for name, unit, phase, experience, count, _, factory in PACKS:
         entry = "        TDeckTransporterAndUnitsDescriptor\r\n        (\r\n            UnitDescriptorList =\r\n            [\r\n                ~/Descriptor_Unit_%s,\r\n            ]\r\n        ),\r\n" % unit
         blocks.append("export %s is TDeckPackDescriptor\r\n(\r\n    DescriptorId = GUID:{%s}\r\n    PackToken = ''\r\n    AvailableFromPhase = %d\r\n"
-                      "    ExperienceLevel = %d\r\n    FactoryType = EDefaultFactories/Tank\r\n    TransporterAndUnitsList =\r\n    [\r\n%s    ]\r\n)"
-                      % (name, new_guid("pack", name), phase, experience, entry * count))
+                      "    ExperienceLevel = %d\r\n    FactoryType = EDefaultFactories/%s\r\n    TransporterAndUnitsList =\r\n    [\r\n%s    ]\r\n)"
+                      % (name, new_guid("pack", name), phase, experience, factory, entry * count))
     append(packs_path, blocks)
 
     path = path_of("Decks", "Generated", "Divisions.ndf")
@@ -423,7 +486,7 @@ def build_division():
         "export Texture_Division_Emblem_TP7 is TUIResourceTexture_CommonModded\r\n(\r\n    FileName = 'TP7_Div_Emblem.png'\r\n)",
         "export Texture_Division_Portrait_TP7 is TUIResourceTexture_CommonModded\r\n(\r\n    FileName = 'TP7_Div_Portrait.png'\r\n)",
     ])
-    entries = "".join("        (~/%s, %d),\r\n" % (name, cards) for name, _, _, _, _, cards in PACKS)
+    entries = "".join("        (~/%s, %d),\r\n" % (name, cards) for name, _, _, _, _, cards, _ in PACKS)
     block, count = re.subn(r"(PackList\s*=\s*MAP\s*\[\s*?\r?\n)", lambda m: m.group(1) + entries, block, count=1)
     if not count:
         raise RuntimeError("PackList not found")
@@ -475,7 +538,7 @@ build_texts()
 unit_text = read(os.path.join(GENERATED, "UniteDescriptor.ndf"))
 for name in VARIANTS:
     body = get_object(unit_text, "Descriptor_Unit_" + name)
-    if UNIT_BASE in body or WEAPON_BASE in body:
+    if VARIANTS[name]["unit_base"] in body or VARIANTS[name]["weapon_base"] in body:
         raise RuntimeError("Leftover reference in " + name)
     print(name, "unit", len(body), "price", re.search(r"ProductionPrice\s*=\s*(\d+)", body).group(1),
           "front", re.search(r"ArmorDescriptorFront\s*=\s*(\w+)", body).group(1))

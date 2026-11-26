@@ -10,6 +10,10 @@
 
 [units.TP7_JW_POL]
 model = "TP7_JW"                 # pliki modelu w models\ (nie zmieniać)
+unit_base = "Cromwell_V_POL"     # wpis gry, z którego kopiowane są dane jednostki (nie zmieniać)
+weapon_base = "Stuart_M3A3_POL"  # wpis gry, z którego kopiowane są broń i wygląd w bitwie (nie zmieniać)
+layout = "tp7_jw"                # układ broni w skrypcie (nie zmieniać)
+stocks = ["Ammo_Bofors_wz37_AP", "Ammo_Bofors_wz37_HE", "Ammo_ckm_wz30_vehicule"]  # kolejność zapasów (nie zmieniać)
 name = "TP7JW"                   # token napisu z sekcji [texts]
 alias = "7TP jw"                 # nazwa w plikach gry, nie jest wyświetlana
 price = 45                       # cena w punktach
@@ -34,6 +38,10 @@ ammo = { Ammo_Bofors_wz37_AP = 70, Ammo_Bofors_wz37_HE = 10, Ammo_ckm_wz30_vehic
 
 [units.TP7_DW_POL]
 model = "TP7_DW"
+unit_base = "Cromwell_V_POL"
+weapon_base = "Stuart_M3A3_POL"
+layout = "tp7_dw"
+stocks = ["Ammo_ckm_wz30_vehicule", "Ammo_ckm_wz30_vehicule"]
 name = "TP7DW"
 alias = "7TP dw"
 price = 30
@@ -49,6 +57,36 @@ armor_rear = 1
 armor_top = "Toit_Lourd"
 # Zapas na JEDEN z dwóch ckm. Źródło: derela.pl, ok. 6000 nabojów na oba karabiny.
 ammo = { Ammo_ckm_wz30_vehicule = 2970 }
+
+# As: TKS z nkm 20 mm wz. 38 FK-A, czołg kpr. pchor. Romana Orlika (wrzesień 1939).
+# Dane jednostki ze Stuarta (rozpoznanie gąsienicowe, bez przewożenia piechoty), broń i wygląd
+# w bitwie z Panzera II C (działko 20 mm), model TKS20 z models\.
+[units.TKS20_ACE_POL]
+model = "TKS20"
+unit_base = "Stuart_M3A3_POL"
+weapon_base = "Panzer_II_C_Bef"
+layout = "tks20"
+stocks = ["Ammo_nkm_wz38_AP"]    # AP i HE mają wspólny zapas, jak w Panzerze II
+name = "TKS20Orl"
+alias = "TKS 20mm Orlik"
+ace_name = "AceOrlik"            # stałe nazwisko dowódcy asa (token z [texts]); jednostka dostaje IsAce
+type = "ArmoReco"                # rola: rozpoznanie pancerne (jak Stuart, Humber)
+price = 50
+year = 1939
+# TKS jechał ok. 40 km/h po drodze, szybciej od 7TP; w skali gry jak lekkie pojazdy gąsienicowe.
+speed_kmh = 28
+road_speed_kmh = 65
+strength = 5                     # niska odporność (Universal Carrier ma 6, czołgi 8)
+concealment = 2.5                # bardzo dobre maskowanie: niska, mała tankietka (piechota rozpoznania ma 2.5)
+optics = 200                     # dobra optyka rozpoznania (Stuart zwiadowczy ma 200)
+gun_traverse_deg = 12            # nkm w jarzmie kulistym w kadłubie: obrót w poziomie ograniczony
+# Pancerz TKS: 8-10 mm.
+armor_front = 1
+armor_sides = 1
+armor_rear = 1
+armor_top = "Toit_Lourd"
+# Zapas amunicji 20 mm do sprawdzenia w źródłach; przyjęto 200 nabojów (10 serii po 20).
+ammo = { Ammo_nkm_wz38_AP = 200 }
 
 # ---------------------------------------------------------------------------------------------
 # Amunicja (broń). Wspólna dla wszystkich jednostek, które jej używają.
@@ -99,6 +137,33 @@ shots_per_salvo = 25
 seconds_between_shots = 2.0
 seconds_between_salvos = 10.0
 
+# nkm 20 mm wz. 38 FK-A (TKS Orlika). Wzorzec: KwK 38 20 mm z Panzera II (AP 4, 800 m, 171 r/m).
+# Przebicie 5: nkm przebijał więcej niż KwK 30/38, a Orlik niszczył nim czołgi 35(t) i Panzer I/II.
+[ammo.Ammo_nkm_wz38_AP]
+copy_of = "Ammo_KwK_38L55_20mm_AP"
+name = "Nkm20"
+caliber = "20mm"
+penetration = 5
+accuracy = 6
+accuracy_moving = 4
+range_m = 800
+rounds_per_salvo = 20
+shots_per_salvo = 3
+seconds_between_shots = 2.0
+seconds_between_salvos = 3.0
+
+[ammo.Ammo_nkm_wz38_HE]
+copy_of = "Ammo_KwK_38L55_20mm_HE"
+name = "Nkm20"
+caliber = "20mm"
+accuracy = 6
+accuracy_moving = 4
+range_m = 800
+rounds_per_salvo = 20
+shots_per_salvo = 3
+seconds_between_shots = 2.0
+seconds_between_salvos = 3.0
+
 # ---------------------------------------------------------------------------------------------
 # Napisy widoczne w grze (token = tekst). Tokeny mają najwyżej 10 znaków.
 # ---------------------------------------------------------------------------------------------
@@ -108,6 +173,9 @@ TP7JW = "7TP 37mm Bofors"
 TP7DW = "7TP twin-turret"
 Bofors37 = "37mm Bofors wz.37"
 CkmWz30 = "7.92mm ckm wz.30"
+TKS20Orl = "TKS 20mm Orlik"
+Nkm20 = "20mm nkm wz.38 FK"
+AceOrlik = "Roman Orlik"
 TP7DivName = "Warszawska Bryg. Panc-Mot"
 TP7DivNick = "TOMASZÓW 39"
 TP7DivDesc = "Polish armoured group at the First Battle of Tomaszów Lubelski, 17-20 September 1939."

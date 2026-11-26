@@ -53,6 +53,6 @@ Każdy wiersz to `TOKEN = "tekst"`. Token ma najwyżej 10 znaków i jest wspóln
 
 - Optyki (`OpticalStrength`). Zostaje z wzorca, czyli Cromwella V.
 - Paczek, czyli liczby kart i faz, oraz struktury battlegroupy. To jest w `PACKS` w skrypcie.
-- Nowych jednostek. Każda nowa jednostka wymaga też zmian w skrypcie, m.in. wyboru wzorca i kolejności amunicji w `AMMO_ORDER`.
+- Nowych układów broni. Jednostka z nowym układem (`layout`) wymaga zmian w `scripts/create_battlegroup.py`. Wzorce (`unit_base`, `weapon_base`), kolejność zapasów (`stocks`), rola (`type`), optyka (`optics`), obrót działka (`gun_traverse_deg`) i as (`ace_name`) są już w pliku.
 
 Porównanie z czołgami z gry, przydatne przy balansie: [POROWNANIE_CZOLGOW.md](POROWNANIE_CZOLGOW.md).
