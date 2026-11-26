@@ -40,8 +40,8 @@ IDLER = (-1.97, 0.60, 0.270)
 ROAD_Y = [1.464, 1.069, 0.675, 0.267, -0.114, -0.508, -0.903, -1.297]
 BOGIE_Y = (0.866, -0.705)
 RETURN_Y = [1.30, 0.50, -0.30, -1.10]
-RETURN_Z = 0.93
-RETURN_R = 0.075
+RETURN_R = 0.100  # return rollers: disc wheels about 0.2 m across, as in the photographs
+RETURN_Z = 1.005 - RETURN_R  # top of the roller, and so the track, stays where it was
 WHEELS = [SPROCKET] + [(y, ROAD_Z, ROAD_R) for y in ROAD_Y] + [IDLER]
 
 FENDER_Z = 0.74
@@ -60,7 +60,7 @@ if VARIANT == "dw":
 else:
     TURRETS = {1: {"center": (-0.16, 0.15, HULL_TOP), "mount": (-0.11, 0.66, 1.76), "muzzle_y": 2.02}}
     EXTRA_MOUNT = (-0.27, 0.66, 1.72)
-    EXTRA_MUZZLE_Y = 1.30
+    EXTRA_MUZZLE_Y = 0.93  # front of the round machine-gun sleeve
 
 
 def turret_plan_jw(segments=13):

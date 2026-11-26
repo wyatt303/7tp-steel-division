@@ -549,9 +549,9 @@ def paint_atlas(res, suffix, objects, material):
     if near_roller.any():
         selected = np.flatnonzero(near_roller & (part == 0))
         distance = np.sqrt(np.min((pos[selected, 1, None] - RETURN_Y) ** 2, axis=1) + (pos[selected, 2] - RETURN_Z) ** 2)
-        rubber = 1 - smooth(0.070, 0.078, distance)
-        ends = np.abs(np.abs(pos[selected, 0]) - TRACK_X) < 0.098
-        rubber = rubber * ends
+        # Rubber only on the rim of the return rollers; the dished face and hub keep the paint.
+        r = S.RETURN_R
+        rubber = smooth(0.80 * r, 0.84 * r, distance) * (1 - smooth(r + 0.004, r + 0.010, distance))
         color[selected] = color[selected] * (1 - rubber[..., None]) + RUBBER * rubber[..., None]
     muffler = (pos[:, 1] < -2.05) & (np.abs(pos[:, 2] - 0.80) < 0.095) & (np.abs(pos[:, 0] + 0.02) < 0.61)
     if muffler.any():

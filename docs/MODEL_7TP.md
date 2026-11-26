@@ -8,7 +8,7 @@
 | Nazwa plików | `TP7_JW` | `TP7_DW` |
 | Uzbrojenie na modelu | armata Bofors 37 mm wz. 37, ckm wz. 30 | 2 × ckm wz. 30 |
 | Wieża | seryjna dwubroniowa z niszą | dwie cylindryczne typu Vickers |
-| Trójkąty High / Mid / Low | 6738 / 1804 / 488 | 6944 / 1936 / 584 |
+| Trójkąty High / Mid / Low | 7618 / 1888 / 488 | 7648 / 2000 / 584 |
 
 Tekstury mają 2048 px w High, 1024 px w Mid i 256 px w Low. Wersja High ma też osobne tekstury gąsienic 256 px. Mapy to `Diffuse`, `_GLO`, `_SC` i `_NM` w konwencji DirectX, a gąsienice dodatkowo `_A`.
 
@@ -37,6 +37,9 @@ Tekstury mają 2048 px w High, 1024 px w Mid i 256 px w Low. Wersja High ma też
 - Źródła różnią się co do wymiarów całkowitych: 4,60–4,88 m długości i 2,12–2,30 m wysokości.
 - Położenie wież, kół i część detali odczytano ze skanów.
 - Oba wózki są swoimi lustrzanymi odbiciami, tak jak na rysunku z boku. Przedni ma wygięte ramię skierowane do przodu, a resor do tyłu. Tylny ma ramię do tyłu, a resor do przodu, więc oba resory są zwrócone do środka czołgu. Do 26 listopada 2026 r. oba wózki miały ramię do przodu, przez co tylny był odwrócony.
+- Kółka podtrzymujące gąsienicę są tarczowe, o średnicy 0,2 m, z gumową obręczą, wklęsłą tarczą i piastą, jak na zdjęciach. Mają taki sam wierzch jak wcześniejsze walce 0,15 m, więc gąsienica leży tak samo. W wersji Mid są prostymi walcami.
+- Karabin maszynowy obok armaty w 7TP jednowieżowym ma okrągłą, krótką osłonę z wklęsłym czołem i otworem na lufę, po lewej stronie armaty, jak na zdjęciach i rysunku przodu wieży. Armata ma podobną grubszą tuleję.
+- Wersje High mają przez to około 7600 trójkątów, ponad zalecane 7000.
 - Kolory kamuflażu z 1936 r. są przybliżeniem, bo źródła opisują je słownie. Układ plam jest przykładowy.
 
 ## Znane ograniczenia

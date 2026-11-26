@@ -6,8 +6,8 @@ Wszystkie modele mają wersje High, Mid i Low, tekstury i eksport wtyczką bez b
 
 | Model | Folder | Wzór z gry | Trójkąty | Opis |
 |---|---|---|---|---|
-| 7TP jednowieżowy (Bofors 37 mm) | `7TP_jednowiezowy_Bofors` | czołgi Eugen | 6738 / 1804 / 488 | [MODEL_7TP](MODEL_7TP.md) |
-| 7TP dwuwieżowy (2 × ckm wz. 30) | `7TP_dwuwiezowy_wz30` | czołgi Eugen | 6944 / 1936 / 584 | [MODEL_7TP](MODEL_7TP.md) |
+| 7TP jednowieżowy (Bofors 37 mm) | `7TP_jednowiezowy_Bofors` | czołgi Eugen | 7618 / 1888 / 488 | [MODEL_7TP](MODEL_7TP.md) |
+| 7TP dwuwieżowy (2 × ckm wz. 30) | `7TP_dwuwiezowy_wz30` | czołgi Eugen | 7648 / 2000 / 584 | [MODEL_7TP](MODEL_7TP.md) |
 | Tankietka TK-3 | `TK3` | Universal Carrier | 9304 / 1572 / 492 | [MODEL_TK](MODEL_TK.md) |
 | Tankietka TKS | `TKS` | Universal Carrier | 9428 / 1636 / 496 | [MODEL_TK](MODEL_TK.md) |
 

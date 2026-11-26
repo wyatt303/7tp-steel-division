@@ -337,6 +337,20 @@ def build_bogie(b, side, index):
         b.lathe((link_x, middle, pin_z), "X", [(-0.015, 0.036), (0.015, 0.036)], 6)
 
 
+def return_roller(b, center, side, detail):
+    """Disc roller under the top run of the track, as in the photographs: a rubber-rimmed
+    wheel with a dished face and a raised hub on the outer side. Mid keeps a plain disc."""
+    r, w = S.RETURN_R, 0.10
+    if detail >= 2:
+        profile = [(-w, r), (w * 0.8, r), (w, r * 0.86), (w - 0.022, r * 0.76), (w - 0.022, r * 0.34),
+                   (w + 0.006, r * 0.27)]
+        seg = 10
+    else:
+        profile = [(-w, r), (w, r)]
+        seg = 8
+    b.lathe(center, "X", [(side * offset, radius) for offset, radius in profile], seg)
+
+
 def build_chassis(cfg, mat):
     detail = cfg["detail"]
     b = Builder()
@@ -352,8 +366,7 @@ def build_chassis(cfg, mat):
         for side in (-1, 1):
             b.lathe((side * 0.86, S.SPROCKET[0], S.SPROCKET[1]), "X", [(-0.04, 0.22), (0.04, 0.22)], 10)
             for y in S.RETURN_Y:
-                b.lathe((side * S.TRACK_X, y, S.RETURN_Z), "X",
-                        [(-S.TRACK_W * 0.38, S.RETURN_R), (S.TRACK_W * 0.38, S.RETURN_R)], max(6, cfg["seg"] - 2))
+                return_roller(b, (side * S.TRACK_X, y, S.RETURN_Z), side, detail)
         for x in (-0.36, 0.36):
             y0, z0, y1, z1 = -1.76, 1.42, -1.90, 1.17
             b.prism([(y0, z0), (y0 - 0.02, z0 + 0.01), (y1 - 0.02, z1 + 0.01), (y1, z1)], x - 0.31, x + 0.31)
@@ -422,14 +435,19 @@ def build_gun_jw(cfg, mat, turret):
     data = S.TURRETS[1]
     mount = Vector(data["mount"])
     b = Builder()
-    if detail >= 1:
+    # Gun and machine gun sit side by side in two round armoured sleeves on the mantlet, the
+    # machine gun on the left, as in the photographs and the drawing of the turret front.
+    mg = (mount.x - 0.16, mount.y, mount.z - 0.04)
+    if detail >= 2:
         b.box((mount.x, mount.y - 0.03, mount.z), (0.66, 0.08, 0.50))
-        b.box((mount.x - 0.16, mount.y + 0.24, mount.z - 0.04), (0.23, 0.48, 0.25))
-        b.lathe(mount, "Y", [(0.01, 0.075), (0.30, 0.07)], max(cfg["seg"], 7))
+        b.lathe(mount, "Y", [(0.01, 0.092), (0.25, 0.092), (0.27, 0.082), (0.27, 0.05)], 14)
+        b.lathe(mg, "Y", [(0.01, 0.085), (0.25, 0.085), (0.27, 0.076), (0.27, 0.034), (0.245, 0.026)], 14)
+    elif detail == 1:
+        b.box((mount.x, mount.y - 0.03, mount.z), (0.66, 0.08, 0.50))
+        b.lathe(mount, "Y", [(0.01, 0.092), (0.27, 0.085)], 8)
+        b.lathe(mg, "Y", [(0.01, 0.085), (0.27, 0.078)], 8)
     else:
         b.box((mount.x - 0.05, mount.y + 0.10, mount.z - 0.02), (0.46, 0.34, 0.30))
-    if detail >= 2:
-        b.lathe((mount.x - 0.16, mount.y, mount.z - 0.04), "Y", [(0.48, 0.026), (0.60, 0.024)], 6)
     axis = b.finish("Axe_Canon_01", mat, mount, turret)
 
     b = Builder()
