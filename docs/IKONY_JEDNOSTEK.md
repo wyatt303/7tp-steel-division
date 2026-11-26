@@ -38,3 +38,7 @@ Jednostki i amunicja szukają tekstur w `$/GFX/Everything`, ale nie widzą tych 
 Z tymi ustawieniami `GenerateMod.bat` przechodzi bez błędów (26 listopada 2026 r.).
 
 Pole `NATOTextureName = "Cromwell_V"` zostaje bez zmian. To nazwa, a nie obrazek.
+
+## Jasność: ModGen kompiluje obrazki moda jako SRGB
+
+ModGen zapisuje każdy obrazek z `AssetsModding` w formacie `A8R8G8B8_SRGB` (typ `TSCInterfaceModding`), a oryginalne obrazki interfejsu gry są w `A8R8G8B8_LIN`. Gra przelicza nasze obrazki jeszcze raz z sRGB na liniowe, więc bez poprawki wychodzą dużo ciemniejsze niż plik. Szablon `TUIResourceTexture_CommonModded` nie pozwala zmienić formatu. Dlatego `scripts/png_srgb.py` zapisuje obrazki przez krzywą sRGB przy kopiowaniu do moda (`apply_graphics.py`, `patch_unit_icons.py`, `make_unit_cards.py`). W grze wyglądają wtedy jak plik źródłowy. Pliki w `graphic\` i `build\unit_icons` zostają bez korekty. Sprawdzono 26 listopada 2026 r. na skompilowanym `TKS20_Visual.tgv`: po przeliczeniu w grze różnica od pliku źródłowego wynosi najwyżej 1/255.
