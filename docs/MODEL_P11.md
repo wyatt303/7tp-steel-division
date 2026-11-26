@@ -66,9 +66,10 @@ Wpis `P11C_POL` w `data/units.toml`. Dane jednostki, broń i wygląd w locie są
 | Pancerz | przód `Avion_Lourd`, reszta `Avion` (Hurricane: `Avion_Ultra_Lourd` / `Avion_Lourd`) |
 | Wytrzymałość | 6 (Hurricane 7) |
 | Cena | 60 (Hurricane 110) |
-| Wygląd w locie | śmigło dwułopatowe o promieniu 284 jednostek, polski pilot, bez osobnego modelu chowanego podwozia (P.11c ma stałe podwozie w głównym modelu) |
+| Wygląd w locie | śmigło dwułopatowe o promieniu 284 jednostek, polski pilot |
+| Podwozie | stałe, w głównym modelu. `P11C_train` (punkty `Train_Avant` i `Train_Arriere`, jak Storch z gry) ustawia samolot na ziemi w podglądzie. Bez tego pliku samolot w podglądzie leżał na kadłubie bez kół. |
 | Paczka | zakładka lotnictwa, od fazy A, doświadczenie 1, 3 karty po jednym samolocie |
 
-Model trafia do `Assets\3D\Units\POL\Avion\P11C`. Plik `P11C_train` nie jest potrzebny.
+Model trafia do `Assets\3D\Units\POL\Avion\P11C` razem z `P11C_train`.
 
 Generowanie moda z P.11c przechodzi bez błędów. W grze jednostka nie była jeszcze sprawdzana.

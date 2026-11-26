@@ -363,8 +363,14 @@ def build_models():
         stem = info["model"]
         folder_ = "\\".join(info.get("asset_folder", "POL/Char").split("/"))  # as in scripts/export_models.py
         models.append("export ModelFile_%s is 'GameData:Assets\\3D\\Units\\%s\\%s\\%s.Ase2NdfBin'" % (name, folder_, stem, stem))
-        for suffix, file_name in (("", "ModelFile_" + name), ("_MID", "'GameData:Assets\\3D\\Units\\%s\\%s\\%s_MID.Ase2NdfBin'" % (folder_, stem, stem)),
-                                  ("_LOW", "'GameData:Assets\\3D\\Units\\%s\\%s\\%s_LOW.Ase2NdfBin'" % (folder_, stem, stem))):
+        files = [("", "ModelFile_" + name), ("_MID", "'GameData:Assets\\3D\\Units\\%s\\%s\\%s_MID.Ase2NdfBin'" % (folder_, stem, stem)),
+                 ("_LOW", "'GameData:Assets\\3D\\Units\\%s\\%s\\%s_LOW.Ase2NdfBin'" % (folder_, stem, stem))]
+        if info.get("train_model"):
+            # Aircraft: the "Landing Gear" sub-depiction of the base loads <model>_train. Even with a
+            # fixed gear (the game's Storch) that file holds the Train_Avant / Train_Arriere points
+            # the game stands the aircraft on in the showroom; without it the aircraft sinks.
+            files.append(("_train", "'GameData:Assets\\3D\\Units\\%s\\%s\\%s_train.Ase2NdfBin'" % (folder_, stem, stem)))
+        for suffix, file_name in files:
             models.append("Modele_%s%s is TResourceMultiMaterialMeshWithLod\r\n(\r\n    FileName = %s\r\n    CivMask =  CivMask/MeshModding\r\n"
                           "    TypeMask = TypeMask/Char\r\n)" % (name, suffix, file_name))
         block = depiction.replace(base, name)
@@ -373,15 +379,6 @@ def build_models():
         if info["layout"] == "tks20":
             # A tankette moves and rocks like the game's small tracked vehicles (Universal Carrier).
             block = block.replace("_MediumTank", "_SmallTank")
-        if info.get("fixed_landing_gear"):
-            # The base hangs a separate retractable-gear model on "Landing Gear"; ours has its
-            # fixed gear in the main model, so only the pilot stays as a sub-depiction.
-            start = block.find("SubDepictions = [")
-            if start < 0:
-                raise RuntimeError("No landing gear sub-depiction in Gfx_" + base)
-            end = matching(block, block.index("[", start))
-            rest = re.match(r"\s*\+\s*", block[end:])
-            block = block[:start] + "SubDepictions = " + block[end + (rest.end() if rest else 0):]
         for old, new in info.get("depiction_replace", {}).items():
             if old not in block:
                 raise RuntimeError("'%s' not in Gfx_%s" % (old, base))

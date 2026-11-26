@@ -21,14 +21,17 @@ MODELS = {
     "TP7_JW": ("7TP_jednowiezowy_Bofors", "POL/Char"),
     "TP7_DW": ("7TP_dwuwiezowy_wz30", "POL/Char"),
     "TKS20": ("TKS20", "POL/Char"),
-    "P11C": ("P11C", "POL/Avion"),  # fixed landing gear: P11C_train is not needed
+    "P11C": ("P11C", "POL/Avion"),  # with P11C_train (landing-gear points)
 }
 
 failed = 0
 for stem, (folder, kind) in MODELS.items():
     target = os.path.join(MOD, "GameData", "Assets", "3D", "Units", *kind.split("/"), stem)
     os.makedirs(target, exist_ok=True)
-    for suffix in ("", "_MID", "_LOW"):
+    suffixes = ["", "_MID", "_LOW"]
+    if os.path.exists(os.path.join(ROOT, "models", folder, stem + "_train.blend")):
+        suffixes.append("_train")  # aircraft landing-gear file (see create_battlegroup.py, train_model)
+    for suffix in suffixes:
         source = os.path.join(ROOT, "models", folder, stem + suffix + ".blend")
         bpy.ops.wm.open_mainfile(filepath=source)
         try:

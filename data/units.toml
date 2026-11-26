@@ -102,9 +102,10 @@ stocks = ["Ammo_km_wz33_x4_AirAir"]   # tryb powietrze-powietrze i powietrze-zie
 replace_ammo = { Ammo_Hispano_II_20mm_x4_Hurricane_AirAir = "Ammo_km_wz33_x4_AirAir", Ammo_Hispano_II_20mm_x4_Hurricane_AirSol = "Ammo_km_wz33_x4_AirSol" }
 replace_fx = { Hispano_II_20mm_x4_Hurricane = "Browning_303_x4" }   # efekty i dźwięk strzałów karabinów
 # Śmigło dwułopatowe o średnicy ok. 2,8 m (promień 1,4 m = 284 jednostki gry; Hurricane 325, trzy łopaty),
-# polski pilot, podwozie stałe w modelu (bez osobnego modelu chowanego podwozia).
+# polski pilot. Podwozie stałe jest w głównym modelu; plik P11C_train (punkty Train_Avant i
+# Train_Arriere, jak Storch z gry) ustawia samolot na ziemi w podglądzie.
 depiction_replace = { "PaleLength = 325" = "PaleLength = 284", "PaleCount = 3" = "PaleCount = 2", "DepictionSubDepiction_Pilote_UK" = "DepictionSubDepiction_Pilote_POL" }
-fixed_landing_gear = true
+train_model = true                  # eksport i wpis P11C_train (bez niego samolot w podglądzie leży na kadłubie)
 name = "PZLP11c"
 alias = "PZL P.11c"
 price = 60                          # Hurricane z 4 x 20 mm kosztuje 110
