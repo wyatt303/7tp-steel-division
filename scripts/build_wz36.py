@@ -33,15 +33,22 @@ LODS = {
 }
 
 
-def plate(b, x0, x1, z0, z1, y_at, t=0.012):
-    """Flat armour plate between x0 and x1, its front face following y_at(x)."""
-    front = [(x0, y_at(x0), z0), (x1, y_at(x1), z0), (x1, y_at(x1), z1), (x0, y_at(x0), z1)]
+def plate(b, x0, x1, z0, z1, y_at, t=0.012, lean=0.0):
+    """Flat armour plate between x0 and x1, its front face following y_at(x) at z0 and leaning
+    back by `lean` metres per metre of height."""
+    back_top = lean * (z1 - z0)
+    front = [(x0, y_at(x0), z0), (x1, y_at(x1), z0), (x1, y_at(x1) - back_top, z1), (x0, y_at(x0) - back_top, z1)]
     back = [(x, y - t, z) for x, y, z in front]
     b.loft([front, back])
 
 
 def shield_y(x, offset=0.0):
     return S.SHIELD_Y + offset - abs(x) * math.tan(math.radians(8))
+
+
+def upper_y(x, z):
+    """Front face of the upper shield plate, which leans back from the top of the lower plates."""
+    return shield_y(x) - S.SHIELD_LEAN * (z - S.SHIELD_UPPER[0])
 
 
 def build_chassis(cfg, mat):
@@ -59,20 +66,22 @@ def build_chassis(cfg, mat):
 def build_turret(cfg, mat, chassis):
     d, seg = cfg["detail"], cfg["seg"]
     b = Builder()
-    # Upper carriage and the shield: two upper halves angled back and the folding lower plates.
+    # Upper carriage and the shield, as on the photographs: vertical lower plates in front of the
+    # wheels and upper halves leaning far back over them, with a slot for the barrel between.
     b.box((0.0, -0.08, 0.47), (0.30, 0.46, 0.12))
     for side in (-1, 1):
-        x0, x1 = side * 0.004, side * S.SHIELD_HALF
-        lo, hi = sorted((x0, x1))
-        plate(b, lo, hi, S.SHIELD_UPPER[0], S.SHIELD_UPPER[1], shield_y)
-        plate(b, lo, hi, S.SHIELD_LOWER[0], S.SHIELD_LOWER[1], lambda x: shield_y(x, 0.03))
+        lo, hi = sorted((side * S.SHIELD_SLOT, side * S.SHIELD_HALF))
+        plate(b, lo, hi, S.SHIELD_UPPER[0], S.SHIELD_UPPER[1], shield_y, lean=S.SHIELD_LEAN)
+        lo, hi = sorted((side * 0.004, side * S.SHIELD_LOWER_HALF))
+        plate(b, lo, hi, S.SHIELD_LOWER[0], S.SHIELD_LOWER[1], shield_y)
     if d >= 1:
         for side in (-1, 1):
-            b.strut((side * 0.12, -0.05, 0.50), (side * 0.40, shield_y(0.40) - 0.02, 0.70), 0.03)
+            b.strut((side * 0.12, -0.05, 0.50), (side * 0.36, upper_y(0.36, 0.72) - 0.02, 0.72), 0.03)
             # Hinges between the upper and lower plates.
-            b.lathe((side * 0.30, shield_y(0.30) + 0.01, S.SHIELD_UPPER[0] - 0.005), "X", [(-0.04, 0.012), (0.04, 0.012)], 6)
+            b.lathe((side * 0.30, shield_y(0.30) + 0.01, S.SHIELD_UPPER[0]), "X", [(-0.04, 0.012), (0.04, 0.012)], 6)
         # Sight hole frame on the right half.
-        b.box((S.SIGHT_HOLE_X, shield_y(S.SIGHT_HOLE_X) + 0.004, 0.86), (0.07, 0.012, 0.12))
+        z = 0.80
+        b.box((S.SIGHT_HOLE_X, upper_y(S.SIGHT_HOLE_X, z) + 0.004, z), (0.07, 0.012, 0.10))
     return b.finish("Tourelle_01", mat, S.TURRET, chassis)
 
 

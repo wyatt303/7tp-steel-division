@@ -53,11 +53,17 @@ BARREL = 1.665
 MUZZLE_Y = BREECH_Y + BARREL + 0.10   # including the muzzle brake
 TURRET = (0.0, -0.02, 0.42)           # Tourelle_01 pivot, upper carriage
 
-# Shield: upper plates (two halves angled back by 8 degrees) and folding lower plates.
-SHIELD_Y = 0.28                       # 0.22 with the smaller wheels; kept clear of the tyres
+# Shield, as on wartime and museum photographs: vertical lower plates standing in front of the
+# wheels and two upper halves leaning far back over them (both halves also angled back by
+# 8 degrees in plan), with a slot for the barrel between the upper halves. At SHIELD_Y = 0.28
+# (vertical plates) the shield cut into the 0.71 m tyres.
+SHIELD_Y = 0.58
 SHIELD_HALF = 0.60
-SHIELD_UPPER = (0.56, 1.01)            # Z range
-SHIELD_LOWER = (0.14, 0.55)
+SHIELD_LOWER_HALF = 0.55
+SHIELD_UPPER = (0.58, 1.01)            # Z range of the upper plates
+SHIELD_LOWER = (0.14, 0.58)
+SHIELD_LEAN = 1.0                      # upper plates: metres back per metre up (45 degrees)
+SHIELD_SLOT = 0.05                     # half width of the barrel slot between the upper halves
 SIGHT_HOLE_X = 0.20
 
 # Right trail hinge (the left one mirrors it), close to the M3's trail pivots once shifted.
@@ -77,15 +83,16 @@ def is_tyre(name):
 
 
 def rivet_lines(Vector):
-    """Rivet rows round the shield plates."""
+    """Rivet rows round the shield plates, where the finished (shifted) model has them."""
     lines, seams = [], []
     for side in (-1, 1):
-        for z0, z1 in (SHIELD_UPPER, SHIELD_LOWER):
-            x0, x1 = side * 0.04, side * (SHIELD_HALF - 0.04)
-            y0 = SHIELD_Y - 0.012
-            y1 = SHIELD_Y - abs(x1) * 0.14 - 0.012
-            lines.append((Vector((x0, y0, z1 - 0.03)), Vector((x1, y1, z1 - 0.03)), 0.07))
-            lines.append((Vector((x0, y0, z0 + 0.03)), Vector((x1, y1, z0 + 0.03)), 0.07))
+        for (z0, z1), half, lean in ((SHIELD_UPPER, SHIELD_HALF, SHIELD_LEAN), (SHIELD_LOWER, SHIELD_LOWER_HALF, 0.0)):
+            x0, x1 = side * (SHIELD_SLOT + 0.03), side * (half - 0.04)
+            for z in (z0 + 0.03, z1 - 0.03):
+                back = lean * (z - z0)
+                y0 = SHIELD_Y + SHIFT_Y - abs(x0) * 0.14 - back - 0.012
+                y1 = SHIELD_Y + SHIFT_Y - abs(x1) * 0.14 - back - 0.012
+                lines.append((Vector((x0, y0, z)), Vector((x1, y1, z)), 0.07))
     return lines, seams
 
 
