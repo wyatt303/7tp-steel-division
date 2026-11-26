@@ -36,8 +36,8 @@ Jak u asów z gry (Panzer IV H „Kretzschmar”): `IsAce = True` i stałe nazwi
 | Wytrzymałość | 5 | Universal Carrier 6, czołgi 8 |
 | Maskowanie | 2,5 | jak piechota rozpoznania, najlepiej z pojazdów |
 | Optyka | 200 | jak zwiadowcze wersje czołgów |
-| nkm 20 mm | AP 5, celność 6 (w ruchu 4), 800 m, 171 strz./min | wzór KwK 38: AP 4. Przebicie podniesione o 1. |
-| Zapas | 200 nabojów (10 serii po 20) | **do sprawdzenia w źródłach** |
+| nkm 20 mm | AP 5, celność 6 (w ruchu 4), 800 m, 80 strz./min | wzór KwK 38: AP 4. Przebicie podniesione o 1. Seria = magazynek 5 nabojów: 320 strz./min w serii (derela.pl), ok. 3 s wymiany magazynka. |
+| Zapas | 80 nabojów, 16 magazynków po 5 | standardowy zapas TKS z nkm (zbiam.pl). Ile miał Orlik pod Pociechą, nie wiadomo. |
 | Obrót działka | ±12° | jarzmo kuliste w kadłubie; do celu obraca się cała tankietka |
 
 ## Grafiki
@@ -50,4 +50,4 @@ Generowane z modelu: znaczek nad jednostką (`TKS20_RTS.png`), widok z góry, ka
 
 - W grze nic z tego nie było jeszcze widziane.
 - Nie wiadomo, czy gra pokaże „Roman Orlik” jako nazwisko dowódcy z naszego tokenu `AceOrlik`. Asy z gry mają tokeny w jej własnych słownikach.
-- Zapas amunicji 20 mm i przebicie są przyjęte, a nie wzięte ze źródeł.
+- Przebicie 5 i czas wymiany magazynka (3 s) są przyjęte, a nie wzięte ze źródeł.

@@ -85,8 +85,9 @@ armor_front = 1
 armor_sides = 1
 armor_rear = 1
 armor_top = "Toit_Lourd"
-# Zapas amunicji 20 mm do sprawdzenia w źródłach; przyjęto 200 nabojów (10 serii po 20).
-ammo = { Ammo_nkm_wz38_AP = 200 }
+# Zapas: TKS z nkm 20 mm przewoził standardowo 80 nabojów w 16 magazynkach po 5 (zbiam.pl, opis TKS
+# z nkm FK-A). Ile miał Orlik pod Pociechą, nie wiadomo. W grze: 16 serii (magazynków) po 5.
+ammo = { Ammo_nkm_wz38_AP = 80 }
 
 # ---------------------------------------------------------------------------------------------
 # Amunicja (broń). Wspólna dla wszystkich jednostek, które jej używają.
@@ -138,6 +139,7 @@ seconds_between_shots = 2.0
 seconds_between_salvos = 10.0
 
 # nkm 20 mm wz. 38 FK-A (TKS Orlika). Wzorzec: KwK 38 20 mm z Panzera II (AP 4, 800 m, 171 r/m).
+# Magazynki 5-nabojowe: seria = magazynek, a jego wymiana obniża tempo praktyczne do ok. 80 strz./min.
 # Przebicie 5: nkm przebijał więcej niż KwK 30/38, a Orlik niszczył nim czołgi 35(t) i Panzer I/II.
 [ammo.Ammo_nkm_wz38_AP]
 copy_of = "Ammo_KwK_38L55_20mm_AP"
@@ -147,10 +149,10 @@ penetration = 5
 accuracy = 6
 accuracy_moving = 4
 range_m = 800
-rounds_per_salvo = 20
-shots_per_salvo = 3
-seconds_between_shots = 2.0
-seconds_between_salvos = 3.0
+rounds_per_salvo = 5                 # jeden magazynek
+shots_per_salvo = 5
+seconds_between_shots = 0.19         # 320 strz./min teoretycznie w serii (derela.pl)
+seconds_between_salvos = 3.0         # wymiana magazynka; ROF = 5 * 60 / (3 + 4 * 0.19) = 80 r/m w praktyce
 
 [ammo.Ammo_nkm_wz38_HE]
 copy_of = "Ammo_KwK_38L55_20mm_HE"
@@ -159,10 +161,10 @@ caliber = "20mm"
 accuracy = 6
 accuracy_moving = 4
 range_m = 800
-rounds_per_salvo = 20
-shots_per_salvo = 3
-seconds_between_shots = 2.0
-seconds_between_salvos = 3.0
+rounds_per_salvo = 5                 # jeden magazynek
+shots_per_salvo = 5
+seconds_between_shots = 0.19         # 320 strz./min teoretycznie w serii (derela.pl)
+seconds_between_salvos = 3.0         # wymiana magazynka; ROF = 5 * 60 / (3 + 4 * 0.19) = 80 r/m w praktyce
 
 # ---------------------------------------------------------------------------------------------
 # Napisy widoczne w grze (token = tekst). Tokeny mają najwyżej 10 znaków.
