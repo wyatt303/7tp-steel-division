@@ -64,6 +64,7 @@ Projekt leży w `D:\Mod\Wrzesien1939` (do 26 listopada 2026 r. `D:\Mod\7TP`). Mo
 - [Instalacja w grze (dawny sposób z podmianą Stuarta)](docs/INSTALACJA_W_GRZE.md)
 - [Edytor jednostek: napisy i ceny z podglądem](docs/EDYTOR_JEDNOSTEK.md)
 - [Ikony jednostek w interfejsie gry](docs/IKONY_JEDNOSTEK.md)
+- [Własne grafiki interfejsu: folder graphic](graphic/README.md)
 - [Model 7TP: wymiary, założenia i ograniczenia](docs/MODEL_7TP.md)
 - [Tankietki TK-3 i TKS: wymiary, założenia i ograniczenia](docs/MODEL_TK.md)
 - [Samochód pancerny wz. 28](docs/MODEL_WZ28.md)

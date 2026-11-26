@@ -10,6 +10,7 @@
 #   4. eksportuje modele z models\ nasza wtyczka (scripts\export_models.py),
 #   5. dodaje jednostki i battlegroupe (scripts\create_battlegroup.py),
 #   6. robi karty jednostek, ikony i obrazki broni (make_unit_cards, make_unit_icons, patch_unit_icons),
+#      a potem zastepuje je wlasnymi grafikami z folderu graphic\ (apply_graphics),
 #   7. generuje mod (GenerateMod.bat),
 #   8. wlacza mod w Config.ini (kopia starego pliku trafia do build\mod_backup), chyba ze podasz -NoActivate.
 #
@@ -92,6 +93,9 @@ Step 'Ikony jednostek i obrazki broni'
 $icons = Join-Path $Project 'build\unit_icons'
 Invoke-Blender 'make_unit_icons.py' 'ICONS_DONE' @($Project, $icons)
 Invoke-Python 'patch_unit_icons.py' 'ICONS_PATCHED' @($ModDir, $icons, (Join-Path $BackupRoot "${Stamp}_ikony"))
+
+Step 'Wlasne grafiki z folderu graphic'
+Invoke-Python 'apply_graphics.py' 'GRAPHICS_DONE' @($Project, $ModDir)
 
 Step 'Generowanie moda (GenerateMod.bat), to potrwa kilka minut'
 & cmd /c "cd /d `"$ModDir`" && .\GenerateMod.bat < NUL" | Select-Object -Last 3 | ForEach-Object { Write-Host "   $_" }

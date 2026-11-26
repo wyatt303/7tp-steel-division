@@ -35,7 +35,7 @@ Opcje:
 3. Tworzy nowy mod skryptem gry `CreateNewMod.bat`.
 4. Eksportuje modele z `models\` naszą wtyczką (`scripts\export_models.py`), na razie oba 7TP.
 5. Dodaje jednostki, broń, paczki i battlegroupę „TOMASZÓW 39” (`scripts\create_battlegroup.py`).
-6. Robi karty jednostek, portret i emblemat (`scripts\make_unit_cards.py`) oraz ikony i obrazki broni (`scripts\make_unit_icons.py`, `scripts\patch_unit_icons.py`).
+6. Robi karty jednostek, portret i emblemat (`scripts\make_unit_cards.py`) oraz ikony i obrazki broni (`scripts\make_unit_icons.py`, `scripts\patch_unit_icons.py`). Potem zastępuje je Twoimi grafikami z folderu [`graphic\`](../graphic/README.md), jeśli tam są (`scripts\apply_graphics.py`).
 7. Uruchamia `GenerateMod.bat`. To trwa kilka minut.
 8. Włącza mod: w `Saved Games\EugenSystems\SteelDivision\mod\Config.ini` ustawia `ActivatedMods = Mod_Wrzesien1939|`. Kopia poprzedniego pliku trafia do `build\mod_backup`. Inne mody zostają wyłączone, bo naraz powinien działać jeden.
 
