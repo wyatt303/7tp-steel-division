@@ -17,6 +17,9 @@ import shutil
 import sys
 import tomllib
 
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+import png_srgb  # noqa: E402  (ModGen shows mod pictures darker; see png_srgb.py)
+
 MOD, ICONS, BACKUP = [os.path.abspath(p) for p in sys.argv[1:4]]
 GAMEPLAY = os.path.join(MOD, "GameData", "Gameplay")
 GENERATED = os.path.join(GAMEPLAY, "Gfx", "Generated")
@@ -83,7 +86,7 @@ def unit_of(name):
 
 
 for file_name in FILES:
-    shutil.copy2(os.path.join(ICONS, file_name), os.path.join(MOD, "AssetsModding", file_name))
+    png_srgb.compensate(os.path.join(ICONS, file_name), os.path.join(MOD, "AssetsModding", file_name))
 
 WEAPON_TEXTURES = [texture(name, file_name) for name, file_name in WEAPON_PICTURES.items()]
 

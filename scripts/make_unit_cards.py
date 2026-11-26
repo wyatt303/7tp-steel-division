@@ -53,7 +53,11 @@ def save(px, name, alpha=None):
     a = np.ones((h, w, 1), np.float32) if alpha is None else alpha[..., None]
     image = bpy.data.images.new(name, w, h, alpha=True)
     image.colorspace_settings.name = "Non-Color"
-    rgba = np.concatenate([np.clip(px, 0, 1), a], -1).astype(np.float32)
+    # These go straight into the mod's AssetsModding, which ModGen compiles as sRGB and the game
+    # then shows darker; passing the colours through the sRGB curve cancels that (png_srgb.py).
+    c = np.clip(px, 0, 1)
+    c = np.where(c <= 0.0031308, c * 12.92, 1.055 * c ** (1 / 2.4) - 0.055)
+    rgba = np.concatenate([c, a], -1).astype(np.float32)
     image.pixels.foreach_set(np.ascontiguousarray(rgba[::-1]).ravel())
     image.filepath_raw = os.path.join(OUT, name)
     image.file_format = "PNG"

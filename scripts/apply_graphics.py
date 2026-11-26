@@ -26,6 +26,9 @@ import shutil
 import struct
 import sys
 
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+import png_srgb  # noqa: E402  (ModGen shows mod pictures darker; see png_srgb.py)
+
 ROOT, MOD = [os.path.abspath(p) for p in sys.argv[1:3]]
 GRAPHIC = os.path.join(ROOT, "graphic")
 ASSETS = os.path.join(MOD, "AssetsModding")
@@ -57,7 +60,7 @@ def place(source, target_name, size, used):
         return
     if actual != size:
         print("WARN %s is %dx%d, the game's own pictures are %dx%d" % (rel, actual[0], actual[1], size[0], size[1]))
-    shutil.copyfile(source, os.path.join(ASSETS, target_name))
+    png_srgb.compensate(source, os.path.join(ASSETS, target_name))
     used.append(rel)
     print("GRAPHIC %s -> AssetsModding/%s" % (rel, target_name))
 
