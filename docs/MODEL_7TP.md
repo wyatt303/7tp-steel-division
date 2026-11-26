@@ -49,6 +49,20 @@ Tekstury mają 2048 px w High, 1024 px w Mid i 256 px w Low. Wersja High ma też
 - Wersje High są blisko limitu około 7000 trójkątów.
 - Modele nie mają jeszcze własnych wpisów jednostek, broni ani ikon.
 
+## Uzbrojenie i zapas amunicji w grze
+
+Wartości są wpisane w `scripts/create_battlegroup.py`, więc każda instalacja moda je odtwarza.
+
+| | Dane historyczne | W grze |
+|---|---|---|
+| Bofors wz. 37, zapas | 80 nabojów, głównie przeciwpancerne, przydział odłamkowych niepewny | 70 AP + 10 HE |
+| Bofors wz. 37, szybkostrzelność | ok. 10 strz./min w praktyce | 1 strzał co 6 s, czyli 10 r/m |
+| ckm wz. 30 w 7TP jednowieżowym | 3960 nabojów, 12 taśm po 330 | 12 serii po 330 = 3960 |
+| ckm wz. 30 w 7TP dwuwieżowym | ok. 6000 nabojów na oba karabiny | 2 × 9 serii po 330 = 5940 |
+| ckm wz. 30, szybkostrzelność | ok. 600 strz./min teoretycznie, 400–450 w praktyce | 341 r/m, wyrównane do karabinów w grze (MG34 326) |
+
+Gra liczy szybkostrzelność ze wzoru: naboje na serię × 60 / (przerwa między seriami + (strzały w serii − 1) × przerwa między strzałami). Historyczne 400–450 strz./min (przerwa 1,5 s) dawało 430, najwięcej ze wszystkich karabinów w grze, bo gra mocno zaniża ich szybkostrzelność. Dla balansu ckm ma przerwę 2 s: 330 × 60 / (10 + 24 × 2) = 341, czyli poziom MG34. Prędkość 22/58 km/h i maskowanie 1,5 też są wyrównane do lekkich czołgów w grze (docs/POROWNANIE_CZOLGOW.md). Celność, przebicie i zasięg zostały z wzorców (armata 37 mm M5 i M1919), oprócz przebicia Boforsa ustawionego na AP 6.
+
 ## Źródła
 
 - Rysunki techniczne i schematy z dostarczonych skanów czasopism. Skany nie są częścią repozytorium.
@@ -57,3 +71,6 @@ Tekstury mają 2048 px w High, 1024 px w Mid i 256 px w Low. Wersja High ma też
 - [Kampania Wrześniowa 1939: 7TP](http://www.1939.pl/uzbrojenie/polskie/pojazdy/7tp/index.html)
 - [Tank Archives: 7TP](https://www.tankarchives.com/2016/10/7tp-polish-vickers.html)
 - [Malowanie polskich pojazdów pancernych 1939](https://lakiernik.com.pl/renowacje-pojazdow/barwy-wrzesnia-czyli-slow-o-malowaniu-polskich-pojazdow-pancernych-1939-r/)
+- [Opis 7TP, derela.pl](https://derela.pl/7tp_pl.htm): zapas amunicji
+- [Czołg 7TP, dobroni.pl](https://dobroni.pl/artykul/czolg-7tp-lekki-n565964): szybkostrzelność Boforsa
+- [Ckm wz. 30, Muzeum im. Orła Białego](https://muzeum.skarzysko.pl/encyklopedia/item/518-ciezki-karabin-maszynowy-wz-30-browning.html): szybkostrzelność ckm

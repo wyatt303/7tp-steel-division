@@ -1,0 +1,125 @@
+# Ustawienia jednostek, broni i napisów battlegroupy Wrzesien1939.
+#
+# Po zmianie uruchom zainstaluj_mod.bat: mod zostanie zbudowany od nowa z tych wartości.
+# Linie zaczynające się od # to komentarze. Liczby piszemy z kropką (1.5, nie 1,5).
+# Opis pól i wzory gry: docs/USTAWIENIA_JEDNOSTEK.md.
+
+# ---------------------------------------------------------------------------------------------
+# Jednostki. Nazwa sekcji to identyfikator jednostki w grze (nie zmieniać).
+# ---------------------------------------------------------------------------------------------
+
+[units.TP7_JW_POL]
+model = "TP7_JW"                 # pliki modelu w models\ (nie zmieniać)
+name = "TP7JW"                   # token napisu z sekcji [texts]
+alias = "7TP jw"                 # nazwa w plikach gry, nie jest wyświetlana
+price = 45                       # cena w punktach
+year = 1939                      # rok produkcji
+# Prędkość w skali gry: prawdziwy 7TP jechał ok. 37 km/h po drodze, gra zawyża drogę wszystkim
+# czołgom (Panzer I B 22/60, Panzer II C 30/65, H35 18/52), patrz docs/POROWNANIE_CZOLGOW.md.
+speed_kmh = 22                   # prędkość w terenie, jak w oknie jednostki
+road_speed_kmh = 58              # prędkość na drodze
+strength = 8                     # wytrzymałość (MaxDamages)
+concealment = 1.5                # maskowanie: 1.0 = Very bad, 1.5 = Bad (jak lekkie czołgi w grze)
+# Pancerz (dws-xip.com): kadłub z przodu 17 mm (dolna płyta 10 mm), wieża 15 mm, strop 10 mm,
+# nad silnikiem 5 mm. W grze ok. 14,5 mm = 2, 20-25 mm = 3, 30 mm = 4-5 (Panzer II C, Luchs, Stuart).
+# Gra nie ma osobnego pancerza wieży, tylko przód, boki, tył i dach.
+armor_front = 2                  # pancerz: liczby na tarczach w oknie jednostki
+armor_sides = 2
+armor_rear = 1
+armor_top = "Toit_Lourd"         # dach: Toit_Lourd = zamknięty (Top: Enclosed)
+# Zapas amunicji w nabojach (dzielony przez rounds_per_salvo z sekcji [ammo...]).
+# Źródło: derela.pl, opis 7TP: 80 nabojów do Boforsa, 3960 do ckm (12 taśm po 330).
+# Udział pocisków odłamkowych w 1939 r. jest niepewny, więc HE ma symboliczne 10.
+ammo = { Ammo_Bofors_wz37_AP = 70, Ammo_Bofors_wz37_HE = 10, Ammo_ckm_wz30_vehicule = 3960 }
+
+[units.TP7_DW_POL]
+model = "TP7_DW"
+name = "TP7DW"
+alias = "7TP dw"
+price = 30
+year = 1939
+speed_kmh = 22
+road_speed_kmh = 58
+strength = 8
+concealment = 1.5
+# Pancerz (dws-xip.com): kadłub jak w jednowieżowym, wieżyczki 13 mm, strop 5 mm.
+armor_front = 2
+armor_sides = 2
+armor_rear = 1
+armor_top = "Toit_Lourd"
+# Zapas na JEDEN z dwóch ckm. Źródło: derela.pl, ok. 6000 nabojów na oba karabiny.
+ammo = { Ammo_ckm_wz30_vehicule = 2970 }
+
+# ---------------------------------------------------------------------------------------------
+# Amunicja (broń). Wspólna dla wszystkich jednostek, które jej używają.
+# W oknie jednostki gra pokazuje:
+#   ACC   = accuracy
+#   ROF   = rounds_per_salvo * 60 / (seconds_between_salvos + (shots_per_salvo - 1) * seconds_between_shots)
+#   AP    = penetration
+#   RANGE = range_m
+# ---------------------------------------------------------------------------------------------
+
+[ammo.Ammo_Bofors_wz37_AP]
+copy_of = "Ammo_Canon_M5_37mmL_AP"   # wpis gry, z którego kopiujemy resztę pól (nie zmieniać)
+name = "Bofors37"                    # token napisu z sekcji [texts]
+caliber = "37mm"
+penetration = 6                      # przebicie (AP)
+accuracy = 4                         # celność na postoju (ACC)
+accuracy_moving = 1                  # celność w ruchu
+range_m = 1000                       # zasięg w metrach, jak w oknie jednostki
+rounds_per_salvo = 1                 # naboje pokazywane na jedną serię
+shots_per_salvo = 1                  # strzały w serii
+seconds_between_shots = 6.0          # ok. 10 strz./min w praktyce (dobroni.pl)
+seconds_between_salvos = 6.0
+
+[ammo.Ammo_Bofors_wz37_HE]
+copy_of = "Ammo_Canon_M5_37mmL_HE"
+name = "Bofors37"
+caliber = "37mm"
+accuracy = 4
+accuracy_moving = 1
+range_m = 1000
+rounds_per_salvo = 1
+shots_per_salvo = 1
+seconds_between_shots = 6.0
+seconds_between_salvos = 6.0
+
+[ammo.Ammo_ckm_wz30_vehicule]
+copy_of = "Ammo_M1919_7_62mm_vehicule"
+name = "CkmWz30"
+caliber = "7_92mm"                   # gra pokazuje 7,92mm
+accuracy = 5
+accuracy_moving = 3
+range_m = 600
+rounds_per_salvo = 330               # jedna taśma
+shots_per_salvo = 25
+# Historycznie 400-450 strz./min w praktyce (Muzeum im. Orła Białego), ale gra mocno zaniża
+# karabiny (MG34 326, Reibel 265, M1919 259), więc dla balansu: 330 * 60 / (10 + 24 * 2) = 341 r/m.
+# Historyczne 430 dawało seconds_between_shots = 1.5.
+seconds_between_shots = 2.0
+seconds_between_salvos = 10.0
+
+# ---------------------------------------------------------------------------------------------
+# Napisy widoczne w grze (token = tekst). Tokeny mają najwyżej 10 znaków.
+# ---------------------------------------------------------------------------------------------
+
+[texts]
+TP7JW = "7TP 37mm Bofors"
+TP7DW = "7TP twin-turret"
+Bofors37 = "37mm Bofors wz.37"
+CkmWz30 = "7.92mm ckm wz.30"
+TP7DivName = "Warszawska Bryg. Panc-Mot"
+TP7DivNick = "TOMASZÓW 39"
+TP7DivDesc = "Polish armoured group at the First Battle of Tomaszów Lubelski, 17-20 September 1939."
+# Podpowiedź do portretu: dowódca.
+TP7DivPT = "Col. Stefan Rowecki"
+TP7DivPB = "Commander of the Warsaw Armoured Motorized Brigade."
+TP7DivPE = "At Tomaszów his command also included part of the 1st Light Tank Battalion with its 7TP tanks."
+# Podpowiedź o oznaczeniach i malowaniu.
+TP7DivTT = "Markings and camouflage"
+TP7DivTB = "The paint scheme of the model is illustrative."
+TP7DivTE = "Polish light and reconnaissance tanks carried painted tactical signs, but their appearance on the vehicles at Tomaszów has not yet been confirmed in sources. The model does not represent a specific tank from this battle."
+# Podpowiedź o organizacji i przebiegu bitwy.
+TP7DivDT = "Organisation and battle"
+TP7DivDB = "Warsaw Armoured Motorized Brigade, part of the 1st Light Tank Battalion (about 22 7TP tanks) and other units of Gen. Piskor's Army Lublin."
+TP7DivDE = "On 18 September the Poles took Pasieki and broke into Tomaszów, but a counterattack by the 2nd Panzer Division forced them back. Night attacks on Rogozno cost most of the remaining tanks. As German reinforcements arrived, including the 4th Light Division and infantry divisions, Gen. Piskor surrendered on 20 September. The tank crews destroyed their remaining equipment."

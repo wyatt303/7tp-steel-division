@@ -39,7 +39,15 @@ Opcje:
 7. Uruchamia `GenerateMod.bat`. To trwa kilka minut.
 8. Włącza mod: w `Saved Games\EugenSystems\SteelDivision\mod\Config.ini` ustawia `ActivatedMods = Mod_Wrzesien1939|`. Kopia poprzedniego pliku trafia do `build\mod_backup`. Inne mody zostają wyłączone, bo naraz powinien działać jeden.
 
-Zmiany napisów i cen zrobione wcześniej w edytorze jednostek nie przetrwają ponownej instalacji. Instalator buduje mod od zera z wartości w `scripts\create_battlegroup.py`. Stary mod zostaje w kopii.
+Zmiany napisów i cen zrobione wcześniej w edytorze jednostek nie przetrwają ponownej instalacji. Instalator buduje mod od zera z wartości w [`data\units.toml`](USTAWIENIA_JEDNOSTEK.md). Stary mod zostaje w kopii.
+
+Po udanym generowaniu ModGen pokazuje okienko „Mod Generation Success” i czeka na OK. Instalator sam je zamyka 20 s po zapisaniu wyniku.
+
+Opcja `-OnlyGenerate` wstawia tylko Twoje grafiki z `graphic\` i generuje istniejący mod, bez reinstalacji:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File D:\Mod\Wrzesien1939\zainstaluj_mod.ps1 -OnlyGenerate
+```
 
 ## Czego mod jeszcze nie zawiera
 

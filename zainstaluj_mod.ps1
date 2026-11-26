@@ -22,7 +22,8 @@ param(
     [string]$Blender = 'C:\Program Files\Blender Foundation\Blender 5.3\blender.exe',
     [string]$ModName = 'Mod_Wrzesien1939',
     [switch]$NoActivate,
-    [switch]$Yes
+    [switch]$Yes,
+    [switch]$OnlyGenerate   # tylko wlasne grafiki z graphic i GenerateMod.bat w istniejacym modzie
 )
 
 $ErrorActionPreference = 'Stop'
@@ -62,6 +63,12 @@ Write-Host "   Gra:    $GameDir"
 Write-Host "   Mod:    $ModDir"
 Write-Host "   Blender: $Blender"
 
+if ($OnlyGenerate) {
+    if (-not (Test-Path (Join-Path $ModDir "GenerateMod.bat"))) { Fail "Nie ma moda $ModDir. Uruchom pelna instalacje." }
+    Step "Wlasne grafiki z folderu graphic (bez reinstalacji)"
+    Invoke-Python "apply_graphics.py" "GRAPHICS_DONE" @($Project, $ModDir)
+} else {
+
 if (Test-Path $ModDir) {
     Step "Mod $ModName juz istnieje"
     $target = Join-Path $BackupRoot "${Stamp}_$ModName"
@@ -96,11 +103,43 @@ Invoke-Python 'patch_unit_icons.py' 'ICONS_PATCHED' @($ModDir, $icons, (Join-Pat
 
 Step 'Wlasne grafiki z folderu graphic'
 Invoke-Python 'apply_graphics.py' 'GRAPHICS_DONE' @($Project, $ModDir)
+}
 
 Step 'Generowanie moda (GenerateMod.bat), to potrwa kilka minut'
-& cmd /c "cd /d `"$ModDir`" && .\GenerateMod.bat < NUL" | Select-Object -Last 3 | ForEach-Object { Write-Host "   $_" }
-if ($LASTEXITCODE -ne 0) { Fail "GenerateMod.bat zakonczyl sie kodem $LASTEXITCODE." }
-if (-not (Test-Path (Join-Path $ModDir 'Gen\PC\Mesh\Pack\GfxDescriptor\Mesh_Mod.spk'))) { Fail 'GenerateMod.bat nie zbudowal modeli moda.' }
+# After a successful run ModGen shows a "Mod Generation Success" message box and waits for OK. Watch it:
+# once it has written
+# new output (the mesh pack for a full install, any file for -OnlyGenerate) and has waited idle for
+# 20 s, close it, which is the same as pressing OK.
+$meshPack = Join-Path $ModDir 'Gen\PC\Mesh\Pack\GfxDescriptor\Mesh_Mod.spk'
+$started = Get-Date
+function Test-NewOutput {
+    if ($OnlyGenerate) {
+        return [bool](Get-ChildItem (Join-Path $ModDir 'Gen\PC') -Recurse -File -ErrorAction SilentlyContinue |
+            Where-Object { $_.LastWriteTime -gt $started } | Select-Object -First 1)
+    }
+    return (Test-Path $meshPack) -and ((Get-Item $meshPack).LastWriteTime -gt $started)
+}
+$log = Join-Path $env:TEMP "wrzesien1939_generatemod_$Stamp.log"
+$gen = Start-Process cmd.exe -ArgumentList '/c', ".\GenerateMod.bat < NUL > `"$log`" 2>&1" -WorkingDirectory $ModDir -PassThru -WindowStyle Hidden
+$null = $gen.Handle  # keeps the exit code readable after the process ends
+$idle, $lastCpu, $stopped = 0, -1, $false
+while (-not $gen.HasExited) {
+    Start-Sleep -Seconds 5
+    $modgen = Get-Process ModGen -ErrorAction SilentlyContinue | Select-Object -First 1
+    if (-not $modgen) { continue }
+    $cpu = $modgen.CPU
+    # Idle ModGen still wakes now and then; under 0.1 s of processor time in 5 s counts as idle.
+    $idle = if ($lastCpu -ge 0 -and ($cpu - $lastCpu) -lt 0.1) { $idle + 5 } else { 0 }
+    $lastCpu = $cpu
+    if ($idle -ge 20 -and (Test-NewOutput)) {
+        Write-Host '   ModGen zapisal wynik i czeka na OK w okienku "Mod Generation Success", zamykam je.' -ForegroundColor Yellow
+        Stop-Process -Id $modgen.Id -Force
+        $stopped = $true
+    }
+}
+Get-Content $log -ErrorAction SilentlyContinue | Select-Object -Last 3 | ForEach-Object { Write-Host "   $_" }
+if (-not $stopped -and $gen.ExitCode -ne 0) { Fail "GenerateMod.bat zakonczyl sie kodem $($gen.ExitCode). Log: $log" }
+if (-not $OnlyGenerate -and -not (Test-NewOutput)) { Fail "GenerateMod.bat nie zbudowal modeli moda. Log: $log" }
 
 if ($NoActivate) {
     Step 'Mod nie zostal wlaczony (-NoActivate)'
