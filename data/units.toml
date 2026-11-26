@@ -89,6 +89,37 @@ armor_top = "Toit_Lourd"
 # z nkm FK-A). Ile miał Orlik pod Pociechą, nie wiadomo. W grze: 16 serii (magazynków) po 5.
 ammo = { Ammo_nkm_wz38_AP = 80 }
 
+# Myśliwiec PZL P.11c. Wszystko (dane, broń, wygląd w locie) z polskiego Hurricane'a z gry;
+# cztery działka 20 mm Hispano zamienione na cztery km wz. 33 kal. 7,92 mm (Browning, jak .303
+# w grze). Część P.11c miała tylko dwa km w kadłubie; tu cztery (dwa w kadłubie, dwa w skrzydłach).
+[units.P11C_POL]
+model = "P11C"
+asset_folder = "POL/Avion"          # model w Assets/3D/Units/POL/Avion/P11C
+unit_base = "Hurricane_POL"
+weapon_base = "Hurricane_POL"
+layout = "aircraft"
+stocks = ["Ammo_km_wz33_x4_AirAir"]   # tryb powietrze-powietrze i powietrze-ziemia mają wspólny zapas
+replace_ammo = { Ammo_Hispano_II_20mm_x4_Hurricane_AirAir = "Ammo_km_wz33_x4_AirAir", Ammo_Hispano_II_20mm_x4_Hurricane_AirSol = "Ammo_km_wz33_x4_AirSol" }
+replace_fx = { Hispano_II_20mm_x4_Hurricane = "Browning_303_x4" }   # efekty i dźwięk strzałów karabinów
+# Śmigło dwułopatowe o średnicy ok. 2,8 m (promień 1,4 m = 284 jednostki gry; Hurricane 325, trzy łopaty),
+# polski pilot, podwozie stałe w modelu (bez osobnego modelu chowanego podwozia).
+depiction_replace = { "PaleLength = 325" = "PaleLength = 284", "PaleCount = 3" = "PaleCount = 2", "DepictionSubDepiction_Pilote_UK" = "DepictionSubDepiction_Pilote_POL" }
+fixed_landing_gear = true
+name = "PZLP11c"
+alias = "PZL P.11c"
+price = 60                          # Hurricane z 4 x 20 mm kosztuje 110
+year = 1939
+# Prędkość w jednostkach gry. Hurricane: 1000 (ok. 540 km/h), 650 w walce. P.11c: ok. 390 km/h.
+air_speed = 720
+air_combat_speed = 470
+strength = 6                        # Hurricane 7
+armor_front = "Avion_Lourd"         # stopnie pancerza samolotów w grze: Avion, Avion_Lourd, Avion_Ultra_Lourd
+armor_sides = "Avion"
+armor_rear = "Avion"
+armor_top = "Avion"
+# Zapas do sprawdzenia w źródłach; przyjęto 700 nabojów jak Seafire z 4 x .303 w grze (20 serii po 35).
+ammo = { Ammo_km_wz33_x4_AirAir = 700 }
+
 # ---------------------------------------------------------------------------------------------
 # Amunicja (broń). Wspólna dla wszystkich jednostek, które jej używają.
 # W oknie jednostki gra pokazuje:
@@ -166,6 +197,20 @@ shots_per_salvo = 5
 seconds_between_shots = 0.19         # 320 strz./min teoretycznie w serii (derela.pl)
 seconds_between_salvos = 3.0         # wymiana magazynka; ROF = 5 * 60 / (3 + 4 * 0.19) = 80 r/m w praktyce
 
+# km wz. 33 kal. 7,92 mm (P.11c): kopie lotniczych Browningów .303 x4 z gry, z polską nazwą i kalibrem.
+# Pozostałe pola (celność, zasięg w powietrzu, szybkostrzelność) jak w grze.
+[ammo.Ammo_km_wz33_x4_AirAir]
+copy_of = "Ammo_Browning_303_x4_AirAir"
+rounds_per_salvo = 35                # jak w grze; zapas jednostki dzieli się przez tę liczbę
+name = "KmWz33"
+caliber = "7_92mm"
+
+[ammo.Ammo_km_wz33_x4_AirSol]
+copy_of = "Ammo_Browning_303_x4_AirSol"
+rounds_per_salvo = 35
+name = "KmWz33"
+caliber = "7_92mm"
+
 # ---------------------------------------------------------------------------------------------
 # Napisy widoczne w grze (token = tekst). Tokeny mają najwyżej 10 znaków.
 # ---------------------------------------------------------------------------------------------
@@ -175,11 +220,13 @@ TP7JW = "7TP 37mm Bofors"
 TP7DW = "7TP twin-turret"
 Bofors37 = "37mm Bofors wz.37"
 CkmWz30 = "7.92mm ckm wz.30"
-TKS20Orl = "TKS 20mm Orlik"
+TKS20Orl = "TKS 20mm Roman Orlik"
 Nkm20 = "20mm nkm wz.38 FK"
 AceOrlik = "Roman Orlik"
+PZLP11c = "PZL P.11c"
+KmWz33 = "7.92mm km wz.33"
 TP7DivName = "Warszawska Bryg. Panc-Mot"
-TP7DivNick = "TOMASZÓW 39"
+TP7DivNick = "39"
 TP7DivDesc = "Polish armoured group at the First Battle of Tomaszów Lubelski, 17-20 September 1939."
 # Podpowiedź do portretu: dowódca.
 TP7DivPT = "Col. Stefan Rowecki"

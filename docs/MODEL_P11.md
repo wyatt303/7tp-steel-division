@@ -53,3 +53,22 @@ $out = 'build\p11'
 ```
 
 Plik `P11C_train.blend` eksportuje się wtyczką osobno, tak jak wersje Mid i Low.
+
+## Jednostka w grze (26 listopada 2026 r.)
+
+Wpis `P11C_POL` w `data/units.toml`. Dane jednostki, broń i wygląd w locie są skopiowane z polskiego **Hurricane’a** z gry (`Hurricane_POL`), bo ma ten sam układ węzłów co model P11C.
+
+| Co | Jak |
+|---|---|
+| Broń | 4 × km wz. 33 kal. 7,92 mm: kopia lotniczych Browningów .303 ×4 z gry (`Ammo_km_wz33_x4_AirAir` / `_AirSol`), z ich efektami i dźwiękiem. Część P.11c miała tylko dwa km w kadłubie. |
+| Zapas | 700 nabojów (20 serii po 35), jak Seafire z 4 × .303. **Do sprawdzenia w źródłach.** |
+| Prędkość | 720 w jednostkach gry, 470 w walce (Hurricane: 1000 / 650 przy ok. 540 km/h). P.11c: ok. 390 km/h. |
+| Pancerz | przód `Avion_Lourd`, reszta `Avion` (Hurricane: `Avion_Ultra_Lourd` / `Avion_Lourd`) |
+| Wytrzymałość | 6 (Hurricane 7) |
+| Cena | 60 (Hurricane 110) |
+| Wygląd w locie | śmigło dwułopatowe o promieniu 284 jednostek, polski pilot, bez osobnego modelu chowanego podwozia (P.11c ma stałe podwozie w głównym modelu) |
+| Paczka | zakładka lotnictwa, od fazy A, doświadczenie 1, 3 karty po jednym samolocie |
+
+Model trafia do `Assets\3D\Units\POL\Avion\P11C`. Plik `P11C_train` nie jest potrzebny.
+
+Generowanie moda z P.11c przechodzi bez błędów. W grze jednostka nie była jeszcze sprawdzana.

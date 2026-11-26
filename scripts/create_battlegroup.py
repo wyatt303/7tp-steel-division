@@ -57,6 +57,8 @@ PACKS = [  # name, unit, phase, experience (0-3), units in the pack, cards, fact
     ("Descriptor_Deck_Pack_POL_7TP_DW_A", "TP7_DW_POL", 0, 0, 3, 2, "Tank"),
     # The ace: a single elite (three-star) tankette, one card, in the reconnaissance tab.
     ("Descriptor_Deck_Pack_POL_TKS20_Orlik", "TKS20_ACE_POL", 0, 3, 1, 1, "Reco"),
+    # PZL P.11c: one fighter per card, trained pilots (experience 1), three cards.
+    ("Descriptor_Deck_Pack_POL_P11C", "P11C_POL", 0, 1, 1, 3, "Air"),
 ]
 DIVISION = "Descriptor_Deck_Division_POL_Grupa_7TP_MULTI"
 DIVISION_BASE = "Descriptor_Deck_Division_POL_1st_Armored_MULTI"
@@ -219,6 +221,9 @@ def weapon_descriptor(source, name, info):
     # The base's ammunition becomes ours (copy_of in data/units.toml).
     for new, a in AMMO.items():
         text = re.sub(r"~/%s\b" % re.escape(a["copy_of"]), "~/" + new, text)
+    # Ammunition of another weapon than the base's (replace_ammo: base ammunition -> ours).
+    for old, new in info.get("replace_ammo", {}).items():
+        text = re.sub(r"~/%s\b" % re.escape(old), "~/" + new, text)
     opening, closing, turrets = list_items(text, "TurretDescriptorList")
     # Ammunition stocks come from data/units.toml, in rounds; see salvos_of.
     salvos = [salvos_of(name, ammo) for ammo in info["stocks"]]
@@ -232,6 +237,9 @@ def weapon_descriptor(source, name, info):
     elif layout == "tks20":
         # Panzer II: the 20 mm gun only; in the TKS it sits in a ball mount with little traverse.
         kept = [set_field(turrets[0], "AngleRotationMax", round(math.radians(info["gun_traverse_deg"]), 6))]
+    elif layout == "aircraft":
+        # The base aircraft's fixed guns as they are (only the ammunition changes).
+        kept = turrets
     else:
         raise ValueError("Unknown layout " + layout)
     text = text[:opening + 1] + "\r\n        " + ",\r\n        ".join(kept) + "\r\n    " + text[closing - 1:]
@@ -239,7 +247,8 @@ def weapon_descriptor(source, name, info):
     return re.sub(r"Salves\s*=\s*\[.*?\]", "Salves               = [ " + ", ".join(str(v) for v in salvos) + " ]", text, count=1, flags=re.S)
 
 
-REMOVED_TURRETS = {"tp7_jw": ("tourelle3", "tourelle4"), "tp7_dw": ("tourelle3", "tourelle4"), "tks20": ("tourelle4",)}
+REMOVED_TURRETS = {"tp7_jw": ("tourelle3", "tourelle4"), "tp7_dw": ("tourelle3", "tourelle4"), "tks20": ("tourelle4",),
+                   "aircraft": ()}
 
 
 def operators(source, name, info):
@@ -267,20 +276,28 @@ def build_weapons():
         old = a["copy_of"]
         block = fresh_guids(get_object(text, old).replace(old, new), new)
         block = set_field(block, "Name", "'%s'" % a["name"])
-        fields = {"Caliber": "'%s'" % a["caliber"],
-                  "PorteeMaximale": "((%d) * Metre)" % round(a["range_m"] * 5),  # the game shows a fifth
-                  "TempsEntreDeuxTirs": float(a["seconds_between_shots"]),
-                  "TempsEntreDeuxSalves": float(a["seconds_between_salvos"]),
-                  "NbTirParSalves": a["shots_per_salvo"],
-                  "AffichageMunitionParSalve": a["rounds_per_salvo"]}
+        # Every other field is optional: what is missing stays as in the copied entry.
+        fields = {}
+        if "caliber" in a:
+            fields["Caliber"] = "'%s'" % a["caliber"]
+        if "range_m" in a:
+            fields["PorteeMaximale"] = "((%d) * Metre)" % round(a["range_m"] * 5)  # the game shows a fifth
+        for key, field in (("seconds_between_shots", "TempsEntreDeuxTirs"), ("seconds_between_salvos", "TempsEntreDeuxSalves")):
+            if key in a:
+                fields[field] = float(a[key])
+        for key, field in (("shots_per_salvo", "NbTirParSalves"), ("rounds_per_salvo", "AffichageMunitionParSalve")):
+            if key in a:
+                fields[field] = a[key]
         if "penetration" in a:
             fields["Arme"] = "EArmeType/AP_%d" % a["penetration"]
-        if a["shots_per_salvo"] == 1:
+        if a.get("shots_per_salvo") == 1 and "seconds_between_shots" in a:
             # Single-shot guns: the firing effect follows the shot (machine guns keep their tracer rate).
             fields["TempsEntreDeuxFx"] = float(a["seconds_between_shots"])
         for key, value in fields.items():
             block = set_field(block, key, value)
         for modifier, key in (("Idling", "accuracy"), ("Moving", "accuracy_moving")):
+            if key not in a:
+                continue
             block, count = re.subn(r"(\(EBaseHitValueModifier/%s,\s*)[-\d.]+" % modifier,
                                    lambda m: m.group(1) + str(float(a[key])), block)
             if count != 1:
@@ -318,6 +335,17 @@ def build_weapons():
             blocks.append("Weapons_%s is MAP\r\n[\r\n"
                           "    ( [ 'weapon_effet_tag1', 'tir_c', '1' ], Weapon_%s_weapon1_slot1 ),\r\n"
                           "    ( [ 'weapon_effet_tag2', 'tir_c', '1' ], Weapon_%s_weapon2_slot1 ),\r\n]" % ((name,) * 3))
+        elif info["layout"] == "aircraft":
+            # Every firing effect of the base aircraft (one per gun), with other guns' effects
+            # where replace_fx says so (e.g. Hispano cannons -> Browning machine guns).
+            effects = get_object(text, "Weapons_" + base)
+            used = re.findall(r"\bWeapon_%s_weapon\d+_slot\d+\b" % re.escape(base), effects)
+            new_blocks = [get_object(text, n) for n in dict.fromkeys(used)] + [effects]
+            for block in new_blocks:
+                block = block.replace(base, name)
+                for old, new in info.get("replace_fx", {}).items():
+                    block = block.replace(old, new)
+                blocks.append(block)
     append(path, blocks)
 
 
@@ -333,9 +361,10 @@ def build_models():
             raise RuntimeError("No depiction file for " + base)
         depiction = get_object(read(source[0]), "Gfx_" + base)
         stem = info["model"]
-        models.append("export ModelFile_%s is 'GameData:Assets\\3D\\Units\\POL\\Char\\%s\\%s.Ase2NdfBin'" % (name, stem, stem))
-        for suffix, file_name in (("", "ModelFile_" + name), ("_MID", "'GameData:Assets\\3D\\Units\\POL\\Char\\%s\\%s_MID.Ase2NdfBin'" % (stem, stem)),
-                                  ("_LOW", "'GameData:Assets\\3D\\Units\\POL\\Char\\%s\\%s_LOW.Ase2NdfBin'" % (stem, stem))):
+        folder_ = "\\".join(info.get("asset_folder", "POL/Char").split("/"))  # as in scripts/export_models.py
+        models.append("export ModelFile_%s is 'GameData:Assets\\3D\\Units\\%s\\%s\\%s.Ase2NdfBin'" % (name, folder_, stem, stem))
+        for suffix, file_name in (("", "ModelFile_" + name), ("_MID", "'GameData:Assets\\3D\\Units\\%s\\%s\\%s_MID.Ase2NdfBin'" % (folder_, stem, stem)),
+                                  ("_LOW", "'GameData:Assets\\3D\\Units\\%s\\%s\\%s_LOW.Ase2NdfBin'" % (folder_, stem, stem))):
             models.append("Modele_%s%s is TResourceMultiMaterialMeshWithLod\r\n(\r\n    FileName = %s\r\n    CivMask =  CivMask/MeshModding\r\n"
                           "    TypeMask = TypeMask/Char\r\n)" % (name, suffix, file_name))
         block = depiction.replace(base, name)
@@ -344,6 +373,19 @@ def build_models():
         if info["layout"] == "tks20":
             # A tankette moves and rocks like the game's small tracked vehicles (Universal Carrier).
             block = block.replace("_MediumTank", "_SmallTank")
+        if info.get("fixed_landing_gear"):
+            # The base hangs a separate retractable-gear model on "Landing Gear"; ours has its
+            # fixed gear in the main model, so only the pilot stays as a sub-depiction.
+            start = block.find("SubDepictions = [")
+            if start < 0:
+                raise RuntimeError("No landing gear sub-depiction in Gfx_" + base)
+            end = matching(block, block.index("[", start))
+            rest = re.match(r"\s*\+\s*", block[end:])
+            block = block[:start] + "SubDepictions = " + block[end + (rest.end() if rest else 0):]
+        for old, new in info.get("depiction_replace", {}).items():
+            if old not in block:
+                raise RuntimeError("'%s' not in Gfx_%s" % (old, base))
+            block = block.replace(old, new)
         depictions.append(block)
     append(model_path, models)
     append(depiction_path, depictions)
@@ -351,20 +393,29 @@ def build_models():
 
 def patch_unit(text, info):
     for side in ("Front", "Sides", "Rear"):
-        text = set_field(text, "ArmorDescriptor" + side, "ArmorDescriptor_Blindage_%d" % info["armor_" + side.lower()])
+        value = info["armor_" + side.lower()]
+        # A number is a ground armour grade (Blindage_N); a name is used as it is (aircraft: Avion_Lourd).
+        text = set_field(text, "ArmorDescriptor" + side,
+                         "ArmorDescriptor_Blindage_%d" % value if isinstance(value, int) else "ArmorDescriptor_" + value)
     text = set_field(text, "ArmorDescriptorTop", "ArmorDescriptor_" + info["armor_top"])
     text = set_field(text, "MaxDamages", str(float(info["strength"])))
     if "concealment" in info:
         text = set_field(text, "UnitConcealmentBonus", str(float(info["concealment"])))
-    # The game shows half of Maxspeed in km/h, and the road speed as that times (1 + SpeedBonusOnRoad).
-    speed = "((%d) * Metre)" % round(info["speed_kmh"] * 2)
-    text = set_field(text, "Maxspeed", speed)
-    text = set_field(text, "VitesseCombat", speed)
-    text = set_field(text, "SpeedBonusOnRoad", str(round(info["road_speed_kmh"] / info["speed_kmh"] - 1, 4)))
+    if "air_speed" in info:
+        # Aircraft: game units, as in the base aircraft (Hurricane: 1000 and 650 in combat).
+        text = set_field(text, "Maxspeed", "((%d) * Metre)" % info["air_speed"])
+        text = set_field(text, "VitesseCombat", "((%d) * Metre)" % info["air_combat_speed"])
+    else:
+        # The game shows half of Maxspeed in km/h, and the road speed as that times (1 + SpeedBonusOnRoad).
+        speed = "((%d) * Metre)" % round(info["speed_kmh"] * 2)
+        text = set_field(text, "Maxspeed", speed)
+        text = set_field(text, "VitesseCombat", speed)
+        text = set_field(text, "SpeedBonusOnRoad", str(round(info["road_speed_kmh"] / info["speed_kmh"] - 1, 4)))
     text = set_field(text, "ProductionYear", info["year"])
     text = set_field(text, "ProductionPrice", info["price"])
     text = set_field(text, "NameInMenuToken", "'%s'" % info["name"])
-    text = set_field(text, "AliasName", '"%s"' % info["alias"])
+    if re.search(r"(?m)^\s*AliasName\s*=", text):  # aircraft have no alias
+        text = set_field(text, "AliasName", '"%s"' % info["alias"])
     text = set_field(text, "MenuIconForInterface", "~/Texture_RTS_H_Stuart_M3A3")
     if "optics" in info:
         text = set_field(text, "OpticalStrength", info["optics"])
@@ -413,13 +464,18 @@ def build_units():
     own = {base: re.compile(r"^(?!WeaponDescriptor_|Weapon_|Weapons_|Operators_|Gfx_|Modele|ModelFile)\w*" + base + r"(_\w+)?$")
            for base in UNIT_BASES}
 
-    def found_in(text, path, what):
+    def found_in(text, path, what, optional=False):
         found = {}
         for base in UNIT_BASES:
             found[base] = [text[start:end] for name, start, end in statements(text) if own[base].match(name)]
-            if not found[base]:
+            if not found[base] and not optional:
                 raise RuntimeError("No %s %s in %s" % (base, what, path))
         return found
+
+    # Some bases share a top view named after the model (Hurricane_POL uses Texture_TopView_Hurricane_MkII);
+    # their clones get a top view of their own.
+    topview_names = [name for name, _, _ in statements(read(texture_files[1]))]
+    own_topview = {base: any(own[base].match(n) for n in topview_names) for base in UNIT_BASES}
 
     for path in objects:
         found = found_in(read(path), path, "objects")
@@ -432,6 +488,8 @@ def build_units():
                     clone = patch_unit(clone, info)
                 if "TModularUnitDescriptor" in clone[:160]:
                     clone = make_ace(clone, info)
+                    if not own_topview[base]:
+                        clone = re.sub(r"(TopViewForInterface\s*=\s*)~/\w+", lambda m: m.group(1) + "~/Texture_TopView_" + name, clone)
                 if path.endswith("Generated_CubeActionsUnites.ndf"):
                     clone = clone.replace("~/Texture_Bouton_Unit_" + name, "$/GFX/Everything/Texture_Bouton_Unit_" + name)
                 blocks.append(clone)
@@ -439,9 +497,13 @@ def build_units():
 
     textures = []
     for path in texture_files:
-        found = found_in(read(path), path, "textures")
+        is_topview = path == texture_files[1]
+        found = found_in(read(path), path, "textures", optional=is_topview)
         for name, info in VARIANTS.items():
             base = info["unit_base"]
+            if is_topview and not own_topview[base]:
+                textures.append("export Texture_TopView_%s is TUIResourceTexture_CommonModded\r\n(\r\n    FileName = '%s_TopView.png'\r\n)"
+                                % (name, info["model"]))
             for block in found[base]:
                 # Only the object name changes, so the top view keeps pointing at an existing image.
                 head, body = block.split(" is ", 1)

@@ -21,6 +21,7 @@ MODELS = {
     "TP7_JW": ("7TP_jednowiezowy_Bofors", "POL/Char"),
     "TP7_DW": ("7TP_dwuwiezowy_wz30", "POL/Char"),
     "TKS20": ("TKS20", "POL/Char"),
+    "P11C": ("P11C", "POL/Avion"),  # fixed landing gear: P11C_train is not needed
 }
 
 failed = 0
