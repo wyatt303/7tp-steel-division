@@ -91,7 +91,7 @@ Projekt leży w `D:\Mod\Wrzesien1939` (do 26 listopada 2026 r. `D:\Mod\7TP`). Mo
 | Samolot PZL P.11c | Gotowy model z plikiem `_train`, eksport wtyczką bez błędów, w grze niesprawdzony |
 | Motocykl Sokół 1000 | Gotowy model, eksport wtyczką bez błędów, w grze niesprawdzony |
 | Samoloty Karaś i Łoś | Gotowe modele z plikami `_train`, eksport wtyczką bez błędów, w grze niesprawdzone |
-| Armata 37 mm wz. 36 | Gotowy model z plikiem `Boites_`, eksport wtyczką bez błędów, w grze niesprawdzony, bez własnych animacji |
+| Armata 37 mm wz. 36 | Jednostka w battlegroupie (dane z polskiego 6-pdr, broń, wygląd i animacje z M3 37 mm), generowanie moda bez błędów, w grze niesprawdzona |
 | Ciężarówka Polski Fiat 621L | Gotowy model, eksport wtyczką bez błędów, w grze niesprawdzony |
 | Wersja jednowieżowa w bitwie | Sprawdzona na wcześniejszej wersji modelu |
 | Wózki w grze | Sprawdzone wizualnie |

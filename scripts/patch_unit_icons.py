@@ -27,12 +27,16 @@ LABELS = os.path.join(GAMEPLAY, "Gfx", "LabelDescripors.ndf")
 MARKER = "// 7TP mod: interface icons from patch_unit_icons.py"
 SETTINGS = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "data", "units.toml")
 with open(SETTINGS, "rb") as _handle:
-    UNITS = {name: info["model"] for name, info in tomllib.load(_handle)["units"].items()}  # unit -> model stem
+    _UNITS = tomllib.load(_handle)["units"]
+UNITS = {name: info["model"] for name, info in _UNITS.items()}  # unit -> model stem
+# Units that keep a game icon over them (towed guns: the game's gun icon) instead of their own.
+GAME_RTS = {name: info["rts_texture"] for name, info in _UNITS.items() if "rts_texture" in info}
 
 WEAPON_PICTURES = {  # texture -> picture file
     "Texture_Interface_Weapon_TP7_Bofors37": "TP7_Bofors37_Weapon.png",
     "Texture_Interface_Weapon_TP7_CkmWz30": "TP7_CkmWz30_Weapon.png",
     "Texture_Interface_Weapon_TKS20_Nkm20": "TKS20_Nkm20_Weapon.png",
+    "Texture_Interface_Weapon_WZ36_Bofors37": "WZ36_Bofors37_Weapon.png",
 }
 WEAPONS = {  # ammunition -> texture
     "Ammo_Bofors_wz37_AP": "Texture_Interface_Weapon_TP7_Bofors37",
@@ -40,8 +44,9 @@ WEAPONS = {  # ammunition -> texture
     "Ammo_ckm_wz30_vehicule": "Texture_Interface_Weapon_TP7_CkmWz30",
     "Ammo_nkm_wz38_AP": "Texture_Interface_Weapon_TKS20_Nkm20",
     "Ammo_nkm_wz38_HE": "Texture_Interface_Weapon_TKS20_Nkm20",
+    "Ammo_Bofors_wz36_AP": "Texture_Interface_Weapon_WZ36_Bofors37",
 }
-FILES = ([stem + "_RTS.png" for stem in UNITS.values()] + [stem + "_TopView.png" for stem in UNITS.values()]
+FILES = ([stem + "_RTS.png" for u, stem in UNITS.items() if u not in GAME_RTS] + [stem + "_TopView.png" for stem in UNITS.values()]
          + list(WEAPON_PICTURES.values()))
 
 
@@ -96,7 +101,7 @@ WEAPON_TEXTURES = [texture(name, file_name) for name, file_name in WEAPON_PICTUR
 text = read(LABELS)
 for block in WEAPON_TEXTURES:  # an earlier version of this script put them here; ModGen rejected that
     text = text.replace("\r\n\r\n" + block, "")
-blocks = [texture("Texture_RTS_" + u, stem + "_RTS.png") for u, stem in UNITS.items()]
+blocks = [texture("Texture_RTS_" + u, stem + "_RTS.png") for u, stem in UNITS.items() if u not in GAME_RTS]
 if MARKER not in text:
     text = text.rstrip() + "\r\n\r\n" + MARKER + "\r\n" + "\r\n\r\n".join(blocks) + "\r\n"
 text = edit_statements(
@@ -112,7 +117,7 @@ for path in (os.path.join(GENERATED, "UniteDescriptor.ndf"), os.path.join(GENERA
         # Whatever the copied unit showed (Cromwell, Stuart, Hurricane...), the label over the
         # unit and the menu icon become ours. UnidentifiedRTS (seen by the enemy) stays.
         return re.sub(r"(?m)^(\s*(?:RTSTexture|MenuIconForInterface)\s*=\s*)~/\w+",
-                      lambda m: m.group(1) + "~/Texture_RTS_" + unit_of(name), block)
+                      lambda m: m.group(1) + "~/" + GAME_RTS.get(unit_of(name), "Texture_RTS_" + unit_of(name)), block)
 
     write(path, edit_statements(text, unit_of, swap))
 
@@ -135,7 +140,7 @@ for path in (os.path.join(GENERATED, "UniteDescriptor.ndf"), os.path.join(GENERA
     text = read(path)
     edit_statements(text, lambda n: unit_of(n) or n in WEAPONS,
                     lambda n, b: (_ for _ in ()).throw(RuntimeError("leftover in " + n))
-                    if re.search(r"~/Texture_\w*(Cromwell_V|Stuart_M3A3|M6_37mmL_Stuart|M1919_7_62mm|KwK_38L55_20mm\w*)\b"
+                    if re.search(r"~/Texture_\w*(Cromwell_V|Stuart_M3A3|M6_37mmL_Stuart|M1919_7_62mm|KwK_38L55_20mm\w*|CanonTracte_M3_37mmL|RTS_H_Canon_6pdr)\b"
                                  r"|TopViews/(Cromwell|Stuart|Hurricane)", b)
                     else b)
 print("ICONS_PATCHED")

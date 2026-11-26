@@ -121,6 +121,35 @@ armor_top = "Avion"
 # Zapas do sprawdzenia w źródłach; przyjęto 700 nabojów jak Seafire z 4 x .303 w grze (20 serii po 35).
 ammo = { Ammo_km_wz33_x4_AirAir = 700 }
 
+# 37 mm armata ppanc wz. 36 Bofors. Dane jednostki (polska flaga, głosy, portret obsługi) z polskiej
+# armaty 6-pdr z gry; broń, efekty strzału i wygląd (dwóch żołnierzy obsługi, animacje armaty) z
+# amerykańskiej M3 37 mm, najbliższej Boforsowi wielkością i wagą. Model ma osie w miejscach z M3,
+# bo animacje M3 zapisują położenia węzłów (zob. scripts/spec_wz36.py).
+[units.WZ36_POL]
+model = "WZ36_BOFORS"
+asset_folder = "POL/Canon"         # model w Assets/3D/Units/POL/Canon/WZ36_BOFORS, razem z Boites_WZ36_BOFORS
+unit_base = "Canon_6pdr_POL"
+weapon_base = "Canon_37mmAT_US"
+layout = "gun"
+stocks = ["Ammo_Bofors_wz36_AP"]
+rts_texture = "Texture_RTS_H_Canon_37mmAT"   # znaczek nad jednostką: ikona armaty z gry, jak M3
+transporter = "Carrier_Loyd_POL"   # ciągnik w paczce: Loyd z gry (Bofora ciągnął m.in. ciągnik C2P, krewny tankietek)
+name = "WZ36"
+alias = "37mm wz.36"
+price = 30                         # M3 kosztuje 40 (przebicie 8), 6-pdr 60
+year = 1936
+speed_kmh = 15                     # obsługa pcha armatę (M3: 15 km/h, 6-pdr 12,5)
+road_speed_kmh = 15
+strength = 4                       # jak M3
+concealment = 2.5                  # jak M3 i 6-pdr: niska armata
+gun_traverse_deg = 25              # ogony rozłożone: 50° w poziomie (M3 w grze ±15°)
+armor_front = "Canon_Lourd"        # jak wszystkie armaty w grze
+armor_sides = "Canon_Lourd"
+armor_rear = "Canon_Lourd"
+armor_top = "Canon_Lourd"
+# Zapas: M3 w grze ma 55. Ile pocisków miała obsługa przy armacie, do sprawdzenia w źródłach.
+ammo = { Ammo_Bofors_wz36_AP = 60 }
+
 # ---------------------------------------------------------------------------------------------
 # Amunicja (broń). Wspólna dla wszystkich jednostek, które jej używają.
 # W oknie jednostki gra pokazuje:
@@ -154,6 +183,21 @@ rounds_per_salvo = 1
 shots_per_salvo = 1
 seconds_between_shots = 6.0
 seconds_between_salvos = 6.0
+
+# Armata ppanc wz. 36: ta sama lufa i amunicja co w 7TP, ale z ziemi strzelała szybciej
+# (12-14 strz./min, Wikipedia). Przebicie jak w 7TP; M3 37 mm w grze ma 8, działo Stuarta 7.
+[ammo.Ammo_Bofors_wz36_AP]
+copy_of = "Ammo_CanonTracte_M3_37mmL_AP"
+name = "Bofors36"
+caliber = "37mm"
+penetration = 6
+accuracy = 5                         # jak M3 w grze
+accuracy_moving = 1
+range_m = 1000
+rounds_per_salvo = 1
+shots_per_salvo = 1
+seconds_between_shots = 5.0          # 12 strz./min (M3 w grze: 10)
+seconds_between_salvos = 5.0
 
 [ammo.Ammo_ckm_wz30_vehicule]
 copy_of = "Ammo_M1919_7_62mm_vehicule"
@@ -226,6 +270,8 @@ Nkm20 = "20mm nkm wz.38 FK"
 AceOrlik = "Roman Orlik"
 PZLP11c = "PZL P.11c"
 KmWz33 = "7.92mm km wz.33"
+WZ36 = "37mm wz.36 Bofors"
+Bofors36 = "37mm Bofors wz.36"
 TP7DivName = "Warszawska Bryg. Panc-Mot"
 TP7DivNick = "39"
 TP7DivDesc = "Polish armoured group at the First Battle of Tomaszów Lubelski, 17-20 September 1939."

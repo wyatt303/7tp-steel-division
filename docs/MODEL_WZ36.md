@@ -4,7 +4,7 @@ Folder: `models/WZ36_BOFORS`.
 
 ## Budowa jak w modelach z gry
 
-Układ węzłów skopiowano z PaK 36 od Eugen (`GER/Canon.zip/Canon/PaK_36`), działa tego samego kalibru i podobnej wielkości.
+Układ węzłów jest taki jak w armatach od Eugen: PaK 36 (`GER/Canon.zip`) i amerykańskiej M3 37 mm (`USA/Canon.zip`). Obie mają te same nazwy węzłów.
 
 | Węzeł | Rola |
 |---|---|
@@ -17,9 +17,28 @@ Układ węzłów skopiowano z PaK 36 od Eugen (`GER/Canon.zip/Canon/PaK_36`), dz
 | `Remorque_2` | ucho holownicze na końcu prawego ogona |
 | `Fx_tourelle1_tir_01`, `Fx_Stress_01/02`, `FX_Fumee_Roue_D1/G1` | efekty |
 
-Model obsługi jest osobnym plikiem `Boites_WZ36_BOFORS` z pomocnikami `Canon_AT`, `servant_G` i `servant_D`. Ich położenie skopiowano z `Boites_PaK_36`.
+Miejsca obsługi są w osobnym pliku `Boites_WZ36_BOFORS` z pomocnikami `Canon_AT`, `servant_G` i `servant_D`. Ich położenie jest takie jak w `Boites_PaK_36` i `Boites_M3_37mm`, bo oba pliki gry są identyczne.
 
-**Animacje:** PaK 36 ma osobne pliki animacji (`_Deploy`, `_Fold`, `_Fire`, `_Idle`, `_Move`, `_Move_Back`, `_Turn_Left`, `_Turn_Right`). Animują one węzły o tych samych nazwach. Nasza wtyczka nie eksportuje animacji. Przy podmianie PaK 36 najprościej zostawić jego pliki animacji. Nie wiadomo jednak, czy zapisują one położenia bezwzględne, więc osie obrotu naszych węzłów mogą zostać przesunięte do miejsc z PaK 36. Trzeba to sprawdzić w grze.
+## Animacje z M3 37 mm (26 listopada 2026 r.)
+
+Nasza wtyczka nie eksportuje animacji. Armata korzysta więc z ośmiu animacji amerykańskiej M3 37 mm z gry (`M3_37mm_Idle`, `_Fire`, `_Deploy`, `_Fold`, `_Move`, `_Move_Back`, `_Turn_Left` i `_Turn_Right`).
+
+| Animacja | Węzły | Ruch |
+|---|---|---|
+| `Fire` | `Canon_01`, `Chassis`, `Bras_*`, `Roue_*` | lufa cofa się o około 0,4 m, a cała armata podskakuje o około 7 cm |
+| `Fold` / `Deploy` | `Chassis`, `Bras_*` | ogony schodzą się o około 25° i armata pochyla się o 14,5° do holowania, potem z powrotem |
+| `Move`, `Move_Back`, `Turn_*` | `Chassis`, `Roue_*` | pochylona armata, obracające się koła |
+
+Pliki animacji zapisują położenie i obrót każdego węzła w układzie całego modelu, a nie zmianę względem położenia spoczynkowego. Na przykład `Chassis` ma w każdej klatce wysokość 72,4 jednostki. Dlatego osie wszystkich animowanych węzłów naszego modelu leżą dokładnie tam, gdzie w M3 (`PIVOTS` w `scripts/spec_wz36.py`), a model zbudowano wokół nich:
+
+- Oś kół jest 0,33 m przed początkiem układu i 0,357 m nad ziemią, jak w M3. Dlatego koła mają teraz średnicę 0,71 m; wcześniej było to 0,60 m, czyli szacunek ze zdjęć.
+- Bryła zachowuje kształt Boforsa. Część może leżeć obok swojej osi, ale tylko wzdłuż osi obrotu. Koła mają rozstaw Boforsa (1,22 m), a punkty obrotu kół są szerzej, w miejscach z M3. Lufa jest na wysokości linii ognia Boforsa (0,62 m), a jej punkt obrotu jest niżej, w miejscu z M3.
+- Zawiasy ogonów są blisko zawiasów M3, więc ogony składają się prawie w tym samym miejscu.
+- Model ma dokładnie te same 13 węzłów co M3 (bez `Fx_Stress_02`) i w tej samej kolejności: rodzic przed dzieckiem, najpierw siatki, potem pomocniki. Kolejność zapisuje `build_wz36.py` we właściwości sceny `eug_node_order`, a eksporter wtyczki ją stosuje. Wcześniej eksporter układał węzły alfabetycznie i gra wywalała się przy podglądzie 3D armaty. Podejrzenie: skompilowane animacje M3 wskazują węzły po numerze.
+
+M3 pasuje do Boforsa lepiej niż PaK 36. W grze linia ognia M3 jest na wysokości 0,63 m, a PaK 36 na 0,94 m; Bofors ma 0,62 m. Prawdziwa M3 ma 0,96 m wysokości, a Bofors 1,01 m.
+
+Jak to wygląda w ruchu, nie było jeszcze sprawdzane w grze.
 
 ## Wymiary
 
@@ -31,14 +50,40 @@ Model obsługi jest osobnym plikiem `Boites_WZ36_BOFORS` z pomocnikami `Canon_AT
 | Lufa | L/45 = 1,665 m | jw. |
 | Wysokość linii ognia | 0,62 m | polska Wikipedia |
 | Rozłożenie ogonów | ±25° | jw. |
-| Koła | Ø 0,60 m | **szacunek ze zdjęć** |
-| Długość ogona | 1,55 m | **szacunek z długości całkowitej** |
+| Koła | Ø 0,71 m | wysokość osi w M3 z gry (wcześniej Ø 0,60 m, szacunek ze zdjęć) |
+| Długość ogona | 1,65 m | **szacunek z długości całkowitej** |
 
 Wygląd tarczy, kół, ogonów z płytami oporowymi i kołyski wzięto ze zdjęć egzemplarzy muzealnych z Wikimedia Commons, oglądanych w przeglądarce.
 
-## Stan
+## Jednostka w grze
 
-Wszystkie pliki przechodzą eksport wtyczką. Malowanie to kamuflaż z 1936 r., jak na zachowanych armatach. Model nie ma wpisu jednostki i w grze nie był sprawdzany.
+Wpis `WZ36_POL` w `data/units.toml`, układ `gun` w `scripts/create_battlegroup.py`.
+
+| Co | Skąd |
+|---|---|
+| Dane jednostki: polska flaga, głosy, portret obsługi | polski 6-pdr z gry (`Canon_6pdr_POL`) |
+| Broń i efekty strzału | M3 37 mm (`Canon_37mmAT_US`) |
+| Wygląd | cały plik wyglądu M3, ze zmienionymi nazwami: nasz model i `Boites_WZ36_BOFORS`, animacje M3, polska obsługa z gry |
+| Amunicja | `Ammo_Bofors_wz36_AP`, kopia pocisku M3: przebicie 6 (jak Bofors w 7TP; M3 ma 8), celność 5, 1000 m, 12 strz./min |
+| Obrót w poziomie | ±25° (M3 w grze ±15°) |
+| Znaczek nad jednostką | ikona armaty z gry (`Texture_RTS_H_Canon_37mmAT`) |
+| Paczka | zakładka przeciwpancerna, od fazy A, po dwie armaty z ciągnikiem Loyd z gry, 3 karty |
+
+Zapas amunicji (60) to założenie; do sprawdzenia w źródłach.
+
+Wpisy wyglądu trafiają do plików polskiego 6-pdr w modzie (`Gfx\Units\POL\Canon\Canon_6pdr_POL*.ndf`). Model trafia do `Assets\3D\Units\POL\Canon\WZ36_BOFORS`, razem z `Boites_WZ36_BOFORS`.
+
+Plik `Boites_WZ36_BOFORS` ładuje się przez osobny szablon z `CivMask/MeshModding`, jak każdy model z moda. Pierwsza wersja używała szablonu M3 z `CivMask/OTAN`, czyli maski paczek gry, i gra się wywaliła (26 listopada 2026 r.). Żołnierze obsługi są modelami z gry, więc zostają przy `CivMask/OTAN`.
+
+Generowanie moda przechodzi bez błędów. W grze armata nie była jeszcze sprawdzana.
+
+## Obsługa (żołnierze)
+
+Żołnierzy obsługi nie trzeba modelować, bo gra dokłada ich sama. Dwaj żołnierze to osobne modele piechoty, podpięte do pomocników `servant_G` i `servant_D` z pliku `Boites_`.
+
+Wszystkie armaty w grze mają te same animacje obsługi. Definiuje je `Units\US\Canon\Servant_Anims.ndf` (`DepictionOperator_Animation_Servant_Gauche/Droite`), a pliki `Gunner_L_*` i `Gunner_R_*` są tylko w spakowanych danych gry. Żołnierz ma animacje `Fire`, `Reload`, `Deploy`, `Fold`, `Move`, `Move_Back`, `Turn_Left`, `Turn_Right`, `Ready_to_Fire` i `Dead`.
+
+Armata ma obsługę `ModelFile_Servant_AT_POL` (`Polish_Rifle`) i `ModelFile_Servant_AT_POL_Secondary` (`Polish_Rifle_2`) z gry. Definiuje je `Common\Gfx_infanterie.ndf`. To żołnierze Polskich Sił Zbrojnych na Zachodzie z 1944 r., w mundurach i hełmach brytyjskich, a nie w mundurach z 1939 r. z hełmem wz. 31. Obsługę z 1939 r. opisuje [PIECHOTA_1939](PIECHOTA_1939.md).
 
 ## Budowanie
 
@@ -50,6 +95,8 @@ $out = 'build\wz36'
 & $blender --background --factory-startup --python scripts\texture_tk.py -- $out
 & $blender --background --factory-startup --python scripts\finalize_tk.py -- $out
 ```
+
+Pliki `WZ36_BOFORS*.blend`, `.fbx`, `Boites_WZ36_BOFORS.blend`, tekstury i rendery kopiuje się potem do `models/WZ36_BOFORS`.
 
 ## Źródła
 
@@ -63,18 +110,3 @@ $out = 'build\wz36'
 | Trójkąty High | 1780 | 4166 |
 | Trójkąty Mid | 1036 | 1476 |
 | Trójkąty Low | 264 | 581 |
-
-## Obsługa (żołnierze)
-
-Żołnierzy obsługi nie trzeba modelować, bo gra dokłada ich sama. W `PaK_36_Depiction.ndf` dwaj żołnierze są osobnymi modelami piechoty, podpiętymi do pomocników `servant_G` i `servant_D` z pliku `Boites_`. Każdy ma też animację obsługi (`DepictionOperator_Animation_Servant_Gauche/Droite`).
-
-Gra ma gotowe modele polskiej obsługi: `ModelFile_Servant_AT_POL` (`Polish_Rifle`) i `ModelFile_Servant_AT_POL_Secondary` (`Polish_Rifle_2`). Definiuje je `Common\Gfx_infanterie.ndf`. To żołnierze Polskich Sił Zbrojnych na Zachodzie z 1944 r., w mundurach i hełmach brytyjskich, a nie w mundurach z 1939 r. z hełmem wz. 31.
-
-W folderze [`ndf/`](../ndf) są gotowe pliki dla moda:
-
-| Plik | Miejsce w modzie | Zawartość |
-|---|---|---|
-| `WZ36_BOFORS.ndf` | `GameData\Gameplay\Gfx\Units\POL\Canon\` | siatki High, Mid i Low z `CivMask/MeshModding` |
-| `WZ36_BOFORS_Depiction.ndf` | jw. | wygląd na wzór PaK 36: nasze siatki i `Boites_`, polska obsługa z gry, animacje armaty z PaK 36 |
-
-Do użycia w grze trzeba jeszcze wskazać `Gfx_WZ36_BOFORS` w jednostce (`Depiction = ~/Gfx_WZ36_BOFORS`). Prostsza droga to podmiana istniejącej jednostki, tak jak przy 7TP. Uzbrojenie wskazuje na razie `Weapons_PaK_36`. Pliki nie były sprawdzane w grze.

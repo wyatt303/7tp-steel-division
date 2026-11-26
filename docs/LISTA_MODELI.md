@@ -35,7 +35,7 @@ Wszystkie modele mają wersje High, Mid i Low, tekstury i eksport wtyczką bez b
 |---|---|---|---|---|
 | Motocykl Sokół 1000 z wózkiem i rkm wz. 28 | `SOKOL1000` | BMW R75 | 4450 / 2956 / 1096 | [MODEL_SOKOL](MODEL_SOKOL.md) |
 | Ciężarówka Polski Fiat 621L | `PF621L` | Opel Blitz | 4300 / 1896 / 636 | [MODEL_PF621](MODEL_PF621.md) |
-| Armata ppanc 37 mm wz. 36 (Bofors) | `WZ36_BOFORS` + `Boites_WZ36_BOFORS` | PaK 36 | 1780 / 1036 / 264 | [MODEL_WZ36](MODEL_WZ36.md) |
+| Armata ppanc 37 mm wz. 36 (Bofors) | `WZ36_BOFORS` + `Boites_WZ36_BOFORS` | M3 37 mm (osie i animacje) | 1780 / 1036 / 264 | [MODEL_WZ36](MODEL_WZ36.md) |
 
 ## Piechota
 
@@ -47,7 +47,6 @@ Wszystkie modele mają wersje High, Mid i Low, tekstury i eksport wtyczką bez b
 
 | Plik | Zawartość |
 |---|---|
-| `ndf/WZ36_BOFORS.ndf`, `ndf/WZ36_BOFORS_Depiction.ndf` | armata wz. 36 z polską obsługą z gry |
 | `ndf/POL39_Infanterie.ndf` | piechota z 1939 r., także jako obsługa działa |
 
 ## Jeszcze nie zrobione

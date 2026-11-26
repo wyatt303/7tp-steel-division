@@ -30,6 +30,6 @@ $blender = 'C:\Program Files\Blender Foundation\Blender 5.3\blender.exe'
 
 Wynik trafia do `build/pol39`: `POL39_Rifle`, `POL39_Rifle_2` i ich wersje `_LOW`, każda z plikami `.png`, `_SC` i `_GLO`. **Te pliki pochodzą z danych gry, więc nie trafiają do repozytorium.** Odtwarza się je skryptem.
 
-Plik [`ndf/POL39_Infanterie.ndf`](../ndf/POL39_Infanterie.ndf) definiuje te modele dla moda, w tym `ModelFile_Servant_AT_POL39` i `_Secondary` dla obsługi działa. Aby armata wz. 36 miała obsługę z 1939 r., w `ndf/WZ36_BOFORS_Depiction.ndf` trzeba zamienić `ModelFile_Servant_AT_POL` na `ModelFile_Servant_AT_POL39`.
+Plik [`ndf/POL39_Infanterie.ndf`](../ndf/POL39_Infanterie.ndf) definiuje te modele dla moda, w tym `ModelFile_Servant_AT_POL39` i `_Secondary` dla obsługi działa. Aby armata wz. 36 miała obsługę z 1939 r., trzeba dodać te modele do moda i w `gun_depiction` w `scripts/create_battlegroup.py` zamienić `ModelFile_Servant_AT_POL` na `ModelFile_Servant_AT_POL39`.
 
 W grze nic z tego nie było sprawdzane.

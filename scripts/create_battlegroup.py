@@ -6,9 +6,10 @@ Run it once, on a new mod. Nothing outside that folder is changed. The script co
 definitions at run time, so the repository contains no game data.
 
 Each unit copies existing game entries, named in data/units.toml: unit_base for the unit data
-(Cromwell V POL for the 7TP, M3A3 Stuart POL for the TKS ace), weapon_base for weapons, firing
-effects and depiction (Stuart for the 7TP, Panzer II C for the TKS with the 20 mm gun). The
-battlegroup copies the 1st Polish Armoured Division.
+(Cromwell V POL for the 7TP, M3A3 Stuart POL for the TKS ace, 6-pdr POL for the wz. 36 gun),
+weapon_base for weapons, firing effects and depiction (Stuart for the 7TP, Panzer II C for the
+TKS with the 20 mm gun, M3 37 mm with its crew and animations for the wz. 36). The battlegroup
+copies the 1st Polish Armoured Division.
 
 All numbers and texts that may be tuned (price, speed, armour, ammunition, rates of fire,
 accuracy, range, names and descriptions) are read from data/units.toml.
@@ -59,6 +60,8 @@ PACKS = [  # name, unit, phase, experience (0-3), units in the pack, cards, fact
     ("Descriptor_Deck_Pack_POL_TKS20_Orlik", "TKS20_ACE_POL", 0, 3, 1, 1, "Reco"),
     # PZL P.11c: one fighter per card, trained pilots (experience 1), three cards.
     ("Descriptor_Deck_Pack_POL_P11C", "P11C_POL", 0, 1, 1, 3, "Air"),
+    # Bofors wz. 36: two guns per card, each with its tractor (transporter in data/units.toml), as the 6-pdr.
+    ("Descriptor_Deck_Pack_POL_WZ36", "WZ36_POL", 0, 0, 2, 3, "AT"),
 ]
 DIVISION = "Descriptor_Deck_Division_POL_Grupa_7TP_MULTI"
 DIVISION_BASE = "Descriptor_Deck_Division_POL_1st_Armored_MULTI"
@@ -240,6 +243,9 @@ def weapon_descriptor(source, name, info):
     elif layout == "aircraft":
         # The base aircraft's fixed guns as they are (only the ammunition changes).
         kept = turrets
+    elif layout == "gun":
+        # Towed gun (M3 37 mm): its one gun, with the traverse of our gun's carriage.
+        kept = [set_field(turrets[0], "AngleRotationMax", round(math.radians(info["gun_traverse_deg"]), 6))]
     else:
         raise ValueError("Unknown layout " + layout)
     text = text[:opening + 1] + "\r\n        " + ",\r\n        ".join(kept) + "\r\n    " + text[closing - 1:]
@@ -248,7 +254,7 @@ def weapon_descriptor(source, name, info):
 
 
 REMOVED_TURRETS = {"tp7_jw": ("tourelle3", "tourelle4"), "tp7_dw": ("tourelle3", "tourelle4"), "tks20": ("tourelle4",),
-                   "aircraft": ()}
+                   "aircraft": (), "gun": ()}
 
 
 def operators(source, name, info):
@@ -335,9 +341,9 @@ def build_weapons():
             blocks.append("Weapons_%s is MAP\r\n[\r\n"
                           "    ( [ 'weapon_effet_tag1', 'tir_c', '1' ], Weapon_%s_weapon1_slot1 ),\r\n"
                           "    ( [ 'weapon_effet_tag2', 'tir_c', '1' ], Weapon_%s_weapon2_slot1 ),\r\n]" % ((name,) * 3))
-        elif info["layout"] == "aircraft":
-            # Every firing effect of the base aircraft (one per gun), with other guns' effects
-            # where replace_fx says so (e.g. Hispano cannons -> Browning machine guns).
+        elif info["layout"] in ("aircraft", "gun"):
+            # Every firing effect of the base (one per gun), with other guns' effects where
+            # replace_fx says so (e.g. Hispano cannons -> Browning machine guns).
             effects = get_object(text, "Weapons_" + base)
             used = re.findall(r"\bWeapon_%s_weapon\d+_slot\d+\b" % re.escape(base), effects)
             new_blocks = [get_object(text, n) for n in dict.fromkeys(used)] + [effects]
@@ -349,17 +355,52 @@ def build_weapons():
     append(path, blocks)
 
 
+def gun_depiction(source, name, info):
+    """The whole depiction file of a towed gun (M3 37 mm): crew boxes, two servants with their
+    animations, the gun with its animation tree and turret operator. Everything is renamed;
+    the crew boxes become ours, the servants Polish; the gun keeps the base's animations, which
+    is why our model has the base's pivots."""
+    base, stem = info["weapon_base"], info["model"]
+    folder = "\\".join(info["asset_folder"].split("/"))
+    text = source.replace(base, name)
+    boxes = re.search(r"(?m)^(ModelFile_Boites_\w+)\s+is\s+'[^']*'", text)
+    if not boxes:
+        raise RuntimeError("No crew boxes in the depiction of " + base)
+    text = text.replace(boxes.group(0), "ModelFile_Boites_%s is 'GameData:Assets\\3D\\Units\\%s\\%s\\Boites_%s.Ase2NdfBin'"
+                        % (name, folder, stem, stem))
+    text = re.sub(r"\b%s\b" % boxes.group(1), "ModelFile_Boites_" + name, text)
+    # The crew boxes are our file, compiled into the mod: like every mod mesh they need
+    # CivMask/MeshModding (with the base's CivMask/OTAN the game crashed). The servants stay on
+    # the base's template, because they are the game's own meshes.
+    template = "TemplateMeshDescriptor_" + name
+    if not re.search(r"(?m)^template %s \[" % template, text):
+        raise RuntimeError("No mesh template in the depiction of " + base)
+    text = ("template %s_Modding [ ModelFile ] is TResourceMultiMaterialMeshWithLod\r\n(\r\n    FileName = <ModelFile>\r\n"
+            "    CivMask = CivMask/MeshModding\r\n    TypeMask = TypeMask/Infanterie\r\n)\r\n\r\n" % template) + text
+    text, count = re.subn(r"\b%s(\(\s*ModelFile\s*=\s*ModelFile_Boites_)" % template, template + r"_Modding\1", text)
+    if not count:
+        raise RuntimeError("Crew boxes not found in the facade of " + base)
+    # Crew: the game's Polish gunners (Polish_Rifle and Polish_Rifle_2).
+    text = re.sub(r"\bModelFile_Servant_AT(_Secondary)?\b", lambda m: "ModelFile_Servant_AT_POL" + (m.group(1) or ""), text)
+    return text
+
+
 def build_models():
-    folder = path_of("Gfx", "Units", "POL", "Char")
-    model_path = os.path.join(folder, MODEL_FILE_BASE + ".ndf")
-    depiction_path = os.path.join(folder, MODEL_FILE_BASE + "_Depiction.ndf")
-    models, depictions = [], []
+    targets = {}  # (model file, depiction file) -> (models, depictions)
     for name, info in VARIANTS.items():
         base = info["weapon_base"]
         source = glob.glob(path_of("Gfx", "Units", "*", "*", base + "_Depiction.ndf"))
         if not source:
             raise RuntimeError("No depiction file for " + base)
-        depiction = get_object(read(source[0]), "Gfx_" + base)
+        # Our entries go next to the game's own: tanks and aircraft into the Stuart POL files,
+        # guns into those of their unit base (Polish 6-pdr), where the gun templates are seen.
+        owner = info["unit_base"] if info["layout"] == "gun" else MODEL_FILE_BASE
+        owner_path = glob.glob(path_of("Gfx", "Units", "POL", "*", owner + ".ndf"))[0]
+        models, depictions = targets.setdefault((owner_path, owner_path[:-4] + "_Depiction.ndf"), ([], []))
+        if info["layout"] == "gun":
+            depiction = gun_depiction(read(source[0]), name, info)
+        else:
+            depiction = get_object(read(source[0]), "Gfx_" + base)
         stem = info["model"]
         folder_ = "\\".join(info.get("asset_folder", "POL/Char").split("/"))  # as in scripts/export_models.py
         models.append("export ModelFile_%s is 'GameData:Assets\\3D\\Units\\%s\\%s\\%s.Ase2NdfBin'" % (name, folder_, stem, stem))
@@ -384,8 +425,9 @@ def build_models():
                 raise RuntimeError("'%s' not in Gfx_%s" % (old, base))
             block = block.replace(old, new)
         depictions.append(block)
-    append(model_path, models)
-    append(depiction_path, depictions)
+    for (model_path, depiction_path), (models, depictions) in targets.items():
+        append(model_path, models)
+        append(depiction_path, depictions)
 
 
 def patch_unit(text, info):
@@ -396,6 +438,8 @@ def patch_unit(text, info):
                          "ArmorDescriptor_Blindage_%d" % value if isinstance(value, int) else "ArmorDescriptor_" + value)
     text = set_field(text, "ArmorDescriptorTop", "ArmorDescriptor_" + info["armor_top"])
     text = set_field(text, "MaxDamages", str(float(info["strength"])))
+    # The unit panel shows MaxHPForHUD as Strength; in every game unit it equals MaxDamages.
+    text = set_field(text, "MaxHPForHUD", str(int(info["strength"])))
     if "concealment" in info:
         text = set_field(text, "UnitConcealmentBonus", str(float(info["concealment"])))
     if "air_speed" in info:
@@ -525,7 +569,9 @@ def build_division():
     packs_path = path_of("Decks", "Generated", "Packs.ndf")
     blocks = []
     for name, unit, phase, experience, count, _, factory in PACKS:
-        entry = "        TDeckTransporterAndUnitsDescriptor\r\n        (\r\n            UnitDescriptorList =\r\n            [\r\n                ~/Descriptor_Unit_%s,\r\n            ]\r\n        ),\r\n" % unit
+        transporter = VARIANTS[unit].get("transporter")
+        towed = "            TransporterDescriptor = ~/Descriptor_Unit_%s\r\n" % transporter if transporter else ""
+        entry = "        TDeckTransporterAndUnitsDescriptor\r\n        (\r\n" + towed + "            UnitDescriptorList =\r\n            [\r\n                ~/Descriptor_Unit_%s,\r\n            ]\r\n        ),\r\n" % unit
         blocks.append("export %s is TDeckPackDescriptor\r\n(\r\n    DescriptorId = GUID:{%s}\r\n    PackToken = ''\r\n    AvailableFromPhase = %d\r\n"
                       "    ExperienceLevel = %d\r\n    FactoryType = EDefaultFactories/%s\r\n    TransporterAndUnitsList =\r\n    [\r\n%s    ]\r\n)"
                       % (name, new_guid("pack", name), phase, experience, factory, entry * count))

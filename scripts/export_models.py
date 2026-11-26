@@ -22,6 +22,7 @@ MODELS = {
     "TP7_DW": ("7TP_dwuwiezowy_wz30", "POL/Char"),
     "TKS20": ("TKS20", "POL/Char"),
     "P11C": ("P11C", "POL/Avion"),  # with P11C_train (landing-gear points)
+    "WZ36_BOFORS": ("WZ36_BOFORS", "POL/Canon"),  # with Boites_WZ36_BOFORS (crew positions)
 }
 
 failed = 0
@@ -31,15 +32,18 @@ for stem, (folder, kind) in MODELS.items():
     suffixes = ["", "_MID", "_LOW"]
     if os.path.exists(os.path.join(ROOT, "models", folder, stem + "_train.blend")):
         suffixes.append("_train")  # aircraft landing-gear file (see create_battlegroup.py, train_model)
-    for suffix in suffixes:
-        source = os.path.join(ROOT, "models", folder, stem + suffix + ".blend")
+    files = [stem + suffix for suffix in suffixes]
+    if os.path.exists(os.path.join(ROOT, "models", folder, "Boites_" + stem + ".blend")):
+        files.append("Boites_" + stem)  # towed gun: crew positions (see create_battlegroup.py, gun_depiction)
+    for file_stem in files:
+        source = os.path.join(ROOT, "models", folder, file_stem + ".blend")
         bpy.ops.wm.open_mainfile(filepath=source)
         try:
-            result = exporter.export_scene(bpy.context.scene, os.path.join(target, stem + suffix + ".Ase2NdfBin"),
+            result = exporter.export_scene(bpy.context.scene, os.path.join(target, file_stem + ".Ase2NdfBin"),
                                            exporter.DEFAULT_SCALE, True)
         except exporter.ExportProblem as problem:
             failed += 1
-            print("EXPORT_FAILED", stem + suffix, "; ".join(problem.errors))
+            print("EXPORT_FAILED", file_stem, "; ".join(problem.errors))
             continue
-        print("EXPORTED", stem + suffix, result["triangles"], "triangles", "; ".join(result["warnings"]))
+        print("EXPORTED", file_stem, result["triangles"], "triangles", "; ".join(result["warnings"]))
 print("EXPORT_DONE" if not failed else "EXPORT_ERRORS %d" % failed)

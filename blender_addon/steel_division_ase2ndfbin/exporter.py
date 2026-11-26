@@ -168,6 +168,13 @@ def copy_material_textures(materials, folder):
 
 def export_scene(scene, filepath, scale=DEFAULT_SCALE, copy_textures=True):
     objects = sorted((o for o in scene.objects if o.type in {"MESH", "EMPTY"}), key=lambda o: natural(o.name))
+    # A model that plays another model's animation files (a towed gun with the M3 37 mm's) must
+    # list its nodes as that model does; the scene gives the order as "eug_node_order", names
+    # separated by commas. Nodes it does not name follow in the usual order.
+    if scene.get("eug_node_order"):
+        wanted = [n.strip() for n in str(scene["eug_node_order"]).split(",")]
+        rank = {name: i for i, name in enumerate(wanted)}
+        objects.sort(key=lambda o: rank.get(o.name, len(rank)))
     errors, warnings = validate(objects)
     if errors:
         raise ExportProblem(errors)

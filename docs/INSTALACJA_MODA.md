@@ -51,4 +51,4 @@ powershell -ExecutionPolicy Bypass -File D:\Mod\Wrzesien1939\zainstaluj_mod.ps1 
 
 ## Czego mod jeszcze nie zawiera
 
-Pozostałe modele z `models\` (tankietki, samochody pancerne, samoloty, Sokół, Fiat, armata wz. 36) oraz piechota z 1939 r. nie są jeszcze jednostkami w battlegroupie. Gdy powstaną dla nich wpisy w `create_battlegroup.py`, trzeba je też dopisać do listy `MODELS` w `scripts\export_models.py`.
+Pozostałe modele z `models\` (tankietki, samochody pancerne, samoloty, Sokół, Fiat) oraz piechota z 1939 r. nie są jeszcze jednostkami w battlegroupie. Gdy powstaną dla nich wpisy w `create_battlegroup.py`, trzeba je też dopisać do listy `MODELS` w `scripts\export_models.py`.

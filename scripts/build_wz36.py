@@ -3,7 +3,7 @@
   blender --background --factory-startup --python build_wz36.py -- <output_dir>
 
 Also writes Boites_<stem>.blend with the crew position helpers, as the game's PaK 36 has.
-Node layout and pivots follow the PaK 36, see spec_wz36.py.
+Node layout follows the game's guns; pivots of the animated nodes are the M3 37 mm's, see spec_wz36.py.
 """
 
 import math
@@ -11,7 +11,7 @@ import os
 import sys
 
 import bpy
-from mathutils import Vector
+from mathutils import Matrix, Vector
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 os.environ["TK_SPEC"] = "spec_wz36"
@@ -20,7 +20,7 @@ import build_tk as T  # noqa: E402
 import build_p11 as P  # noqa: E402
 import build_wz34 as W  # noqa: E402
 
-S.TYRE_R, S.RIM_R = S.WHEEL_R, 0.19
+S.TYRE_R, S.RIM_R = S.WHEEL_R, 0.23
 W.S = S
 P.S = S
 Builder, helper = T.Builder, T.helper
@@ -142,6 +142,29 @@ def build_wheels(cfg, mat, chassis):
         b.finish(name, mat, center, chassis, sharp=60)
 
 
+def fit_to_m3():
+    """Move the gun forward by SHIFT_Y and put the animated nodes' pivots where the M3 37 mm
+    has them (spec_wz36.PIVOTS), leaving every vertex where it is."""
+    scene = bpy.context.scene
+    for obj in scene.objects:
+        if obj.parent is None:
+            obj.location.y += S.SHIFT_Y
+    bpy.context.view_layer.update()
+    world = {obj.name: obj.matrix_world.copy() for obj in scene.objects}
+    for name, (gx, gy, gz) in S.PIVOTS.items():
+        obj = bpy.data.objects[name]
+        old = world[name].translation.copy()
+        new = Vector((-gy / 203.0, gx / 203.0, gz / 203.0))  # game (X fwd, Y left) -> Blender (Y fwd, X right)
+        obj.data.transform(Matrix.Translation(old - new))
+        world[name] = Matrix.Translation(new)
+    # Parents first, so every object gets back its own place in the world.
+    def depth(obj):
+        return 0 if obj.parent is None else 1 + depth(obj.parent)
+    for obj in sorted(scene.objects, key=depth):
+        obj.matrix_world = world[obj.name]
+        bpy.context.view_layer.update()
+
+
 def build(name, cfg):
     P.new_scene("%s_%s" % (S.STEM, name))
     main = T.material_main()
@@ -150,10 +173,13 @@ def build(name, cfg):
     build_gun(cfg, main, turret)
     build_trails(cfg, main, chassis)
     build_wheels(cfg, main, chassis)
-    helper("Fx_Stress_01", S.FX_STRESS[0], chassis)
-    helper("Fx_Stress_02", S.FX_STRESS[1], chassis)
+    helper("Fx_Stress_01", S.FX_STRESS[0], chassis)  # the M3 has only this one; no Fx_Stress_02
     helper("FX_Fumee_Roue_D1", (S.WHEEL_X, 0.0, 0.0), None)
     helper("FX_Fumee_Roue_G1", (-S.WHEEL_X, 0.0, 0.0), None)
+    fit_to_m3()
+    # The M3's animation files are played on this model: export the nodes in the M3's order
+    # (read by the add-on's exporter).
+    bpy.context.scene["eug_node_order"] = ",".join(S.NODE_ORDER)
     meshes = [o for o in bpy.context.scene.objects if o.type == "MESH"]
     T.unwrap(meshes)
     P.report(name, cfg["limit"])

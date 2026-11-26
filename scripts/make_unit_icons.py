@@ -26,10 +26,13 @@ from mathutils import Vector
 
 ROOT, OUT = [os.path.abspath(p) for p in sys.argv[sys.argv.index("--") + 1:][:2]]
 os.makedirs(OUT, exist_ok=True)
-MODELS = {"TP7_JW": "7TP_jednowiezowy_Bofors", "TP7_DW": "7TP_dwuwiezowy_wz30", "TKS20": "TKS20", "P11C": "P11C"}
+MODELS = {"TP7_JW": "7TP_jednowiezowy_Bofors", "TP7_DW": "7TP_dwuwiezowy_wz30", "TKS20": "TKS20", "P11C": "P11C",
+          "WZ36_BOFORS": "WZ36_BOFORS"}
 # Main gun pictures: the mount with its gun (Tourelle_01, Axe_Canon_01, Canon_01), as the game
 # shows the turret of its tanks for their main gun.
 GUN_PICTURES = {"TP7_JW": "TP7_Bofors37_Weapon.png", "TKS20": "TKS20_Nkm20_Weapon.png"}
+# Towed guns: the whole gun from the side, as the game shows its own (M3 37 mm).
+WHOLE_GUN_PICTURES = {"WZ36_BOFORS": "WZ36_Bofors37_Weapon.png"}
 SUPER = 8  # supersampling for the small images
 
 
@@ -169,14 +172,15 @@ def top_view(stem):
     save(small, stem + "_TopView.png")
 
 
-def gun_picture(stem, file_name):
-    """The mount and its gun from the right side, muzzle to the right, as on the game's cards."""
+def gun_picture(stem, file_name, whole=False):
+    """The mount and its gun (or the whole towed gun) from the right side, muzzle to the right,
+    as on the game's cards."""
     open_model(stem)
     keep = {"Tourelle_01", "Axe_Canon_01", "Canon_01"}
     for o in bpy.context.scene.objects:
-        if o.type == "MESH" and o.name not in keep:
+        if o.type == "MESH" and o.name not in keep and not whole:
             o.hide_render = True
-    objects = [bpy.data.objects[n] for n in keep]
+    objects = visible_meshes() if whole else [bpy.data.objects[n] for n in keep]
     w, h = 132, 50
     scale, center = fit(objects, "right_side", w, h, 3, 6)
     px = render(w * 4, h * 4, "right_side", scale, center)
@@ -236,5 +240,7 @@ for stem in MODELS:
     top_view(stem)
 for stem, file_name in GUN_PICTURES.items():
     gun_picture(stem, file_name)
+for stem, file_name in WHOLE_GUN_PICTURES.items():
+    gun_picture(stem, file_name, whole=True)
 ckm_weapon()
 print("ICONS_DONE")
