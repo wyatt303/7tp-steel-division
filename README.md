@@ -60,7 +60,8 @@ Projekt leży w `D:\Mod\Wrzesien1939` (do 26 listopada 2026 r. `D:\Mod\7TP`). Mo
 
 - [Lista modeli](docs/LISTA_MODELI.md)
 - [Wtyczka do Blendera](docs/WTYCZKA.md)
-- [Instalacja w grze](docs/INSTALACJA_W_GRZE.md)
+- [Instalacja moda Wrzesien1939 jednym skryptem](docs/INSTALACJA_MODA.md)
+- [Instalacja w grze (dawny sposób z podmianą Stuarta)](docs/INSTALACJA_W_GRZE.md)
 - [Edytor jednostek: napisy i ceny z podglądem](docs/EDYTOR_JEDNOSTEK.md)
 - [Ikony jednostek w interfejsie gry](docs/IKONY_JEDNOSTEK.md)
 - [Model 7TP: wymiary, założenia i ograniczenia](docs/MODEL_7TP.md)
