@@ -87,7 +87,7 @@ TOOLBOX = (0.72, CAB_REAR - 0.36, 0.69, 0.34, 0.56, 0.30)  # centre X, Y, Z and 
 FUEL_TANK = (-0.66, CAB_REAR - 0.36, 0.69)
 BUMPER = (FRONT_Y - 0.05, 0.45, 0.65)      # Y, Z, half length of the tube
 
-DRIVER = (-0.38, A - 1.60, 1.12)           # left-hand drive
+DRIVER = (-0.38, A - 1.60, 0.95)           # left-hand drive; 0.46 m under the window line, as in the Opel Blitz (0.48) and Bedford (0.44)
 STEERING = (-0.38, A - 1.42, 1.50)         # steering wheel in front of the driver
 TOW_HOOK = (0.0, REAR_Y - 0.06, 0.55)
 MUFFLER = (0.45, -0.95, 0.38)
