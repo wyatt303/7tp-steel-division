@@ -46,6 +46,7 @@ Korzeń to `TMemASE`. Najważniejsze klasy:
 - `TMemASEHelperObject`: punkt pomocniczy.
 - `TMemASEMesh`: wierzchołki, ściany, normalne oraz mapy `TFaceMap` i `TVertexMap`.
 - `TMemASEMaterial1`: parametry `EugSurfaceMaterial`, w tym tekstury i tagi gąsienic.
+- Materiał z podmateriałami: `TMemASEMaterial1` z `Classe = Multi\Sub-Object` i lista `SubMaterialList` z kolejnymi `TMemASEMaterial` (od drugiego z `SubNo`). Trójkąt wybiera podmateriał polem `MESH_MTLID` w `TMemASEMeshFace` (brak pola to 0). Tak pojazdy z gry mają szyby, zob. [SZYBY.md](SZYBY.md).
 - `TMemASEPhysiqueModifier`: Skin gąsienic i macierze pozy.
 - `TMemASETMAnimation`: 101 próbek, co 160 ticków.
 

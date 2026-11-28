@@ -59,6 +59,13 @@ CAB_LEAN = 0.09                            # windscreen top lies this much behin
 VISOR = 0.06                               # roof overhang in front of the windscreen top
 WINDSCREEN_Z = (1.43, 1.80)
 SIDE_WINDOW = (A - 1.19, A - 1.90, 1.39, 1.83)  # Y from, Y to, Z from, Z to
+# The cab is hollow behind its see-through windows (glass.py): solid up to the floor, walls up to
+# the window line, pillars, the strip over the windscreen and the roof, with a bench, dashboard
+# and steering wheel inside.
+CAB_FLOOR = 0.90
+CAB_WALL = 0.035
+ROOF_IN_Z = 1.84                           # underside of the roof, just above the windows
+WINDSCREEN_PANES = [(-0.66, -0.03), (0.03, 0.66)]   # X from, X to of the two panes
 
 # Cargo body: front Y, rear Y, floor Z, side top Z, half width (front view 1.90 m wide).
 BODY = (CAB_REAR - 0.06, REAR_Y, 1.02, 1.65, 0.95)
@@ -81,6 +88,7 @@ FUEL_TANK = (-0.66, CAB_REAR - 0.36, 0.69)
 BUMPER = (FRONT_Y - 0.05, 0.45, 0.65)      # Y, Z, half length of the tube
 
 DRIVER = (-0.38, A - 1.60, 1.12)           # left-hand drive
+STEERING = (-0.38, A - 1.42, 1.50)         # steering wheel in front of the driver
 TOW_HOOK = (0.0, REAR_Y - 0.06, 0.55)
 MUFFLER = (0.45, -0.95, 0.38)
 FX_STRESS = [(0.0, -1.5, 1.9), (0.3, 1.6, 1.2)]
@@ -129,13 +137,9 @@ def rivet_lines(Vector):
     return lines, seams
 
 
-# Windscreen (two panes), the cab side windows, the small rear window and the tilt panes:
-# (x0, x1, y0, y1, z0, z1).
+# Painted panes (x0, x1, y0, y1, z0, z1): the small rear window of the cab and the panes in the
+# tilt. The windscreen and the cab side windows are see-through glass (glass.py).
 GLASS_BOXES = [
-    (-0.68, -0.03, CAB_FRONT - 0.10, CAB_FRONT + 0.03, WINDSCREEN_Z[0], WINDSCREEN_Z[1]),
-    (0.03, 0.68, CAB_FRONT - 0.10, CAB_FRONT + 0.03, WINDSCREEN_Z[0], WINDSCREEN_Z[1]),
-    (-0.80, -0.72, SIDE_WINDOW[1], SIDE_WINDOW[0], SIDE_WINDOW[2], SIDE_WINDOW[3]),
-    (0.72, 0.80, SIDE_WINDOW[1], SIDE_WINDOW[0], SIDE_WINDOW[2], SIDE_WINDOW[3]),
-    (-0.30, 0.30, CAB_REAR - 0.03, CAB_REAR + 0.03, 1.55, 1.78),
+    (-0.30, 0.30, CAB_REAR - 0.03, CAB_REAR + 0.01, 1.55, 1.78),
 ] + ([(sx0, sx1, y1, y0, TILT_WINDOW_Z[0], TILT_WINDOW_Z[1])
       for y0, y1 in TILT_WINDOWS for sx0, sx1 in ((-1.06, -0.96), (0.96, 1.06))] if TILT else [])

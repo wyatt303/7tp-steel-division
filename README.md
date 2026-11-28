@@ -40,6 +40,10 @@ Projekt leży w `D:\Mod\Wrzesien1939` (do 26 listopada 2026 r. `D:\Mod\7TP`). Mo
 |---|---|
 | ![Fiat 621L z plandeką](models/PF621L/renders/render_przod_3_4.png) | ![Fiat 621L bez plandeki](models/PF621L_OPEN/renders/render_tyl_3_4.png) |
 
+| Ciągnik C2P | Ciągnik C2P z tyłu |
+|---|---|
+| ![C2P](models/C2P/renders/render_przod_3_4.png) | ![C2P z tyłu](models/C2P/renders/render_tyl_3_4.png) |
+
 ## Co jest w projekcie
 
 | Folder | Zawartość |
@@ -79,6 +83,7 @@ Projekt leży w `D:\Mod\Wrzesien1939` (do 26 listopada 2026 r. `D:\Mod\7TP`). Mo
 - [Armata przeciwlotnicza 40 mm wz. 36](docs/MODEL_B40WZ36.md)
 - [Import modeli z gry do Blendera](docs/IMPORT_MODELI.md)
 - [Ciężarówka Polski Fiat 621L](docs/MODEL_PF621.md)
+- [Ciągnik artyleryjski C2P](docs/MODEL_C2P.md)
 - [Piechota w umundurowaniu z 1939 r. (przemalowanie modeli z gry)](docs/PIECHOTA_1939.md)
 - [Format Ase2NdfBin](docs/FORMAT_ASE2NDFBIN.md)
 - [Przebudowa modelu ze skryptów](docs/BUDOWANIE.md)

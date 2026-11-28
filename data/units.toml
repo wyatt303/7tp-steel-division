@@ -177,6 +177,31 @@ armor_sides = "Vehicule"
 armor_rear = "Vehicule"
 armor_top = "Toit"
 
+# Ciągnik gąsienicowy C2P (1937): podwozie tankietki TKS wydłużone, z opuszczonym tylnym kołem,
+# otwarte nadwozie, kierowca i 3 artylerzystów. Ciągnął głównie armaty przeciwlotnicze 40 mm wz. 36.
+# Dane jednostki i wygląd (gąsienice, dźwięk silnika, polski kierowca, holowana armata) z polskiego
+# Loyd Carriera z gry: ciągnik bez broni, 3 miejsca, holowanie armat ("Armes_tractees").
+# Prawdziwy C2P: Polski Fiat 122AC 46 KM, do 45 km/h, 2,85 x 1,82 x 1,65 m.
+[units.C2P_POL]
+model = "C2P"
+asset_folder = "POL/Vehicule"      # model w Assets/3D/Units/POL/Vehicule/C2P
+unit_base = "Carrier_Loyd_POL"
+weapon_base = "Carrier_Loyd_POL"
+layout = "truck"
+rts_texture = "Texture_RTS_H_Carrier_Loyd"   # znaczek nad jednostką jak u Loyda
+name = "C2P"
+alias = "C2P"
+price = 0                          # transport: cena wliczona w paczkę, jak Loyd
+year = 1937
+speed_kmh = 22                     # w terenie, szacunek
+road_speed_kmh = 45                # dane techniczne
+strength = 6                       # jak Loyd
+concealment = 1.5
+armor_front = "Blindage_1"         # jak Loyd; cienkie blachy, otwarty z góry
+armor_sides = "Blindage_1"
+armor_rear = "Blindage_1"
+armor_top = "Toit"
+
 # 40 mm armata przeciwlotnicza wz. 36 Bofors. Ta sama armata 40 mm L/60 na tym samym dwuosiowym
 # łożu co brytyjski QF Mk I/III w grze, więc model to Bofors 40 mm z gry przemalowany w kamuflaż
 # z 1936 r. (scripts/build_bofors40.py, wynik w build/, bo to dane gry). Dane jednostki, broń,
@@ -190,7 +215,7 @@ layout = "gun"
 depiction_replace = { "Modele_DCA_Bofors_US" = "Modele_B40WZ36_POL" }   # polski Bofors z gry używa modeli amerykańskiego
 stocks = ["Ammo_Bofors40_wz36_HE"] # cele naziemne (HE) i powietrzne (AA) mają wspólny zapas, jak w grze
 rts_texture = "Texture_RTS_H_DCA_Bofors"   # znaczek nad jednostką: ikona Boforsa z gry
-transporter = "PF621L_POL"         # ciągnik: Polski Fiat 621L (w 1939 r. także ciągniki C7P i Ursus)
+transporter = "C2P_POL"            # ciągnik: C2P, jak w bateriach przeciwlotniczych 1939 r.
 name = "B40WZ36"
 alias = "40mm wz.36 Bofors"
 price = 70                         # polski Bofors z gry (1941) kosztuje 80
@@ -341,6 +366,7 @@ KmWz33 = "7.92mm km wz.33"
 WZ36 = "37mm wz.36 Bofors"
 Bofors36 = "37mm Bofors wz.36"
 PF621L = "Polski Fiat 621L"
+C2P = "C2P tractor"
 B40WZ36 = "40mm wz.36 Bofors"
 Bofors40 = "40mm Bofors wz.36"
 TP7DivName = "Warszawska Bryg. Panc-Mot"

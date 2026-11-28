@@ -31,7 +31,7 @@ Wpis `B40WZ36_POL` w `data/units.toml`, układ `gun`.
 | Wytrzymałość, prędkość, pancerz | 8, 10 km/h, `Canon`, jak w grze |
 | Cena | 70 (polski Bofors z gry z 1941 r. kosztuje 80) |
 | Znaczek nad jednostką | ikona Boforsa z gry (`Texture_RTS_H_DCA_Bofors`) |
-| Paczka | zakładka przeciwlotnicza (`DCA`), od fazy A, jedna armata z ciągnikiem Polski Fiat 621L na kartę, 2 karty |
+| Paczka | zakładka przeciwlotnicza (`DCA`), od fazy A, jedna armata z ciągnikiem gąsienicowym C2P na kartę ([MODEL_C2P](MODEL_C2P.md)), 2 karty |
 
 Generowanie moda przechodzi bez błędów. W grze armata nie była jeszcze sprawdzana.
 

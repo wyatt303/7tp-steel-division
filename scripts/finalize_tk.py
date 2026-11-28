@@ -20,6 +20,7 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import importlib  # noqa: E402
 
 S = importlib.import_module(os.environ.get("TK_SPEC", "spec_tk"))
+import glass  # noqa: E402
 
 ROOT = os.path.abspath(sys.argv[sys.argv.index("--") + 1])
 STEM = S.STEM
@@ -68,7 +69,6 @@ def finish_scene():
     chassis = bpy.data.objects["Chassis"]
     main = bpy.data.materials["M_TK"]
     track_uv = tuple(bpy.data.objects["Chenille_Droite_01"].data.uv_layers.active.data[0].uv)
-    canon_uv = tuple(bpy.data.objects["Canon_01"].data.uv_layers.active.data[0].uv)
 
     for side, letter in ((1, "D"), (-1, "G")):
         for number, (y, z, radius) in enumerate(S.WHEELS, 1):
@@ -82,6 +82,9 @@ def finish_scene():
                     ring.reverse()
                 mesh_object(wheel, ring, [(0, i, i + 1) for i in range(1, 5)], track_uv, main, center, elev)
 
+    if "Canon_01" not in bpy.data.objects:
+        return  # unarmed vehicles (the C2P tractor) get no weapon slots
+    canon_uv = tuple(bpy.data.objects["Canon_01"].data.uv_layers.active.data[0].uv)
     mount = S.EXTRA_MOUNT
     muzzle = (mount[0], S.EXTRA_MUZZLE_Y, mount[2])
     half = 1.5 / 203.0
@@ -103,6 +106,9 @@ for lod, suffix in LODS.items():
     addon_utils.enable("io_scene_fbx")
     if getattr(S, "TRACKED", True):
         finish_scene()  # wheeled vehicles get their wheels and weapon slots in the build script
+    panes = glass.join_into_chassis()  # windows become the Chassis' second (glass) material
+    if panes:
+        print("GLASS", lod, "panes joined into Chassis, faces=%d" % panes)
     target = os.path.join(ROOT, "%s%s.blend" % (STEM, suffix))
     bpy.ops.wm.save_as_mainfile(filepath=target)
     bpy.ops.export_scene.fbx(filepath=os.path.join(ROOT, "%s%s.fbx" % (STEM, suffix)), object_types={"MESH", "EMPTY"},

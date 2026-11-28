@@ -16,6 +16,7 @@ $blender = 'C:\Program Files\Blender Foundation\Blender 5.3\blender.exe'
 | trójkąty z UV i normalnymi w narożnikach | siatka z mapą UV `UVMap` i własnymi normalnymi |
 | materiał z teksturami | materiał z teksturą koloru i właściwościami `eug_diffuse`, `eug_specular`, `eug_glossiness`, `eug_normal`, `eug_alpha`, których używa eksporter |
 | pomocniki | puste obiekty z `eug_helper_class` |
+| materiał `Multi\Sub-Object` (szyby pojazdów) | kilka slotów materiałów, trójkąty według `MESH_MTLID`, szyba z `eug_transparent` |
 
 Obroty zapisane w `NodeTM` nie są stosowane, bo wierzchołki są już w układzie całego modelu. Trafiają do właściwości `eug_tm`.
 

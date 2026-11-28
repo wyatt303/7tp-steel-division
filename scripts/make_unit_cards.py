@@ -22,7 +22,7 @@ import numpy as np
 ROOT, OUT = [os.path.abspath(p) for p in sys.argv[sys.argv.index("--") + 1:][:2]]
 os.makedirs(OUT, exist_ok=True)
 CARDS = (("7TP_jednowiezowy_Bofors", "TP7_JW"), ("7TP_dwuwiezowy_wz30", "TP7_DW"), ("TKS20", "TKS20"), ("P11C", "P11C"),
-         ("WZ36_BOFORS", "WZ36_BOFORS"), ("PF621L", "PF621L"),
+         ("WZ36_BOFORS", "WZ36_BOFORS"), ("PF621L", "PF621L"), ("C2P", "C2P"),
          ("../build/generated/B40WZ36", "B40WZ36"))
 LUMA = np.array([0.299, 0.587, 0.114], np.float32)
 

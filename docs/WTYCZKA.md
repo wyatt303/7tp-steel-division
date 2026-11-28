@@ -6,7 +6,7 @@ Wymaga Blendera 4.2 lub nowszego. Testowana na Blenderze 5.3.
 
 ## Instalacja
 
-Przeciągnij `blender_addon/dist/steel_division_ase2ndfbin-1.2.0.zip` do okna Blendera albo wybierz **Edit > Preferences > Add-ons > strzałka w prawym górnym rogu > Install from Disk**.
+Przeciągnij `blender_addon/dist/steel_division_ase2ndfbin-1.3.0.zip` do okna Blendera albo wybierz **Edit > Preferences > Add-ons > strzałka w prawym górnym rogu > Install from Disk**.
 
 ## Eksport
 
@@ -48,6 +48,9 @@ Koła numeruje się od koła napędowego do napinającego. Jednostki zwykle ocze
 | `eug_normal` | `TP7_JW_NM.png` |
 | `eug_alpha` | `TP7_JW_tracks_A.png` (gąsienice) |
 | `eug_tag` | `chenilledroite` lub `chenillegauche` (gąsienice) |
+| `eug_transparent` | `True` dla szyby: przezroczystość włączona, `eug_alpha` zamiast `eug_normal` |
+
+**Szyby:** siatka z kilkoma slotami materiałów (np. `Chassis` z farbą w slocie 0 i szybą w slocie 1) trafia do pliku jako materiał `Multi\Sub-Object`, a każdy trójkąt dostaje numer slotu w `MESH_MTLID`, tak jak w pojazdach z gry. Zob. [SZYBY.md](SZYBY.md).
 
 **Gąsienice:** Skin zapisuje się w grupach wierzchołków o nazwach `Roue_Elev_D2`, `Fake` itd. Każdy wierzchołek przypisany jest do jednej grupy.
 
@@ -70,5 +73,7 @@ Wtyczka eksportuje też modele bez gąsienic. Brak `Chenille_*` zgłasza wtedy t
 
 - Samochody pancerne: zobacz [MODEL_WZ34.md](MODEL_WZ34.md) i [MODEL_WZ28.md](MODEL_WZ28.md).
 - Samoloty: zobacz [MODEL_P11.md](MODEL_P11.md).
+
+Od wersji 1.3.0 wtyczka zapisuje węzły w kolejności z właściwości sceny `eug_node_order` (potrzebne do animacji armat z gry) oraz siatki z kilkoma materiałami i przezroczyste szyby.
 
 Od wersji 1.1.0 wtyczka eksportuje również sceny z samymi pomocnikami, na przykład plik `<nazwa>_train` samolotu. Od wersji 1.2.0 także pliki `_train` z siatkami chowanego podwozia (`Train`, `Roue_Avant`, `Roue_Arriere`). Taka scena nie potrzebuje `Chassis`.

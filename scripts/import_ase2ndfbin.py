@@ -12,7 +12,9 @@ The reverse of our exporter (blender_addon/steel_division_ase2ndfbin/exporter.py
 - materials get an image texture node with the diffuse texture found next to the file, and the
   custom properties eug_diffuse / eug_specular / eug_glossiness / eug_normal / eug_alpha that our
   exporter reads, so an imported model can be exported again;
-- helpers become empties with eug_helper_class.
+- helpers become empties with eug_helper_class;
+- a Multi\\Sub-Object material (the windows of the game's vehicles) becomes several material
+  slots, chosen per triangle by MESH_MTLID; a transparent sub-material gets eug_transparent.
 
 Models from the game are only for reference and for building mod models from; the imported
 files belong in build/ (ignored by git) and must not be published.
@@ -77,6 +79,24 @@ def strings(value, found):
     return found
 
 
+def is_transparent(mat_obj):
+    """True when the material's shader parameters switch transparency on (glass)."""
+    first = fields(mat_obj).get("Material1")
+    for entry in (fields(first).get("DX9ShaderParams") if isinstance(first, ndfbin.Obj) else None) or []:
+        if isinstance(entry, (list, tuple)) and len(entry) > 2 and entry[1] == "transparency":
+            value = entry[-1]
+            return isinstance(value, ndfbin.Obj) and bool(fields(value).get("Value"))
+    return False
+
+
+def make_materials(index, mat_obj, folder):
+    """Blender materials of one material list entry: one, or one per sub-material."""
+    subs = items(fields(mat_obj).get("SubMaterialList"))
+    if not subs:
+        return [make_material(index, mat_obj, folder)]
+    return [make_material("%d_%d" % (index, number), sub, folder) for number, sub in enumerate(subs)]
+
+
 def make_material(index, mat_obj, folder):
     images = [s for s in strings(mat_obj, []) if s.lower().endswith(IMAGE_EXT)]
     names = [os.path.basename(s.replace("\\", "/")) for s in images]
@@ -86,9 +106,11 @@ def make_material(index, mat_obj, folder):
         key = ("normal" if stem.endswith("_NM") else "specular" if stem.endswith("_SC") else
                "glossiness" if stem.endswith("_GLO") else "alpha" if stem.endswith("_A") else "diffuse")
         role.setdefault(key, name)
-    mat = bpy.data.materials.new("M_%d_%s" % (index, os.path.splitext(role.get("diffuse", "material"))[0]))
+    mat = bpy.data.materials.new("M_%s_%s" % (index, os.path.splitext(role.get("diffuse", "material"))[0]))
     for key, name in role.items():
         mat["eug_" + key] = name
+    if is_transparent(mat_obj):
+        mat["eug_transparent"] = True
     mat.use_nodes = True
     nodes = mat.node_tree.nodes
     bsdf = nodes.get("Principled BSDF")
@@ -124,13 +146,14 @@ def tm_of(node):
     return to_blender(pos), rows
 
 
-def build_mesh(name, mesh_obj, origin, material):
+def build_mesh(name, mesh_obj, origin, slots):
     m = fields(mesh_obj)
     verts = [to_blender(fields(v)["Vector"]) - origin for v in items(m.get("VertexList"))]
-    faces = []
+    faces, sub_ids = [], []
     for face in items(m.get("FaceList")):
         f = fields(face)
         faces.append((f.get("A", 0), f.get("B", 0), f.get("C", 0)))
+        sub_ids.append(f.get("MESH_MTLID", 0) or 0)
     me = bpy.data.meshes.new(name)
     me.from_pydata([tuple(v) for v in verts], [], faces)
     me.update()
@@ -157,8 +180,10 @@ def build_mesh(name, mesh_obj, origin, material):
             me.normals_split_custom_set(corner)
         except Exception as problem:  # noqa: BLE001
             print("NOTE custom normals not set on", name, problem)
-    if material:
+    for material in slots:
         me.materials.append(material)
+    if ok and len(slots) > 1:
+        me.polygons.foreach_set("material_index", [min(i, len(slots) - 1) for i in sub_ids])
     return me, ok
 
 
@@ -169,15 +194,16 @@ def import_file(source):
     objs = ndfbin.read_objects(open(source, "rb").read())
     root = next(o for o in objs if o.cls == "TMemASE")
     r = fields(root)
-    materials = [make_material(i, m, folder) for i, m in enumerate(items(r.get("MaterialList")))]
+    entries = [make_materials(i, m, folder) for i, m in enumerate(items(r.get("MaterialList")))]
+    materials = [mat for entry in entries for mat in entry]
     created, parents, problems = {}, {}, []
     for geom in items(r.get("GeomObjectList")):
         g = fields(geom)
         name = g["NodeName"]
         origin, rows = tm_of(geom)
         mat_index = g.get("MaterialRef", 0) or 0
-        material = materials[mat_index] if mat_index < len(materials) else None
-        me, ok = build_mesh(name, g["Mesh"], origin, material)
+        slots = entries[mat_index] if mat_index < len(entries) else []
+        me, ok = build_mesh(name, g["Mesh"], origin, slots)
         if not ok:
             problems.append(name)
         ob = bpy.data.objects.new(name, me)

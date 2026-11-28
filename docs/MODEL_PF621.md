@@ -13,7 +13,7 @@ Układ węzłów skopiowano z Opla Blitza od Eugen (`GER/Vehicule.zip`):
 
 | Węzeł | Rola |
 |---|---|
-| `Chassis` | rama, maska z dwoma rzędami żaluzji, osłona chłodnicy z kratą, kabina z daszkiem i lekko pochyloną szybą, skrzynia (z plandeką albo bez), błotniki, stopnie, skrzynka narzędziowa, zbiornik paliwa, koło zapasowe, rurowy zderzak, reflektory |
+| `Chassis` | rama, maska z dwoma rzędami żaluzji, osłona chłodnicy z kratą, pusta w środku kabina z daszkiem, przezroczystymi szybami (przednia i boczne), ławką, deską rozdzielczą i kierownicą, skrzynia (z plandeką albo bez), błotniki, stopnie, skrzynka narzędziowa, zbiornik paliwa, koło zapasowe, rurowy zderzak, reflektory |
 | `Roue_Droite_01`, `Roue_Gauche_01` | przednie koła skrętne, bez rodzica |
 | `Roue_02` | tylna oś z kołami bliźniaczymi po obu stronach, jedna siatka |
 | `Driver` | kierowca po lewej stronie |
@@ -53,14 +53,14 @@ Szczegóły ze zdjęć modeli plastikowych od użytkownika i kolorowego rysunku 
 | Długość | 5,79 m | 5,79 m |
 | Szerokość | 2,02 m | 2,02 m |
 | Wysokość | 2,62 m | 2,00 m (dach kabiny) |
-| Trójkąty High / Mid / Low | 4908 / 2364 / 824 | 4676 / 2336 / 804 |
+| Trójkąty High / Mid / Low | 5296 / 2712 / 1124 | 5064 / 2684 / 1104 |
 | Opel Blitz (Eugen) High / Mid / Low | 5179 / 1849 / 599 | |
 
-Wersje Low są nieco większe niż w Oplu Blitzie, bo bliźniacze koła i pełne błotniki dokładają trójkąty.
+Wersje Low są większe niż w Oplu Blitzie, bo bliźniacze koła, pełne błotniki i wnętrze kabiny dokładają trójkąty.
 
 ## Stan
 
-Malowanie to kamuflaż z 1936 r., tak jak na modelu muzealnym. Szyby kabiny i okienka w plandece są tylko malowane na ciemno przez `GLASS_BOXES`, bez osobnego materiału `vitre`. Ramki okienek w plandece są w siatce tylko w wersji High.
+Malowanie to kamuflaż z 1936 r., tak jak na modelu muzealnym. Przednia szyba i okna w drzwiach są przezroczyste, zrobione jak w pojazdach z gry (drugi materiał `Chassis`, zob. [SZYBY.md](SZYBY.md)), a kabina ma za nimi wnętrze (28 listopada 2026 r.). Małe tylne okienko kabiny i okienka w plandece są tylko malowane na ciemno przez `GLASS_BOXES`. Ramki okienek w plandece są w siatce tylko w wersji High.
 
 Wszystkie sześć plików przechodzi eksport wtyczką. Wtyczka zgłasza tylko brak wieży i gąsienic, co jest oczekiwane.
 

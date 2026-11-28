@@ -21,6 +21,7 @@ S = importlib.import_module(os.environ["TK_SPEC"])
 import build_tk as T  # noqa: E402
 import build_p11 as P  # noqa: E402
 import build_wz34 as W  # noqa: E402
+import glass  # noqa: E402
 
 W.S = S
 P.S = S
@@ -106,8 +107,7 @@ def build_chassis(cfg, mat):
     # rounded roof edge and the short visor over the windscreen.
     cz0, cz1, cz2 = S.CAB_Z
     h, rear = S.CAB_HALF, S.CAB_REAR
-    levels = [(cz0, h, 0.0), (cz1, h, 0.0), (cz2 - 0.07, h, 0.0), (cz2, h - 0.06, 0.05)]
-    b.loft([plan_ring(z, S.cab_front(z) - inset, rear + inset, half) for z, half, inset in levels])
+    build_cab(b, d, seg)
     top_front = S.cab_front(cz2)
     b.box((0.0, top_front + S.VISOR / 2, cz2 - 0.025), (2 * h - 0.10, S.VISOR + 0.02, 0.04))
     # Cargo body: floor, sides, front and rear boards.
@@ -202,6 +202,69 @@ def build_chassis(cfg, mat):
     return b.finish("Chassis", mat)
 
 
+def build_cab(b, d, seg):
+    """Hollow cab: solid below the floor, walls up to the window line, pillars and window frames,
+    roof; bench, dashboard and steering wheel inside. Pieces overlap by a centimetre so that no
+    two faces lie in one plane (those bake black)."""
+    cz0, cz1, cz2 = S.CAB_Z
+    h, rear, w, floor, roof = S.CAB_HALF, S.CAB_REAR, S.CAB_WALL, S.CAB_FLOOR, S.ROOF_IN_Z
+    front = S.cab_front
+    b.loft([plan_ring(z, front(z), rear, h) for z in (cz0, floor - 0.003)])
+    # Walls from the floor to the window line, as a closed ring with an inner face.
+    outer = [plan_ring(z, front(z), rear, h) for z in (floor, cz1)]
+    inner = [plan_ring(z, front(z) - w, rear + w, h - w, 0.04) for z in (cz1, floor)]
+    b.loft(outer + inner, closed=True)
+    # Roof from just above the windows.
+    levels = [(roof, h, 0.0), (cz2 - 0.07, h, 0.0), (cz2, h - 0.06, 0.05)]
+    b.loft([plan_ring(z, front(z) - inset, rear + inset, half) for z, half, inset in levels])
+    z0, z1 = cz1 - 0.01, roof + 0.01
+
+    def front_piece(x0, x1, za, zb):
+        """Part of the leaning front between za and zb, wall thick."""
+        b.prism([(front(za), za), (front(za) - w, za), (front(zb) - w, zb), (front(zb), zb)], x0, x1)
+
+    wz0, wz1 = S.WINDSCREEN_Z
+    px = S.WINDSCREEN_PANES[1][1]
+    for side in (-1, 1):
+        lo, hi = sorted((side * px, side * (h - 0.05)))
+        front_piece(lo, hi, z0, z1)                                  # windscreen pillar
+        lo, hi = sorted((side * (h - w), side * h))
+        sy0, sy1, sz0, sz1 = S.SIDE_WINDOW
+        b.prism([(sy0, z0), (front(z0) - 0.05, z0), (front(z1) - 0.05, z1), (sy0, z1)], lo, hi)  # front of door
+        b.box((side * (h - w / 2), (sy1 + rear + 0.05) / 2, (z0 + z1) / 2), (w, sy1 - rear - 0.05, z1 - z0))
+        b.box((side * (h - w / 2), (sy0 + sy1) / 2, (sz1 + z1) / 2), (w, sy0 - sy1, z1 - sz1))  # over the window
+        # Corner posts in the cut corners of the plan.
+        b.strut((side * (h - 0.025), front(z0) - 0.025, z0), (side * (h - 0.025), front(z1) - 0.025, z1), 0.05)
+        b.strut((side * (h - 0.025), rear + 0.025, z0), (side * (h - 0.025), rear + 0.025, z1), 0.05)
+    front_piece(-px, px, z0, wz0)                                    # under the windscreen
+    front_piece(-px, px, wz1, z1)                                    # over the windscreen
+    b.box((0.0, rear + w / 2, (z0 + z1) / 2), (2 * (h - 0.05), w, z1 - z0))  # rear wall
+    # Inside: bench with its back, dashboard, steering wheel on the left.
+    b.box((0.0, rear + 0.42, floor + 0.18), (2 * (h - w) - 0.04, 0.46, 0.12))
+    b.box((0.0, rear + 0.11, floor + 0.47), (2 * (h - w) - 0.04, 0.10, 0.50))
+    b.box((0.0, S.CAB_FRONT - w - 0.07, cz1 - 0.10), (2 * (h - w) - 0.04, 0.14, 0.18))
+    if d >= 1:
+        wx, wy, wz = S.STEERING
+        b.lathe((wx, wy, wz), "Y", [(-0.012, 0.20), (0.012, 0.20)], max(10, seg))
+        b.strut((wx, wy, wz), (wx, S.CAB_FRONT - w - 0.10, cz1 - 0.12), 0.04)
+
+
+def panes(chassis):
+    """See-through windscreen (two panes leaning with the cab front) and cab side windows."""
+    vitre = glass.material(S.STEM, os.path.join(OUT, "textures"))
+    wz0, wz1 = S.WINDSCREEN_Z
+    inset = S.CAB_WALL / 2
+    quads = []
+    for x0, x1 in S.WINDSCREEN_PANES:
+        y0, y1 = S.cab_front(wz0) - inset, S.cab_front(wz1) - inset
+        quads.append([(x1, y0, wz0), (x0, y0, wz0), (x0, y1, wz1), (x1, y1, wz1)])  # faces forward
+    sy0, sy1, _, sz1 = S.SIDE_WINDOW
+    for side, facing in ((1, "+X"), (-1, "-X")):
+        x = side * (S.CAB_HALF - inset)
+        quads.append(glass.rect(x, x, sy1, sy0, S.CAB_Z[1], sz1, facing))
+    glass.add_panes("Cabine", quads, vitre, chassis)
+
+
 def build_wheels(cfg, mat):
     seg, d = cfg["seg"], cfg["detail"]
     for name, side in (("Roue_Droite_01", 1), ("Roue_Gauche_01", -1)):
@@ -222,6 +285,7 @@ def build(name, cfg):
     P.new_scene("%s_%s" % (S.STEM, name))
     main = T.material_main()
     chassis = build_chassis(cfg, main)
+    panes(chassis)
     build_wheels(cfg, main)
     helper("Driver", S.DRIVER, chassis)
     helper("Remorque_1", S.TOW_HOOK, chassis)
@@ -229,7 +293,7 @@ def build(name, cfg):
     helper("Fx_Stress_02", S.FX_STRESS[1], chassis)
     for side, letter in ((1, "D"), (-1, "G")):
         helper("FX_Fumee_Roue_%s1" % letter, (side * S.REAR_X[1], S.REAR_AXLE_Y, 0.0), None)
-    meshes = [o for o in bpy.context.scene.objects if o.type == "MESH"]
+    meshes = [o for o in bpy.context.scene.objects if o.type == "MESH" and not glass.is_glass(o)]
     T.unwrap(meshes)
     P.report(name, cfg["limit"])
     bpy.context.preferences.filepaths.save_version = 0

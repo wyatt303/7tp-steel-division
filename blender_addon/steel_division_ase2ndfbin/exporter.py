@@ -63,8 +63,8 @@ def validate(objects):
         if not obj.data.uv_layers.active:
             errors.append("%s has no UV map" % obj.name)
             continue
-        if not obj.data.materials or obj.data.materials[0] is None:
-            errors.append("%s has no material" % obj.name)
+        if not obj.data.materials or any(m is None for m in obj.data.materials):
+            errors.append("%s has no material or an empty material slot" % obj.name)
         values = [c for item in obj.data.uv_layers.active.data for c in item.uv]
         if values and (min(values) < -0.001 or max(values) > 1.001):
             errors.append("%s has UVs outside 0-1. This crashed the game in testing" % obj.name)
@@ -74,14 +74,20 @@ def validate(objects):
     return errors, warnings
 
 
+def material_key(obj):
+    """The material list entry of a mesh: its one material, or all its slots for a mesh with
+    several (written as Eugen's Multi\\Sub-Object material, faces pick a slot by MESH_MTLID)."""
+    return tuple(obj.data.materials)
+
+
 def materials_of(meshes):
     found = []
     for obj in meshes:
-        material = obj.data.materials[0]
-        if material not in found:
-            found.append(material)
+        key = material_key(obj)
+        if key not in found:
+            found.append(key)
     order = {"chenilledroite": 1, "chenillegauche": 2}
-    return sorted(found, key=lambda m: order.get(m.get("eug_tag"), 0))
+    return sorted(found, key=lambda key: order.get(key[0].get("eug_tag"), 0))
 
 
 def eug_value(cls, value=None):
@@ -95,8 +101,15 @@ def eug_value(cls, value=None):
     return obj
 
 
-def build_material(material, index, folder, errors):
-    names = {key: material.get("eug_" + key) for key in ("diffuse", "specular", "glossiness", "normal")}
+def surface(material, folder, errors):
+    """TMemASEMaterial1 of one EugMaterialSurface material.
+
+    A material with eug_transparent (glass) is drawn see-through: transparency is on and the
+    opacity map eug_alpha takes the place of the normal map, as in the windows of the game's
+    own vehicles (Opel Blitz, Jeep, Bedford...)."""
+    transparent = bool(material.get("eug_transparent"))
+    needed = ("diffuse", "specular", "glossiness", "alpha" if transparent else "normal")
+    names = {key: material.get("eug_" + key) for key in needed}
     for key, value in names.items():
         if not value:
             errors.append("Material %s needs the custom property eug_%s" % (material.name, key))
@@ -114,7 +127,7 @@ def build_material(material, index, folder, errors):
     param("twoSided", "TEugBBoolean")
     for key in ("SpecularTextureChannel", "GlossinessTextureChannel", "NormalTextureChannel", "OpacityTextureChannel"):
         param(key, "TEugBInteger", 1)
-    param("transparency", "TEugBBoolean")
+    param("transparency", "TEugBBoolean", transparent)
     for key in ("CampTextureChannel", "EmissiveTextureChannel"):
         param(key, "TEugBInteger", 1)
     param("FaceCam", "TEugBBoolean")
@@ -127,7 +140,8 @@ def build_material(material, index, folder, errors):
     param("DiffuseTexture", "TEugBString", base + names["diffuse"])
     param("SpecularTexture", "TEugBString", base + names["specular"])
     param("GlossinessTexture", "TEugBString", base + names["glossiness"])
-    param("NormalTexture", "TEugBString", base + names["normal"])
+    if not transparent:
+        param("NormalTexture", "TEugBString", base + names["normal"])
     if alpha:
         param("OpacityTexture", "TEugBString", base + alpha)
     label = {"chenilledroite": "Droite", "chenillegauche": "Gauche"}.get(tag, "EugMaterialSurface")
@@ -137,15 +151,41 @@ def build_material(material, index, folder, errors):
                 ("WireSize", FLOAT, 1.0), ("DX9ShaderEffectEnable", BOOL, True),
                 ("DX9ShaderEffectName", STRING, "EugSurfaceMaterial"),
                 ("DX9ShaderTechniqueName", STRING, "SurfaceStandard"), ("DX9ShaderParams", MAP, params))
-    out = Obj("TMemASEMaterial", ("Material1", REF, first), ("XTypeAfter", REF, Obj("TMemASEMaterialXTypeAfter")))
+    return first
+
+
+def build_material(key, index, folder, errors):
+    """One entry of the material list: a plain surface, or a Multi\\Sub-Object material whose
+    sub-materials are the mesh's slots (the second one is the glass of the game's vehicles)."""
+    if len(key) == 1:
+        first = surface(key[0], folder, errors)
+        if first is None:
+            return None
+        out = Obj("TMemASEMaterial", ("Material1", REF, first))
+    else:
+        subs = []
+        for number, material in enumerate(key):
+            first = surface(material, folder, errors)
+            if first is None:
+                return None
+            sub = Obj("TMemASEMaterial", ("Material1", REF, first), ("XTypeAfter", REF, Obj("TMemASEMaterialXTypeAfter")))
+            if number:
+                sub.add("SubNo", INT, number)
+            subs.append((REF, sub))
+        first = Obj("TMemASEMaterial1", ("Name", STRING, "Multi"), ("Classe", STRING, "Multi\\Sub-Object"),
+                    ("Ambient", VEC3, (0.588, 0.588, 0.588)), ("Diffuse", VEC3, (0.588, 0.588, 0.588)),
+                    ("Specular", VEC3, (0.9, 0.9, 0.9)), ("Shine", FLOAT, 0.1), ("ShineStrength", FLOAT, 0.3),
+                    ("WireSize", FLOAT, 1.0))
+        out = Obj("TMemASEMaterial", ("Material1", REF, first), ("SubMaterialList", LIST, subs))
+    out.add("XTypeAfter", REF, Obj("TMemASEMaterialXTypeAfter"))
     if index:
         out.add("MaterialID", INT, index)
     return out.add("SubNo", INT, -1)
 
 
-def copy_material_textures(materials, folder):
+def copy_material_textures(keys, folder):
     wanted = set()
-    for material in materials:
+    for material in (m for key in keys for m in key):
         for key in ("diffuse", "specular", "glossiness", "normal", "alpha"):
             if material.get("eug_" + key):
                 wanted.add(material["eug_" + key])
@@ -223,12 +263,16 @@ def export_scene(scene, filepath, scale=DEFAULT_SCALE, copy_textures=True):
         layer = data.uv_layers.active.data
         corner_normals = data.corner_normals
         faces, normals, t_faces, t_verts, uv_index = [], [], [], [], {}
+        multi = len(data.materials) > 1
         for tri in data.loop_triangles:
             face = Obj("TMemASEMeshFace")
             for label, value in zip("ABC", tri.vertices):
                 if value:
                     face.add(label, INT, value)
-            face.add("AB", INT, 1).add("BC", INT, 1).add("MESH_SMOOTHINGIntegerList", LIST, [(INT, 1)])
+            face.add("AB", INT, 1).add("BC", INT, 1)
+            if multi and tri.material_index:
+                face.add("MESH_MTLID", INT, tri.material_index)  # sub-material, e.g. 1 = glass
+            face.add("MESH_SMOOTHINGIntegerList", LIST, [(INT, 1)])
             faces.append((REF, face))
             corner = [direction((rotation @ corner_normals[l].vector).normalized()) for l in tri.loops]
             normals.append((REF, Obj("TMemASEMeshNormal",
@@ -298,7 +342,7 @@ def export_scene(scene, filepath, scale=DEFAULT_SCALE, copy_textures=True):
         if obj.name in TRACKS:
             geom.add("TMAnimation", REF, animation(obj.name))
         geom.add("Mesh", REF, mesh).add("CastShadow", INT, 1).add("RecVShadow", INT, 1)
-        index = used.index(obj.data.materials[0])
+        index = used.index(material_key(obj))
         if index:
             geom.add("MaterialRef", INT, index)
         geoms.append((REF, geom))

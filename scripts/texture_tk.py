@@ -42,6 +42,7 @@ import importlib  # noqa: E402
 
 # TK_SPEC picks the vehicle: spec_tk (tankettes, default) or another spec module such as spec_wz34.
 S = importlib.import_module(os.environ.get("TK_SPEC", "spec_tk"))
+import glass  # noqa: E402  (window panes: own material, not painted, not baked)
 
 TRACK_X = getattr(S, "TRACK_X", 0.0)
 ROAD_R = S.ROAD_R
@@ -422,10 +423,10 @@ def paint_atlas(res, suffix, objects, material):
 
     # Glazing: axis-aligned boxes (x0, x1, y0, y1, z0, z1) painted dark blue-grey, smooth.
     for x0, x1, y0, y1, z0, z1 in getattr(S, "GLASS_BOXES", []):
-        glass = ((pos[:, 0] > x0) & (pos[:, 0] < x1) & (pos[:, 1] > y0) & (pos[:, 1] < y1)
+        painted = ((pos[:, 0] > x0) & (pos[:, 0] < x1) & (pos[:, 1] > y0) & (pos[:, 1] < y1)
                  & (pos[:, 2] > z0) & (pos[:, 2] < z1))
-        color[glass] = np.array([0.14, 0.17, 0.20], np.float32)
-        gloss_adjust[glass] += 0.35
+        color[painted] = np.array([0.14, 0.17, 0.20], np.float32)
+        gloss_adjust[painted] += 0.35
     cavity = np.clip(-height / 0.004, 0, 1)
     color *= (1 - 0.55 * cavity)[..., None]
     color *= (0.32 + 0.68 * ao ** 1.15)[..., None]
@@ -688,10 +689,12 @@ for lod, (resolution, suffix) in LODS.items():
     bpy.ops.wm.open_mainfile(filepath=blend)
     addon_utils.enable("io_scene_fbx")
     bpy.context.preferences.filepaths.save_version = 0
-    meshes = [o for o in bpy.context.scene.objects if o.type == "MESH"]
+    meshes = [o for o in bpy.context.scene.objects if o.type == "MESH" and not glass.is_glass(o)]
     main = bpy.data.materials["M_TK"]
     unique_meshes = stack_uvs(meshes)
+    glass.hide_for_bake(True)  # panes would shade what is behind them
     atlas_names = paint_atlas(resolution, suffix, unique_meshes, main)
+    glass.hide_for_bake(False)
     connect(main, atlas_names)
     if lod == "High" and track_names:
         connect(bpy.data.materials["M_Chenille_D"], track_names)
