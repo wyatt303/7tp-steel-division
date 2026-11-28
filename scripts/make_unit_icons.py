@@ -27,7 +27,7 @@ from mathutils import Vector
 ROOT, OUT = [os.path.abspath(p) for p in sys.argv[sys.argv.index("--") + 1:][:2]]
 os.makedirs(OUT, exist_ok=True)
 MODELS = {"TP7_JW": "7TP_jednowiezowy_Bofors", "TP7_DW": "7TP_dwuwiezowy_wz30", "TKS20": "TKS20", "P11C": "P11C",
-          "WZ36_BOFORS": "WZ36_BOFORS", "PF621L": "PF621L", "C2P": "C2P",
+          "WZ36_BOFORS": "WZ36_BOFORS", "PF621L": "PF621L", "PF621L_OPEN": "PF621L_OPEN", "C2P": "C2P",
           "B40WZ36": "../build/generated/B40WZ36"}
 # Main gun pictures: the mount with its gun (Tourelle_01, Axe_Canon_01, Canon_01), as the game
 # shows the turret of its tanks for their main gun.

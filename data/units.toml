@@ -177,6 +177,29 @@ armor_sides = "Vehicule"
 armor_rear = "Vehicule"
 armor_top = "Toit"
 
+# Polski Fiat 621L bez plandeki, z otwartą skrzynią: ciągnik armaty przeciwlotniczej 40 mm wz. 36.
+# Wszystko jak w wersji z plandeką, inny tylko model.
+[units.PF621LO_POL]
+model = "PF621L_OPEN"
+asset_folder = "POL/Vehicule"      # model w Assets/3D/Units/POL/Vehicule/PF621L_OPEN
+unit_base = "Truck_Bedford_POL"
+weapon_base = "Opel_Blitz"
+layout = "truck"
+depiction_replace = { "DepictionSubDepiction_Driver_GER" = "DepictionSubDepiction_Driver_POL" }
+rts_texture = "Texture_RTS_H_Truck_GMC"
+name = "PF621LO"
+alias = "Polski Fiat 621L (bez plandeki)"
+price = 0
+year = 1935
+speed_kmh = 18
+road_speed_kmh = 55
+strength = 6
+concealment = 1.5
+armor_front = "Vehicule"
+armor_sides = "Vehicule"
+armor_rear = "Vehicule"
+armor_top = "Toit"
+
 # Ciągnik gąsienicowy C2P (1937): podwozie tankietki TKS wydłużone, z opuszczonym tylnym kołem,
 # otwarte nadwozie, kierowca i 3 artylerzystów. Ciągnął głównie armaty przeciwlotnicze 40 mm wz. 36.
 # Dane jednostki i wygląd (gąsienice, dźwięk silnika, polski kierowca, holowana armata) z polskiego
@@ -215,7 +238,7 @@ layout = "gun"
 depiction_replace = { "Modele_DCA_Bofors_US" = "Modele_B40WZ36_POL" }   # polski Bofors z gry używa modeli amerykańskiego
 stocks = ["Ammo_Bofors40_wz36_HE"] # cele naziemne (HE) i powietrzne (AA) mają wspólny zapas, jak w grze
 rts_texture = "Texture_RTS_H_DCA_Bofors"   # znaczek nad jednostką: ikona Boforsa z gry
-transporter = "C2P_POL"            # ciągnik: C2P, jak w bateriach przeciwlotniczych 1939 r.
+transporter = "PF621LO_POL"        # ciągnik: Polski Fiat 621L bez plandeki (C2P_POL jest gotowy, ale nieużywany)
 name = "B40WZ36"
 alias = "40mm wz.36 Bofors"
 price = 70                         # polski Bofors z gry (1941) kosztuje 80
@@ -366,6 +389,7 @@ KmWz33 = "7.92mm km wz.33"
 WZ36 = "37mm wz.36 Bofors"
 Bofors36 = "37mm Bofors wz.36"
 PF621L = "Polski Fiat 621L"
+PF621LO = "Polski Fiat 621L"
 C2P = "C2P tractor"
 B40WZ36 = "40mm wz.36 Bofors"
 Bofors40 = "40mm Bofors wz.36"

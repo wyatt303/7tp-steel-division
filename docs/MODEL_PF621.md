@@ -66,7 +66,7 @@ Wszystkie sześć plików przechodzi eksport wtyczką. Wtyczka zgłasza tylko br
 
 ## Jednostka w grze (27 listopada 2026 r.)
 
-Wariant z plandeką jest jednostką `PF621L_POL` w `data/units.toml`, z układem `truck` w `scripts/create_battlegroup.py`. Wariant bez plandeki nie ma jeszcze wpisu.
+Wariant z plandeką jest jednostką `PF621L_POL` w `data/units.toml`, z układem `truck` w `scripts/create_battlegroup.py`. Wariant bez plandeki to jednostka `PF621LO_POL` z tymi samymi danymi; ciągnie armatę przeciwlotniczą 40 mm wz. 36.
 
 | Co | Skąd |
 |---|---|
@@ -78,7 +78,7 @@ Wariant z plandeką jest jednostką `PF621L_POL` w `data/units.toml`, z układem
 | Znaczek nad jednostką | ikona ciężarówki z gry (`Texture_RTS_H_Truck_GMC`), jak u Bedforda |
 | Gdzie w grze | ciągnik armaty wz. 36 w jej paczce (zakładka przeciwpancerna) |
 
-Model trafia do `Assets\3D\Units\POL\Vehicule\PF621L`. Generowanie moda przechodzi bez błędów. W grze Fiat nie był jeszcze sprawdzany.
+Model trafia do `Assets\3D\Units\POL\Vehicule\PF621L`. Sprawdzone w grze 28 listopada 2026 r. w podglądzie talii: oba warianty wyświetlają się poprawnie jako ciągniki (z plandeką przy armacie 37 mm, bez plandeki przy 40 mm), szyby są przezroczyste, a kierowcę widać w kabinie. Miejsce kierowcy `Driver` jest 0,46 m pod dolną krawędzią szyby, jak w Oplu Blitzu (0,48) i Bedfordzie (0,44); przy 0,29 m głowa przebijała dach. W bitwie jeszcze nie sprawdzano.
 
 ## Budowanie
 

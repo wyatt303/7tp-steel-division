@@ -47,9 +47,9 @@ Wpis `C2P_POL` w `data/units.toml`, układ `truck`.
 | Prędkość | 22 km/h w terenie (szacunek), 45 km/h po drodze (dane techniczne) |
 | Wytrzymałość, pancerz | 6 i `Blindage_1`, jak Loyd |
 | Cena | 0, transport wliczony w paczkę |
-| Ciągnie | armatę przeciwlotniczą 40 mm wz. 36 (`B40WZ36_POL`) |
+| Ciągnie | obecnie nic: armatę 40 mm wz. 36 ciągnie Fiat 621L bez plandeki. Żeby wrócić do C2P, ustaw `transporter = "C2P_POL"` przy `B40WZ36_POL` |
 
-W grze ciągnik nie był jeszcze sprawdzany.
+Sprawdzony w grze 28 listopada 2026 r. w podglądzie talii jako ciągnik Boforsa 40 mm: model, gąsienice i kierowca wyświetlają się poprawnie. W bitwie jeszcze nie.
 
 ## Budowanie
 
