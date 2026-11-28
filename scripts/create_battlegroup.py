@@ -8,7 +8,8 @@ definitions at run time, so the repository contains no game data.
 Each unit copies existing game entries, named in data/units.toml: unit_base for the unit data
 (Cromwell V POL for the 7TP, M3A3 Stuart POL for the TKS ace, 6-pdr POL for the wz. 36 gun),
 weapon_base for weapons, firing effects and depiction (Stuart for the 7TP, Panzer II C for the
-TKS with the 20 mm gun, M3 37 mm with its crew and animations for the wz. 36). The battlegroup
+TKS with the 20 mm gun, M3 37 mm with its crew and animations for the wz. 36, Opel Blitz for the Fiat
+621L truck, whose unit data come from the Polish Bedford). The battlegroup
 copies the 1st Polish Armoured Division.
 
 All numbers and texts that may be tuned (price, speed, armour, ammunition, rates of fire,
@@ -62,6 +63,8 @@ PACKS = [  # name, unit, phase, experience (0-3), units in the pack, cards, fact
     ("Descriptor_Deck_Pack_POL_P11C", "P11C_POL", 0, 1, 1, 3, "Air"),
     # Bofors wz. 36: two guns per card, each with its tractor (transporter in data/units.toml), as the 6-pdr.
     ("Descriptor_Deck_Pack_POL_WZ36", "WZ36_POL", 0, 0, 2, 3, "AT"),
+    # Bofors 40 mm wz. 36: one gun with its Fiat tractor per card, two cards, anti-aircraft tab.
+    ("Descriptor_Deck_Pack_POL_B40WZ36", "B40WZ36_POL", 0, 0, 1, 2, "DCA"),
 ]
 DIVISION = "Descriptor_Deck_Division_POL_Grupa_7TP_MULTI"
 DIVISION_BASE = "Descriptor_Deck_Division_POL_1st_Armored_MULTI"
@@ -254,7 +257,7 @@ def weapon_descriptor(source, name, info):
 
 
 REMOVED_TURRETS = {"tp7_jw": ("tourelle3", "tourelle4"), "tp7_dw": ("tourelle3", "tourelle4"), "tks20": ("tourelle4",),
-                   "aircraft": (), "gun": ()}
+                   "aircraft": (), "gun": (), "truck": ()}
 
 
 def operators(source, name, info):
@@ -272,8 +275,9 @@ def operators(source, name, info):
 def build_weapons():
     path = os.path.join(GENERATED, "WeaponDescriptor.ndf")
     text = read(path)
+    # Unarmed trucks (layout "truck") have no weapon descriptor, as their game bases.
     append(path, [weapon_descriptor(get_object(text, "WeaponDescriptor_" + info["weapon_base"]), name, info)
-                  for name, info in VARIANTS.items()])
+                  for name, info in VARIANTS.items() if info["layout"] != "truck"])
 
     path = os.path.join(GENERATED, "Ammunition.ndf")
     text = read(path)
@@ -341,7 +345,7 @@ def build_weapons():
             blocks.append("Weapons_%s is MAP\r\n[\r\n"
                           "    ( [ 'weapon_effet_tag1', 'tir_c', '1' ], Weapon_%s_weapon1_slot1 ),\r\n"
                           "    ( [ 'weapon_effet_tag2', 'tir_c', '1' ], Weapon_%s_weapon2_slot1 ),\r\n]" % ((name,) * 3))
-        elif info["layout"] in ("aircraft", "gun"):
+        elif info["layout"] in ("aircraft", "gun", "truck"):
             # Every firing effect of the base (one per gun), with other guns' effects where
             # replace_fx says so (e.g. Hispano cannons -> Browning machine guns).
             effects = get_object(text, "Weapons_" + base)
@@ -363,12 +367,20 @@ def gun_depiction(source, name, info):
     base, stem = info["weapon_base"], info["model"]
     folder = "\\".join(info["asset_folder"].split("/"))
     text = source.replace(base, name)
+    own_boxes = "ModelFile_Boites_%s is 'GameData:Assets\\3D\\Units\\%s\\%s\\Boites_%s.Ase2NdfBin'" % (name, folder, stem, stem)
     boxes = re.search(r"(?m)^(ModelFile_Boites_\w+)\s+is\s+'[^']*'", text)
-    if not boxes:
-        raise RuntimeError("No crew boxes in the depiction of " + base)
-    text = text.replace(boxes.group(0), "ModelFile_Boites_%s is 'GameData:Assets\\3D\\Units\\%s\\%s\\Boites_%s.Ase2NdfBin'"
-                        % (name, folder, stem, stem))
-    text = re.sub(r"\b%s\b" % boxes.group(1), "ModelFile_Boites_" + name, text)
+    if boxes:
+        text = text.replace(boxes.group(0), own_boxes)
+        used = boxes.group(1)
+    else:
+        # Some depictions use the crew boxes defined in another file (the Polish Bofors 40 mm
+        # uses the American one); ours are defined here.
+        usage = re.search(r"\bModelFile_Boites_\w+\b", re.sub(r"//[^\n]*", "", text))
+        if not usage:
+            raise RuntimeError("No crew boxes in the depiction of " + base)
+        used = usage.group(0)
+        text = own_boxes + "\r\n\r\n" + text
+    text = re.sub(r"\b%s\b" % used, "ModelFile_Boites_" + name, text)
     # The crew boxes are our file, compiled into the mod: like every mod mesh they need
     # CivMask/MeshModding (with the base's CivMask/OTAN the game crashed). The servants stay on
     # the base's template, because they are the game's own meshes.

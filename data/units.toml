@@ -133,7 +133,7 @@ weapon_base = "Canon_37mmAT_US"
 layout = "gun"
 stocks = ["Ammo_Bofors_wz36_AP"]
 rts_texture = "Texture_RTS_H_Canon_37mmAT"   # znaczek nad jednostką: ikona armaty z gry, jak M3
-transporter = "Carrier_Loyd_POL"   # ciągnik w paczce: Loyd z gry (Bofora ciągnął m.in. ciągnik C2P, krewny tankietek)
+transporter = "PF621L_POL"         # ciągnik w paczce: nasza ciężarówka Polski Fiat 621L (wcześniej Loyd z gry)
 name = "WZ36"
 alias = "37mm wz.36"
 price = 30                         # M3 kosztuje 40 (przebicie 8), 6-pdr 60
@@ -149,6 +149,62 @@ armor_rear = "Canon_Lourd"
 armor_top = "Canon_Lourd"
 # Zapas: M3 w grze ma 55. Ile pocisków miała obsługa przy armacie, do sprawdzenia w źródłach.
 ammo = { Ammo_Bofors_wz36_AP = 60 }
+
+# Ciężarówka Polski Fiat 621L z plandeką: ciągnik armaty wz. 36 i transport. Dane jednostki
+# (polskie głosy i flaga, przewóz piechoty i holowanie armat: znacznik "Armes_tractees", 3 miejsca)
+# z polskiego Bedforda z gry; wygląd (ruch kół, dźwięk silnika, holowana armata) z Opla Blitza,
+# bo nasz model ma jego układ węzłów, z polskim kierowcą. Bez broni.
+# Prawdziwy 621L: 46 KM, ok. 50-55 km/h, ładowność 2,5 t; Opel Blitz 68-75 KM, 80-85 km/h, 3 t.
+[units.PF621L_POL]
+model = "PF621L"
+asset_folder = "POL/Vehicule"      # model w Assets/3D/Units/POL/Vehicule/PF621L
+unit_base = "Truck_Bedford_POL"
+weapon_base = "Opel_Blitz"
+layout = "truck"
+depiction_replace = { "DepictionSubDepiction_Driver_GER" = "DepictionSubDepiction_Driver_POL" }
+rts_texture = "Texture_RTS_H_Truck_GMC"   # znaczek nad jednostką jak u Bedforda
+name = "PF621L"
+alias = "Polski Fiat 621L"
+price = 0                          # transport: cena wliczona w paczkę, jak Bedford i Opel
+year = 1935
+# Gra: Opel Blitz 20 / 85 km/h, Bedford 20 / 80. Fiat był o około 1/3 wolniejszy.
+speed_kmh = 18
+road_speed_kmh = 55
+strength = 6                       # jak Bedford i Opel
+concealment = 1.5
+armor_front = "Vehicule"
+armor_sides = "Vehicule"
+armor_rear = "Vehicule"
+armor_top = "Toit"
+
+# 40 mm armata przeciwlotnicza wz. 36 Bofors. Ta sama armata 40 mm L/60 na tym samym dwuosiowym
+# łożu co brytyjski QF Mk I/III w grze, więc model to Bofors 40 mm z gry przemalowany w kamuflaż
+# z 1936 r. (scripts/build_bofors40.py, wynik w build/, bo to dane gry). Dane jednostki, broń,
+# obsługa i animacje z polskiego Boforsa z gry (DCA_Bofors_POL).
+[units.B40WZ36_POL]
+model = "B40WZ36"
+asset_folder = "POL/Canon"         # model w Assets/3D/Units/POL/Canon/B40WZ36, razem z Boites_B40WZ36
+unit_base = "DCA_Bofors_POL"
+weapon_base = "DCA_Bofors_POL"
+layout = "gun"
+depiction_replace = { "Modele_DCA_Bofors_US" = "Modele_B40WZ36_POL" }   # polski Bofors z gry używa modeli amerykańskiego
+stocks = ["Ammo_Bofors40_wz36_HE"] # cele naziemne (HE) i powietrzne (AA) mają wspólny zapas, jak w grze
+rts_texture = "Texture_RTS_H_DCA_Bofors"   # znaczek nad jednostką: ikona Boforsa z gry
+transporter = "PF621L_POL"         # ciągnik: Polski Fiat 621L (w 1939 r. także ciągniki C7P i Ursus)
+name = "B40WZ36"
+alias = "40mm wz.36 Bofors"
+price = 70                         # polski Bofors z gry (1941) kosztuje 80
+year = 1936
+speed_kmh = 10                     # jak Bofors z gry
+road_speed_kmh = 10
+strength = 8
+concealment = 1.5
+gun_traverse_deg = 360             # pełny obrót: gra zapisuje u Boforsa 2π (6,28)
+armor_front = "Canon"              # jak Bofors z gry
+armor_sides = "Canon"
+armor_rear = "Canon"
+armor_top = "Canon"
+ammo = { Ammo_Bofors40_wz36_HE = 240 }   # 30 serii po 8 nabojów, jak w grze
 
 # ---------------------------------------------------------------------------------------------
 # Amunicja (broń). Wspólna dla wszystkich jednostek, które jej używają.
@@ -198,6 +254,18 @@ rounds_per_salvo = 1
 shots_per_salvo = 1
 seconds_between_shots = 5.0          # 12 strz./min (M3 w grze: 10)
 seconds_between_salvos = 5.0
+
+# 40 mm wz. 36 Bofors: kopie amunicji Boforsa z gry (HE na cele naziemne, AA na samoloty) z polską
+# nazwą. Wartości jak w grze: seria 8 nabojów (łódka 4 + 4), 0,6 s między strzałami.
+[ammo.Ammo_Bofors40_wz36_HE]
+copy_of = "Ammo_DCA_Bofors_40mm_HE"
+name = "Bofors40"
+rounds_per_salvo = 8
+
+[ammo.Ammo_Bofors40_wz36_AA]
+copy_of = "Ammo_DCA_Bofors_40mm_AA"
+name = "Bofors40"
+rounds_per_salvo = 8
 
 [ammo.Ammo_ckm_wz30_vehicule]
 copy_of = "Ammo_M1919_7_62mm_vehicule"
@@ -272,6 +340,9 @@ PZLP11c = "PZL P.11c"
 KmWz33 = "7.92mm km wz.33"
 WZ36 = "37mm wz.36 Bofors"
 Bofors36 = "37mm Bofors wz.36"
+PF621L = "Polski Fiat 621L"
+B40WZ36 = "40mm wz.36 Bofors"
+Bofors40 = "40mm Bofors wz.36"
 TP7DivName = "Warszawska Bryg. Panc-Mot"
 TP7DivNick = "39"
 TP7DivDesc = "Polish armoured group at the First Battle of Tomaszów Lubelski, 17-20 September 1939."

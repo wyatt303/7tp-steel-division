@@ -23,6 +23,9 @@ MODELS = {
     "TKS20": ("TKS20", "POL/Char"),
     "P11C": ("P11C", "POL/Avion"),  # with P11C_train (landing-gear points)
     "WZ36_BOFORS": ("WZ36_BOFORS", "POL/Canon"),  # with Boites_WZ36_BOFORS (crew positions)
+    "PF621L": ("PF621L", "POL/Vehicule"),  # Polski Fiat 621L with the tilt (tractor of the wz. 36)
+    # 40 mm wz. 36 Bofors: made from the game's Bofors by build_bofors40.py, kept in build/ (game data).
+    "B40WZ36": ("../build/generated/B40WZ36", "POL/Canon"),  # with Boites_B40WZ36
 }
 
 failed = 0

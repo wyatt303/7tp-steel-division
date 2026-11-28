@@ -53,6 +53,6 @@ Każdy wiersz to `TOKEN = "tekst"`. Token ma najwyżej 10 znaków i jest wspóln
 
 - Optyki (`OpticalStrength`). Zostaje z wzorca, czyli Cromwella V.
 - Paczek, czyli liczby kart i faz, oraz struktury battlegroupy. To jest w `PACKS` w skrypcie.
-- Nowych układów broni. Jednostka z nowym układem (`layout`) wymaga zmian w `scripts/create_battlegroup.py`. Wzorce (`unit_base`, `weapon_base`), kolejność zapasów (`stocks`), rola (`type`), optyka (`optics`), obrót działka (`gun_traverse_deg`), as (`ace_name`), ikona z gry nad jednostką (`rts_texture`) i ciągnik w paczce (`transporter`) są już w pliku. Układy: `tp7_jw`, `tp7_dw`, `tks20`, `aircraft` i `gun` (armata holowana, zob. [MODEL_WZ36](MODEL_WZ36.md)).
+- Nowych układów broni. Jednostka z nowym układem (`layout`) wymaga zmian w `scripts/create_battlegroup.py`. Wzorce (`unit_base`, `weapon_base`), kolejność zapasów (`stocks`), rola (`type`), optyka (`optics`), obrót działka (`gun_traverse_deg`), as (`ace_name`), ikona z gry nad jednostką (`rts_texture`) i ciągnik w paczce (`transporter`) są już w pliku. Układy: `tp7_jw`, `tp7_dw`, `tks20`, `aircraft`, `gun` (armata holowana, zob. [MODEL_WZ36](MODEL_WZ36.md)) i `truck` (ciężarówka bez broni, zob. [MODEL_PF621](MODEL_PF621.md)).
 
 Porównanie z czołgami z gry, przydatne przy balansie: [POROWNANIE_CZOLGOW.md](POROWNANIE_CZOLGOW.md).

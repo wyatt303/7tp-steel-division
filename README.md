@@ -1,6 +1,6 @@
 # Wrzesień 1939: polskie pojazdy i battlegroupa dla Steel Division: Normandy 44
 
-Polskie pojazdy pancerne z 1939 r. wymodelowane w Blenderze: dwa warianty czołgu lekkiego 7TP, tankietki TK-3 i TKS, samochody pancerne wz. 28 i wz. 34, samoloty PZL P.11c, PZL.23B Karaś i PZL.37B Łoś, motocykl Sokół 1000 z wózkiem i rkm, armata przeciwpancerna 37 mm wz. 36 oraz ciężarówka Polski Fiat 621L. Do tego wtyczka eksportująca czołgi do formatu gry `.Ase2NdfBin` **bez 3ds Max**.
+Polskie pojazdy pancerne z 1939 r. wymodelowane w Blenderze: dwa warianty czołgu lekkiego 7TP, tankietki TK-3 i TKS, samochody pancerne wz. 28 i wz. 34, samoloty PZL P.11c, PZL.23B Karaś i PZL.37B Łoś, motocykl Sokół 1000 z wózkiem i rkm, armata przeciwpancerna 37 mm wz. 36 oraz ciężarówka Polski Fiat 621L z plandeką i bez. Do tego wtyczka eksportująca czołgi do formatu gry `.Ase2NdfBin` **bez 3ds Max**.
 
 Projekt leży w `D:\Mod\Wrzesien1939` (do 26 listopada 2026 r. `D:\Mod\7TP`). Mod w grze nazywa się `Mod_Wrzesien1939` (wcześniej `Mod_7TP_Battlegroup`) i dodaje battlegroupę „TOMASZÓW 39” z polskimi jednostkami.
 
@@ -36,9 +36,9 @@ Projekt leży w `D:\Mod\Wrzesien1939` (do 26 listopada 2026 r. `D:\Mod\7TP`). Mo
 |---|---|
 | ![wz. 36](models/WZ36_BOFORS/renders/render_przod_3_4.png) | ![wz. 36 z tyłu](models/WZ36_BOFORS/renders/render_tyl_3_4.png) |
 
-| Polski Fiat 621L | Polski Fiat 621L z tyłu |
+| Polski Fiat 621L z plandeką | Polski Fiat 621L bez plandeki |
 |---|---|
-| ![Fiat 621L](models/PF621L/renders/render_przod_3_4.png) | ![Fiat 621L z tyłu](models/PF621L/renders/render_tyl_3_4.png) |
+| ![Fiat 621L z plandeką](models/PF621L/renders/render_przod_3_4.png) | ![Fiat 621L bez plandeki](models/PF621L_OPEN/renders/render_tyl_3_4.png) |
 
 ## Co jest w projekcie
 
@@ -76,6 +76,8 @@ Projekt leży w `D:\Mod\Wrzesien1939` (do 26 listopada 2026 r. `D:\Mod\7TP`). Mo
 - [Motocykl Sokół 1000](docs/MODEL_SOKOL.md)
 - [Samoloty PZL.23B Karaś i PZL.37B Łoś](docs/MODEL_KARAS_LOS.md)
 - [Armata 37 mm wz. 36](docs/MODEL_WZ36.md)
+- [Armata przeciwlotnicza 40 mm wz. 36](docs/MODEL_B40WZ36.md)
+- [Import modeli z gry do Blendera](docs/IMPORT_MODELI.md)
 - [Ciężarówka Polski Fiat 621L](docs/MODEL_PF621.md)
 - [Piechota w umundurowaniu z 1939 r. (przemalowanie modeli z gry)](docs/PIECHOTA_1939.md)
 - [Format Ase2NdfBin](docs/FORMAT_ASE2NDFBIN.md)
@@ -92,7 +94,7 @@ Projekt leży w `D:\Mod\Wrzesien1939` (do 26 listopada 2026 r. `D:\Mod\7TP`). Mo
 | Motocykl Sokół 1000 | Gotowy model, eksport wtyczką bez błędów, w grze niesprawdzony |
 | Samoloty Karaś i Łoś | Gotowe modele z plikami `_train`, eksport wtyczką bez błędów, w grze niesprawdzone |
 | Armata 37 mm wz. 36 | Jednostka w battlegroupie (dane z polskiego 6-pdr, broń, wygląd i animacje z M3 37 mm), generowanie moda bez błędów, w grze niesprawdzona |
-| Ciężarówka Polski Fiat 621L | Gotowy model, eksport wtyczką bez błędów, w grze niesprawdzony |
+| Ciężarówka Polski Fiat 621L | Dwa warianty (z plandeką i bez), kabina według rysunku 1:25; wariant z plandeką jest jednostką i ciągnikiem armaty wz. 36, generowanie moda bez błędów, w grze niesprawdzony |
 | Wersja jednowieżowa w bitwie | Sprawdzona na wcześniejszej wersji modelu |
 | Wózki w grze | Sprawdzone wizualnie |
 | Osobne jednostki z własną nazwą i statystykami | Działają w grze (sprawdzone 26 listopada 2026 r.): `Mod_Wrzesien1939` ze skryptu `scripts/create_battlegroup.py` dodaje battlegroupę „TOMASZÓW 39” z 7TP jednowieżowym i dwuwieżowym |

@@ -34,7 +34,8 @@ Wszystkie modele mają wersje High, Mid i Low, tekstury i eksport wtyczką bez b
 | Model | Folder | Wzór z gry | Trójkąty | Opis |
 |---|---|---|---|---|
 | Motocykl Sokół 1000 z wózkiem i rkm wz. 28 | `SOKOL1000` | BMW R75 | 4450 / 2956 / 1096 | [MODEL_SOKOL](MODEL_SOKOL.md) |
-| Ciężarówka Polski Fiat 621L | `PF621L` | Opel Blitz | 4300 / 1896 / 636 | [MODEL_PF621](MODEL_PF621.md) |
+| Ciężarówka Polski Fiat 621L z plandeką i bez | `PF621L`, `PF621L_OPEN` | Opel Blitz | 4908 / 2364 / 824 (bez plandeki 4676 / 2336 / 804) | [MODEL_PF621](MODEL_PF621.md) |
+| Armata plot 40 mm wz. 36 (Bofors) | `B40WZ36` + `Boites_B40WZ36`, generowany z modelu gry do `build/` | Bofors 40 mm z gry (przemalowany) | 6766 / 1703 / 595 | [MODEL_B40WZ36](MODEL_B40WZ36.md) |
 | Armata ppanc 37 mm wz. 36 (Bofors) | `WZ36_BOFORS` + `Boites_WZ36_BOFORS` | M3 37 mm (osie i animacje) | 1780 / 1036 / 264 | [MODEL_WZ36](MODEL_WZ36.md) |
 
 ## Piechota

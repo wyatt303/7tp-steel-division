@@ -68,7 +68,7 @@ Wpis `WZ36_POL` w `data/units.toml`, układ `gun` w `scripts/create_battlegroup.
 | Amunicja | `Ammo_Bofors_wz36_AP`, kopia pocisku M3: przebicie 6 (jak Bofors w 7TP; M3 ma 8), celność 5, 1000 m, 12 strz./min |
 | Obrót w poziomie | ±15°, jak M3 w grze (prawdziwy Bofors ±25°, ale tarcza weszłaby w koła) |
 | Znaczek nad jednostką | ikona armaty z gry (`Texture_RTS_H_Canon_37mmAT`) |
-| Paczka | zakładka przeciwpancerna, od fazy A, po dwie armaty z ciągnikiem Loyd z gry, 3 karty |
+| Paczka | zakładka przeciwpancerna, od fazy A, po dwie armaty, każda z ciągnikiem Polski Fiat 621L (nasz model, zob. [MODEL_PF621](MODEL_PF621.md)), 3 karty |
 
 Zapas amunicji (60) to założenie; do sprawdzenia w źródłach.
 

@@ -87,6 +87,10 @@ Step 'Tworzenie nowego moda (CreateNewMod.bat)'
 & cmd /c "cd /d `"$Mods`" && .\CreateNewMod.bat `"$ModName`"" | ForEach-Object { Write-Host "   $_" }
 if (-not (Test-Path (Join-Path $ModDir 'GenerateMod.bat'))) { Fail 'CreateNewMod.bat nie utworzyl moda.' }
 
+Step 'Modele z danych gry (Bofors 40 mm wz. 36)'
+# Built from the game's Modding Assets on every install; the result stays in build\ (game data).
+Invoke-Blender 'build_bofors40.py' 'BOFORS40_DONE' @((Join-Path $Project 'build\generated\B40WZ36'))
+
 Step 'Eksport modeli wtyczka'
 Invoke-Blender 'export_models.py' 'EXPORT_DONE' @($Project, $ModDir)
 
